@@ -1,7 +1,12 @@
 const MemberTopNavbar = () => {
   return (
-      <div className="bg-[#121212] text-white py-1.5 flex items-center justify-between border-b border-gray-800 w-full h-16 flex-shrink-0 fixed top-0 right-0 z-50">
-    <h1 className="text-xl font-semibold ml-6">WorkPilot</h1>
+      <div className="bg-[#DCE7F8] text-[#3D3436] py-1.5 flex items-center justify-between border-b border-[#2A2A4A] w-full h-16 flex-shrink-0 fixed top-0 right-0 z-50">
+    <h1 className="font-madimi
+          font-normal
+          text-[32px]
+          leading-[100%]
+          tracking-[0%]
+          ml-6">WorkPilot</h1>
     <div className="flex items-center gap-4 mr-6">
       
 

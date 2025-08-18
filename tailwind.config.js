@@ -6,7 +6,21 @@ module.exports = {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        madimi: ['Madimi One', 'cursive'],
+         mclaren: ['McLaren', 'sans-serif'],
+      },
+      fontSize: {
+        '48px': '48px',
+      },
+      lineHeight: {
+        '100p': '100%',
+      },
+      letterSpacing: {
+        '0p': '0%',
+      },
+    },
   },
   plugins: [],
 }
