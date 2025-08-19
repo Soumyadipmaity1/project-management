@@ -53,19 +53,19 @@ export default function MemberPanel() {
         
       </div>
       <div>
-          <h2 className="text-2xl font-bold mb-2 pt-10">Your Domains </h2>
+          <h2 className="font-mclaren font-normal text-[30px] leading-[100%] tracking- text-[#2A2A4A] mb-4 pt-10">Your Domains </h2>
         </div>
 
         <div className="grid grid-cols-3 gap-6">
-          <div className="rounded-lg border border-gray-600">
-            <div className="bg-blue-700 rounded-t-lg p-4 flex items-center gap-2">
-              <span className="text-2xl mr-2">{"</>"}</span>
-              <span className="text-white text-lg font-bold">Web Development</span>
+          <div className="rounded-lg border border-gray-300 shadow-lg">
+            <div className="bg-[#D8E6FF] rounded-t-lg p-4 flex items-center gap-2">
+              <span className="font-madimiOne font-normal text-[18px] leading-[100%] tracking- text-[#2A2A4A] font-['Madimi_One',sans-serif]">{"</>"}</span>
+              <span className="font-madimiOne font-normal text-[18px] leading-[100%] tracking- text-[#2A2A4A] font-['Madimi_One',sans-serif]">Web Development</span>
 
             </div>
-            <div className="p-6 bg-[#4d4d53] rounded-b-lg">
-              <div className="text-white mb-4 flex justify-center">Acess Projects and Resources in Web</div>
-              <button className="bg-white text-gray-900 font-semibold py-2 px-4 rounded flex items-center gap-2 w-full justify-center">View Domain
+            <div className="p-6 bg-[#EAF2FFB0] rounded-b-lg">
+              <div className="text-[#2A2A4A] font-mclaren font-normal text-[18px] leading-[100%] tracking- mb-4 flex justify-center">Acess Projects and Resources in Web</div>
+              <button className="bg-[#4A4080] font-mclaren font-normal text-[16px] leading-[100%] tracking- text-[#FFF6EB] py-2 px-4 rounded flex items-center gap-2 w-full justify-center">View Domain
                 <span>→</span>
               </button>
             </div>

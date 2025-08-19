@@ -1,4 +1,4 @@
-import { Code2, Paperclip, Bell, ClipboardList } from "lucide-react";
+import { Code2, Paperclip, Bell, ClipboardList , User  } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -15,18 +15,23 @@ import {
 const elements = [
   {
     title: "Projects",
-    url: "#",
+    url: "/member/projects",
     icon: Paperclip,
   },
   {
     title: "My Projects",
-    url: "#",
+    url: "/member/myprojects",
     icon: ClipboardList,
   },
   {
     title: "Announcements",
-    url: "#",
+    url: "/member/announcements",
     icon: Bell,
+  },
+  {
+    title: "Members",
+    url: "/member/members",
+    icon: User,
   },
 ];
 
@@ -77,7 +82,9 @@ export function MemberSidebar() {
                           
                           
                           text-[#2A2A4A] 
-                          font-large">Domains</SidebarGroupLabel>
+                          font-large
+                          
+                          ">Domains</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (

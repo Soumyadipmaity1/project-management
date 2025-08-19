@@ -1,6 +1,6 @@
 const MemberTopNavbar = () => {
   return (
-      <div className="bg-[#DCE7F8] text-[#3D3436] py-1.5 flex items-center justify-between border-b border-[#2A2A4A] w-full h-16 flex-shrink-0 fixed top-0 right-0 z-50">
+      <div className="bg-[#DCE7F8] text-[#3D3436] py-1.5 flex items-center justify-between border-b border-gray-400 w-full h-16 flex-shrink-0 fixed top-0 right-0 z-50 shadow-lg">
     <h1 className="font-madimi
           font-normal
           text-[32px]

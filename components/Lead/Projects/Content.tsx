@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { FaChevronLeft } from 'react-icons/fa';
+
 
 const mockProject = [
   {
@@ -73,7 +75,7 @@ type Props = {
   };
 };
 
-export default async function ProjectDetail({ params }: Props) {
+export default async function Project({ params }: Props) {
   const { projectId } = params;
   const project = await getProjectById(projectId);
 
@@ -86,25 +88,26 @@ export default async function ProjectDetail({ params }: Props) {
   }
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 py-8 mt-10 overflow-x-hidden">
+    <div className="w-full min-h-screen  py-8 mt-10 overflow-x-hidden">
       <div className="flex items-center justify-between mb-8">
-        <Link href="/projects" className="text-blue-600 hover:underline flex items-center">
-        <span className="mr-2 text-xl">&larr;</span>
-        <span className="font-semibold text-2xl">{project.name}</span>
+        <Link href="/projects" className="text-[#000000] hover:underline flex items-center">
+        <FaChevronLeft className="mr-2 text-xl text-[#4A4080B8]" />
+
+        <span className="font-['Maven_Pro',sans-serif] font-bold text-[30px] leading-[100%] tracking-[0]">{project.name}</span>
         </Link>
-         <span className={`px-3 py-1 rounded-full text-sm font-medium ${project.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-600'}`}>{project.status}</span>
+         <span className={`px-4 py-1 rounded-full bg-[#14A1FF] text-white text-sm font-semibold ml-4" style={{minWidth: "110px", textAlign: "center"}}${project.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-600'}`}>{project.status}</span>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-8 w-full">
+      <div className="flex flex-col md:flex-row gap-8 w-full shadow-xl">
         <div className="md:flex-[2_1_0%] w-full">
           <div className="w-full h-56 bg-gray-300 rounded-lg mb-6 flex items-center justify-center ">
             <span className="text-black ">Project Image</span>
           </div>
 
-          <div className="bg-white p-6 w-full rounded-lg shadow">
+          <div className="bg-white p-6 w-full rounded-lg shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">Project Details</h2>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Edit</button>
+             
             </div>
             <h3 className="font-semibold mt-4 mb-1">Description</h3>
             <p className="text-gray-700 mb-4">{project.description}</p>
@@ -119,7 +122,7 @@ export default async function ProjectDetail({ params }: Props) {
             </div>
           </div>
 
-           <div className="bg-white p-6 mt-2 rounded-lg shadow">
+           <div className="bg-white p-6 mt-2 rounded-lg shadow-xl">
             <div className="flex flex-col md:flex-row md:justify-between mb-8">
               <div>
                 <h2 className="font-semibold text-lg mb-2">Timeline</h2>
@@ -133,18 +136,18 @@ export default async function ProjectDetail({ params }: Props) {
                 </ul>
               </div>
 
-              <div>
+              {/* <div>
                 <h2 className="font-semibold text-lg mb-2">Progress</h2>
                 <div className="w-full bg-gray-400 rounded-lg h-2"></div>
                  <span className="text-sm text-gray-600 mt-1 block">65% Complete</span>
-              </div>
+              </div> */}
 
               
 
             </div>
 
             <div className="mb-8 flex gap-4">
-            <button className="bg-black text-white px-4 py-2 rounded">View Live</button>
+            <button className="bg-[#7989A3] text-white px-4 py-2 rounded">View Live</button>
             <button className="border px-4 py-2">View Code</button>
             </div>
            </div>
@@ -152,7 +155,7 @@ export default async function ProjectDetail({ params }: Props) {
           <div className="bg-white p-6 mt-2 shadow rounded">
            <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold">Team Members</h3>
-            <button className="text-sm bg-gray-800 text-white px-3 py-1 rounded hover:bg-gray-700 transition">Edit</button>
+            
            </div>
           
               <div className="space-y-4">
@@ -180,7 +183,7 @@ export default async function ProjectDetail({ params }: Props) {
                   <span
                     className={`px-3 py-1 text-xs rounded-full font-semibold ${
                       member.role === 'Team Lead'
-                        ? 'bg-black text-white'
+                        ? 'bg-[#7989A3] text-white'
                         : member.role === 'Assistant Lead'
                         ? 'bg-gray-100 text-gray-800'
                         : 'bg-gray-100 text-gray-500'
@@ -199,7 +202,7 @@ export default async function ProjectDetail({ params }: Props) {
         </div>
 
         <div className="md:flex-[1_1_0%] w-full space-y-6">
-          <div className="bg-white p-6 w-full shadow rounded-lg">
+          <div className="bg-white p-6 w-full  rounded-lg shadow-xl">
           <h3 className="text-lg font-bold mb-4 ">Project Info</h3>
 
           <div className="mb-4">
@@ -243,7 +246,7 @@ export default async function ProjectDetail({ params }: Props) {
 
           </div>
 
-          <div className="bg-white p-6 shadow rounded-lg">
+          <div className="bg-white p-6  rounded-lg shadow-xl">
             <h3 className="text-lg font-bold mb-4">Recent Activity</h3>
             <div className="space-y-4">
                {project.activities.length > 0 ? (

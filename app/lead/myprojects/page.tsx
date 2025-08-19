@@ -1,6 +1,6 @@
-"use client"
+"use client";
 import React, { useState } from "react";
-import { FaGithub, FaExternalLinkAlt, FaUsers } from "react-icons/fa";
+import { FaGithub, FaExternalLinkAlt, FaUsers, FaPlus } from "react-icons/fa";
 
 // 1. Define the Project type
 type Project = {
@@ -32,7 +32,7 @@ const projects: Project[] = [
     statusColor: "bg-[#14A1FF] text-white",
     enrolled: true,
   },
-    {
+  {
     title: "E-commerce Platform 2",
     domain: "Web",
     description:
@@ -46,7 +46,7 @@ const projects: Project[] = [
     statusColor: "bg-[#14A1FF] text-white",
     enrolled: true,
   },
-    {
+  {
     title: "E-commerce Platform 3",
     domain: "Web",
     description:
@@ -60,7 +60,6 @@ const projects: Project[] = [
     statusColor: "bg-[#14A1FF] text-white",
     enrolled: true,
   },
-    
 ];
 
 // StatusBadge component
@@ -86,13 +85,19 @@ function ProjectCard({ project }: ProjectCardProps) {
   return (
     <div className="bg-[#D8E6FF] border border-gray-300 rounded-lg p-8 flex flex-col gap-4 min-w-[380px] max-w-[420px] shadow-xl">
       <div className="flex items-center justify-between">
-        <h3 className="font-['Maven_Pro',sans-serif] font-bold text-[24px] leading-[100%] tracking-[0] text-[#000000] mb-2">{project.title}</h3>
+        <h3 className="font-['Maven_Pro',sans-serif] font-bold text-[24px] leading-[100%] tracking-[0] text-[#000000] mb-2">
+          {project.title}
+        </h3>
         <StatusBadge status={project.status} color={project.statusColor} />
       </div>
-      <span className="text-[#606060] font-['Maven_Pro',sans-serif] font-bold text-[15px] leading-[100%] tracking-[0]">{project.domain}</span>
-      <p className="text-[#000000] font-['Maven_Pro',sans-serif] font-light text-[15px] leading-[100%] tracking-[0] mb-2">{project.description}</p>
-      <div className="text-[#000000] font-['Maven_Pro',sans-serif] font-bold text-[15px] leading-[100%] tracking-[0]">
-        <div >
+      <span className="text-[#606060] font-['Maven_Pro',sans-serif] font-bold text-[15px] leading-[100%] tracking-">
+        {project.domain}
+      </span>
+      <p className="text-[#000000] font-['Maven_Pro',sans-serif] font-light text-[15px] leading-[100%] tracking- mb-2">
+        {project.description}
+      </p>
+      <div className="text-[#000000] font-['Maven_Pro',sans-serif] font-bold text-[15px] leading-[100%] tracking-">
+        <div>
           Team Lead: <span className="text-gray-600">{project.teamLead}</span>
         </div>
         <div>
@@ -103,55 +108,38 @@ function ProjectCard({ project }: ProjectCardProps) {
           <FaUsers /> {project.members} members
         </div>
       </div>
-      {/* <div className="flex gap-2 mt-2">
-        <a
-          href={project.github}
-          className="btn btn-sm bg-[#23272f] text-white px-3 py-1 rounded flex items-center gap-1"
-        >
-          <FaGithub /> GitHub
-        </a>
-        <a
-          href={project.live}
-          className="btn btn-sm bg-[#23272f] text-white px-3 py-1 rounded flex items-center gap-1"
-        >
-          <FaExternalLinkAlt /> Live
-        </a>
-      </div> */}
+
       <div className="flex gap-2 mt-2">
-        {/* {project.enrolled ? (
-          <span className="bg-green-800 text-green-200 px-2 py-1 rounded text-xs">
-            Enrolled
-          </span>
-        ) : (
-          <button className="bg-gray-700 text-white px-2 py-1 rounded text-xs">
-            Enroll
-          </button>
-        )} */}
         <button className="bg-[#2A2A4A] text-white text-bold px-3 py-2 rounded text-xs cursor-pointer">
           Open Project
         </button>
-        {/* <button className="bg-red-700 text-white px-2 py-1 rounded text-xs">
-          Delete
-        </button> */}
       </div>
     </div>
   );
 }
 
-// Main Component with toggle tabs visual only (no logic disturbed)
+// Main Component (tabs + create button added, logic untouched)
 export default function MemProjects() {
   const [activeTab, setActiveTab] = useState("all");
 
   return (
     <div className="ml-15 py-8">
-      <h2 className="font-mclaren font-normal text-[38px] leading-[100%] tracking-[0] mb-4 pt-5 text-[#2A2A4A]">
-        Projects
-      </h2>
-      <p className="text-[#2A2A4AB0] font-mclaren font-normal text-[20px] leading-[100%] tracking-[0] mb-10">
-        View and manage projects across your domains
-      </p>
+      {/* Header with button on right */}
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h2 className="font-mclaren font-normal text-[38px] leading-[100%] tracking-[0] mb-4 pt-5 text-[#2A2A4A]">
+            My Projects
+          </h2>
+          <p className="text-[#2A2A4AB0] font-mclaren font-normal text-[20px] leading-[100%] tracking- mb-10">
+            View and manage projects across your domains
+          </p>
+        </div>
+        <button className="bg-[#2A2A4A] hover:bg-[#3c4067] text-white rounded px-5 py-2 mt-6 font-semibold flex items-center gap-2 shadow-xl cursor-pointer">
+          <FaPlus /> Create Project
+        </button>
+      </div>
 
-      {/* Tabs with minimal visual toggle */}
+      {/* Tabs */}
       <div className="flex gap-2 mb-6 bg-[#ececec] rounded max-auto w-fit border-gray-500">
         <button
           className={`px-4 py-2 rounded font-semibold ${

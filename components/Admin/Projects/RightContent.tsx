@@ -1,5 +1,5 @@
 import Link from 'next/link';
-
+import { FaChevronLeft } from 'react-icons/fa';
 const mockProject = [
   {
     id: '1',
@@ -86,13 +86,13 @@ export default async function ProjectDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 py-8 mt-10 overflow-x-hidden">
+    <div className="w-full min-h-screen  py-8 mt-10 overflow-x-hidden">
       <div className="flex items-center justify-between mb-8">
         <Link href="/projects" className="text-blue-600 hover:underline flex items-center">
-        <span className="mr-2 text-xl">&larr;</span>
-        <span className="font-semibold text-2xl">{project.name}</span>
+         <FaChevronLeft className="mr-2 text-xl text-[#4A4080B8]" />
+        <span className="font-['Maven_Pro',sans-serif] font-bold text-[30px] leading-[100%] tracking-[0] ">{project.name}</span>
         </Link>
-         <span className={`px-3 py-1 rounded-full text-sm font-medium ${project.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-600'}`}>{project.status}</span>
+            <span className={`px-4 py-1 rounded-full bg-[#14A1FF] text-white text-sm font-semibold ml-4" style={{minWidth: "110px", textAlign: "center"}}${project.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-600'}`}>{project.status}</span>
       </div>
 
       <div className="flex flex-col md:flex-row gap-8 w-full">
@@ -101,7 +101,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             <span className="text-black ">Project Image</span>
           </div>
 
-          <div className="bg-white p-6 w-full rounded-lg shadow">
+          <div className="bg-white p-6 w-full rounded-lg shadow-lg">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">Project Details</h2>
               <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Edit</button>
@@ -119,7 +119,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             </div>
           </div>
 
-           <div className="bg-white p-6 mt-2 rounded-lg shadow">
+           <div className="bg-white p-6 mt-2 rounded-lg shadow-lg">
             <div className="flex flex-col md:flex-row md:justify-between mb-8">
               <div>
                 <h2 className="font-semibold text-lg mb-2">Timeline</h2>
@@ -133,11 +133,11 @@ export default async function ProjectDetailPage({ params }: Props) {
                 </ul>
               </div>
 
-              <div>
+              {/* <div>
                 <h2 className="font-semibold text-lg mb-2">Progress</h2>
                 <div className="w-full bg-gray-400 rounded-lg h-2"></div>
                  <span className="text-sm text-gray-600 mt-1 block">65% Complete</span>
-              </div>
+              </div> */}
 
               
 
@@ -149,7 +149,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             </div>
            </div>
 
-          <div className="bg-white p-6 mt-2 shadow rounded">
+          <div className="bg-white p-6 mt-2 shadow-lg rounded">
            <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold">Team Members</h3>
             <button className="text-sm bg-gray-800 text-white px-3 py-1 rounded hover:bg-gray-700 transition">Edit</button>
@@ -199,7 +199,7 @@ export default async function ProjectDetailPage({ params }: Props) {
         </div>
 
         <div className="md:flex-[1_1_0%] w-full space-y-6">
-          <div className="bg-white p-6 w-full shadow rounded-lg">
+          <div className="bg-white p-6 w-full shadow-lg  rounded-lg">
           <h3 className="text-lg font-bold mb-4 ">Project Info</h3>
 
           <div className="mb-4">
@@ -245,7 +245,7 @@ export default async function ProjectDetailPage({ params }: Props) {
 
           </div>
 
-          <div className="bg-white p-6 shadow rounded-lg">
+          <div className="bg-white p-6 shadow-lg rounded-lg">
             <h3 className="text-lg font-bold mb-4">Recent Activity</h3>
             <div className="space-y-4">
                {project.activities.length > 0 ? (
