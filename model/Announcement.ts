@@ -3,8 +3,10 @@ import mongoose, {Schema,Document, mongo} from "mongoose";
 export interface Announcement extends Document {
   sender: mongoose.Types.ObjectId; // reference User
   content: string;
+
   pinned: boolean;
   createdAt: Date;
+  
 }
 
 const AnnouncementSchema: Schema<Announcement> = new Schema(
@@ -20,5 +22,7 @@ const AnnouncementSchema: Schema<Announcement> = new Schema(
 const AnnouncementModel =
   (mongoose.models.Announcement as mongoose.Model<Announcement>) ||
   mongoose.model<Announcement>("Announcement", AnnouncementSchema);
+
+
 
 export default AnnouncementModel;
