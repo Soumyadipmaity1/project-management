@@ -1,5 +1,4 @@
 import mongoose, {Schema,Document, mongo} from "mongoose";
-
 export interface Message extends Document {
     content: string,
     createdAt: Date,
@@ -10,12 +9,10 @@ export interface User extends Document {
   email: string;
   password: string;
   rollNo: string;
-  isVerified: boolean;
-  role: "admin" | "team_lead" | "member";
+  role: "team_lead" | "member";
   domain: string;
   githubId?: string;
-  linkedinId?: string;
-  profilePhoto?: string;
+  linkedinId: string;
 }
 
 const UserSchema: Schema<User> = new Schema(
@@ -41,13 +38,9 @@ const UserSchema: Schema<User> = new Schema(
       unique: true,
       trim: true,
     },
-    isVerified: {
-    type: Boolean,
-     default: false,
-    },
     role: {
       type: String,
-      enum: ["admin", "team_lead", "member"],
+      enum: ["team_lead", "member"],
       default: "member",
     },
     githubId: { 
