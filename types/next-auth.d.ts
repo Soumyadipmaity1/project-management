@@ -1,4 +1,6 @@
+import { Request } from 'exp';
 import 'next-auth';
+import { IUser } from "../../models/User"; 
 
 declare module 'next-auth' {
      interface User{
@@ -24,4 +26,12 @@ declare module 'next-auth/jwt' {
         isAcceptingMessages?: boolean;
         username?: string,
     }
+}
+
+declare global {
+    namespace Export{
+        interface Request{
+             user?: IUser; 
+        }
+    } 
 }
