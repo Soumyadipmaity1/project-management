@@ -7,9 +7,13 @@ export interface Project extends Document {
     badge: "active" | "completed" | "disabled";
     teamlead: mongoose.Types.ObjectId;
     colead?: mongoose.Types.ObjectId;
-    pendingMembers?: mongoose.Types.ObjectId;
+    members: mongoose.Types.ObjectId[]; 
     membersCount: number;
     approved: boolean;
+    requests: {
+    user: mongoose.Types.ObjectId;
+    status: "Pending" | "Approved" | "Rejected";
+  }[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -35,21 +39,24 @@ const ProjectSchema: Schema<Project> = new Schema({
         enum: ["active", "completed", "disabled"],
         default: "active",
     },
- teamlead: {
-  type: mongoose.Schema.Types.ObjectId,
+  teamlead: {
+  type: Schema.Types.ObjectId,
   ref: "User",
   required: true,
-},
-colead: {
-  type: mongoose.Schema.Types.ObjectId,
+   },
+  colead: {
+  type: Schema.Types.ObjectId,
   ref: "User",
-},
-pendingMembers: [
-  {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  }
-],
+    },
+  members: [
+    { type: Schema.Types.ObjectId, ref: "User" }
+  ],
+requests: [
+      {
+        user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+        status: { type: String, enum: ["Pending", "Approved", "Rejected"], default: "Pending" }
+      }
+    ],
   membersCount: {
     type: Number,
     default: 1,
@@ -64,3 +71,5 @@ const ProjectModel = (mongoose.models.Project as Model<Project>) ||
                      mongoose.model<Project>("Project", ProjectSchema);
 
 export default ProjectModel;
+
+

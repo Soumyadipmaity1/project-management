@@ -1,41 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Github, Mail, Lock, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
+
 
 export default function SignInPage() {
   const { data: session } = useSession();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
 
-  // if (session) {
-  //   return (
-  //     <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-indigo-100 via-white to-pink-100">
-  //       <div className="bg-white rounded-2xl shadow-xl p-8 text-center max-w-sm w-full">
-  //         <p className="text-lg font-medium mb-4">
-  //           ✅ Signed in as <b>{session.user?.email}</b>
-  //         </p>
-  //         <button
-  //           onClick={() => signOut()}
-  //           className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition"
-  //         >
-  //           <LogOut size={18} />
-  //           Sign out
-  //         </button>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+
+ useEffect(() => {
+  if(session?.user.role){
+    if(session.user.role === "lead") router.push("/lead");
+    else { router.push("/member")};
+  }
+ }, [session,router]);
 
   async function handleCredentialsLogin(e: React.FormEvent) {
     e.preventDefault();
-    await signIn("credentials", {
+   const result =  await signIn("credentials", {
       identifier,
       password,
-      redirect: true,
-      callbackUrl: "/",
+      redirect: false,
     });
+
   }
 
   return (

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 export default function Signup(){
     const router = useRouter();
@@ -38,7 +39,18 @@ export default function Signup(){
 if (!res.ok) throw new Error(data.message);
 
       setSuccess("Account created successfully! Redirecting to signin...");
-      setTimeout(() => router.push("/signin"), 2000);
+      await signIn("credentials", {
+        identifier: form.email,
+        password: form.password,
+        redirect: false,
+      });
+
+      if (form.role === "team_lead") {
+        router.push("/lead");
+      } else if (form.role === "member") {
+        router.push("/member");
+      }
+
     } catch (err: any) {
       setError(err.message);
     } finally {

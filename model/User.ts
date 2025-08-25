@@ -9,7 +9,7 @@ export interface User extends Document {
   email: string;
   password: string;
   rollNo: string;
-  role: "team_lead" | "member";
+  role: "Admin" | "Lead" | "Member";
   domain: string;
   githubId?: string;
   linkedinId: string;
@@ -39,10 +39,10 @@ const UserSchema: Schema<User> = new Schema(
       trim: true,
     },
     role: {
-      type: String,
-      enum: ["team_lead", "member"],
-      default: "member",
-    },
+  type: String,
+  enum: ["Admin", "Lead", "Member"],
+  default: "Member",
+},
     githubId: { 
         type: String 
     },

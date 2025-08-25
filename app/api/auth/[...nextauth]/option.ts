@@ -69,7 +69,8 @@ export const authOptions: NextAuthOptions = {
         token.name = u.name;
         token.email = u.email;
         token.rollNo = u.rollNo;
-        token.role = u.role || "member";
+        token.role = (u.role === "Admin" || u.role === "Lead" || u.role === "Member")
+        ? u.role : "Member";
         token.domain = u.domain;
         token.githubId = u.githubId;
         token.linkedinId = u.linkedinId;

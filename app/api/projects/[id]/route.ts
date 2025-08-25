@@ -13,7 +13,7 @@ export async function PUT(req:Request, {params}: { params: { id: string }}){
     }
 
     const {role} = session.user;
-    if(!canProject(role,"editProject")){
+    if(!canProject(role,"editproject")){
         return NextResponse.json({ message: "Forbidden"}, {status:403});
     }
 

@@ -13,13 +13,13 @@ export async function GET(){
 export async function POST(req:Request){
     await dbConnect(); 
     const session = await getServerSession();
+    console.log("User role from session:", session?.user.role);
     if(!session?.user){
         return NextResponse.json({ message: "Unauthorized"}, {status:401});
     }
     if (!can(session.user.role, "create")) {
   return NextResponse.json({ message: "Forbidden" }, { status: 403 });
 }
-
 
 
 const body = await req.json();

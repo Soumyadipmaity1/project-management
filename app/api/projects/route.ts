@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   }
 
   const { role } = session.user;
-  if (!canProject(role, "createProject")) {
+  if (!canProject(role, "createproject")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
