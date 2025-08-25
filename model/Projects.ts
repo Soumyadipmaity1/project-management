@@ -5,12 +5,13 @@ export interface Project extends Document {
     description: string;
     domain: string;
     badge: "active" | "completed" | "disabled";
-    teamlead: string;
-    colead: string;
+    teamlead: mongoose.Types.ObjectId;
+    colead?: mongoose.Types.ObjectId;
+    pendingMembers?: mongoose.Types.ObjectId;
     membersCount: number;
     approved: boolean;
     createdAt: Date;
-    UpdatedAt: Date;
+    updatedAt: Date;
 }
 
 const ProjectSchema: Schema<Project> = new Schema({
@@ -34,15 +35,21 @@ const ProjectSchema: Schema<Project> = new Schema({
         enum: ["active", "completed", "disabled"],
         default: "active",
     },
-    teamlead:{
-        type: String,
-        required: [true, "Team lead is required"],
-        trim: true,
-    },
-  colead: {
-    type: String,
-    trim: true,
-  },
+ teamlead: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+  required: true,
+},
+colead: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+},
+pendingMembers: [
+  {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  }
+],
   membersCount: {
     type: Number,
     default: 1,
