@@ -16,6 +16,6 @@ export async function POST(req: Request){
     }
 
     const { id } = await req.json();
-    const updated = await AnnouncementModel.findByIdAndUpdate({id}, {pinned:true}, {new:true});
+    const updated = await AnnouncementModel.findByIdAndUpdate(id, {pinned:true}, {new:true});
     return NextResponse.json(updated);
 }

@@ -13,22 +13,23 @@ export async function GET(){
 export async function POST(req:Request){
     await dbConnect(); 
     const session = await getServerSession();
-    console.log("User role from session:", session?.user.role);
     if(!session?.user){
         return NextResponse.json({ message: "Unauthorized"}, {status:401});
     }
     if (!can(session.user.role, "create")) {
-  return NextResponse.json({ message: "Forbidden" }, { status: 403 });
-}
+        return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+    }
 
-
-const body = await req.json();
-const newAnn = await AnnouncementModel.create({
-    ...body,
-    name: session.user.name,
-    createdAt:  new Date(),
-});
-
-return NextResponse.json(newAnn, {status: 201});
-
+    try {
+        const body = await req.json();
+        if (!body.title || !body.content) {
+            return NextResponse.json({ message: "Title and content are required" }, { status: 400 });
+        }
+        const newAnn = await AnnouncementModel.create({
+            ...body
+        });
+        return NextResponse.json(newAnn, {status: 201});
+    } catch (error: any) {
+        return NextResponse.json({ message: "Error creating announcement", error: error?.message || String(error) }, { status: 500 });
+    }
 }

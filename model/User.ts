@@ -12,7 +12,7 @@ export interface User extends Document {
   role: "Admin" | "Lead" | "Member";
   domain: string;
   githubId?: string;
-  linkedinId: string;
+  linkedinId?: string;
 }
 
 const UserSchema: Schema<User> = new Schema(

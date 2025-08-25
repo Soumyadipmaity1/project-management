@@ -16,29 +16,27 @@ export async function POST(req: Request) {
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-   if (!emailRegex.test(email)) {
-  return NextResponse.json(
-    { message: "Invalid email format" },
-    { status: 400 }
-  );
-}
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { message: "Invalid email format" },
+        { status: 400 }
+      );
+    }
 
-if (password.length < 6) {
-  return NextResponse.json(
-    { message: "Password must be at least 6 characters long" },
-    { status: 400 }
-  );
-}
+    if (password.length < 6) {
+      return NextResponse.json(
+        { message: "Password must be at least 6 characters long" },
+        { status: 400 }
+      );
+    }
 
-
-const existingRollNo = await UserModel.findOne({ rollNo });
-if (existingRollNo) {
-  return NextResponse.json(
-    { message: "Roll number already registered" },
-    { status: 400 }
-  );
-}
-
+    const existingRollNo = await UserModel.findOne({ rollNo });
+    if (existingRollNo) {
+      return NextResponse.json(
+        { message: "Roll number already registered" },
+        { status: 400 }
+      );
+    }
 
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
@@ -65,10 +63,11 @@ if (existingRollNo) {
       { status: 201 }
     );
   } catch (error: any) {
-     console.error("❌ Signup error:", error);
+    console.error("❌ Signup error:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
     );
   }
 }
+  

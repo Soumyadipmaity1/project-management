@@ -11,7 +11,7 @@ export default function Signup(){
         password: "",
         rollNo: "",
         domain: "",
-        role: "member"
+        role: "Member"
     });
 
   const [loading, setLoading] = useState(false);
@@ -45,7 +45,7 @@ if (!res.ok) throw new Error(data.message);
         redirect: false,
       });
 
-      if (form.role === "team_lead") {
+      if (form.role === "lead") {
         router.push("/lead");
       } else if (form.role === "member") {
         router.push("/member");
