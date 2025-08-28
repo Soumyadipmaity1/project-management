@@ -1,21 +1,48 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import AnnouncementModel from "@/model/Announcement";
-import {can} from"@/lib/permissions"
+import { can } from "@/lib/permissions";
 import dbConnect from "@/lib/db";
+import { authOptions } from "@/app/api/auth/[...nextauth]/option";
 
-export async function POST(req: Request){
-    await dbConnect(); 
-    const session = await getServerSession();
-    if(!session?.user){
-        return NextResponse.json({message:"Unauthorized"}, {status: 401});
+export async function POST(req: Request) {
+  await dbConnect();
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!can(session.user.role, "pin")) {
+    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+  }
+
+  try {
+    const { id , pinned} = await req.json();
+
+    const announcement = await AnnouncementModel.findById(id);
+    if (!announcement) {
+      return NextResponse.json({ message: "Announcement not found" }, { status: 404 });
     }
 
-    if(!can(session.user.role,"pin")){
-        return NextResponse.json({message:"Forbidden"}, {status: 403});
+    // If we're trying to pin, enforce max 3 pinned
+    if (!announcement.pinned) {
+      const pinnedCount = await AnnouncementModel.countDocuments({ pinned: true });
+      if (pinnedCount >= 3) {
+        return NextResponse.json(
+          { message: "Maximum 3 announcements can be pinned" },
+          { status: 400 }
+        );
+      }
     }
 
-    const { id } = await req.json();
-    const updated = await AnnouncementModel.findByIdAndUpdate(id, {pinned:true}, {new:true});
+    // Toggle pin status
+    announcement.pinned = !announcement.pinned;
+    const updated = await announcement.save();
+
     return NextResponse.json(updated);
+  } catch (error: any) {
+    console.error(error);
+    return NextResponse.json({ message: "Error updating pin", error: error.message }, { status: 500 });
+  }
 }

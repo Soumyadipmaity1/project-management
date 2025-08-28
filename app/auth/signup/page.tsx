@@ -45,11 +45,13 @@ if (!res.ok) throw new Error(data.message);
         redirect: false,
       });
 
-      if (form.role === "lead") {
-        router.push("/lead");
-      } else if (form.role === "member") {
-        router.push("/member");
-      }
+  if (form.role === "Lead") {
+  router.push("/lead");
+} else if (form.role === "Member") {
+  router.push("/member");
+} else if (form.role === "Admin") {
+  router.push("/admin");
+}
 
     } catch (err: any) {
       setError(err.message);
@@ -117,15 +119,16 @@ if (!res.ok) throw new Error(data.message);
             required
           />
 
-          <select
+         <select
             name="role"
             value={form.role}
             onChange={handleChange}
             className="w-full p-2 border rounded-lg"
-          >
-            <option value="member">Member</option>
-            <option value="team_lead">Team Lead</option>
-          </select>
+            >
+  <option value="Member">Member</option>
+  <option value="Lead">Team Lead</option>
+  <option value="Admin">Admin</option>
+</select>
 
           <button
             type="submit"

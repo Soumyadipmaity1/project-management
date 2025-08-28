@@ -1,43 +1,50 @@
-import mongoose, {Schema, Document} from "mongoose";
+
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface Announcement extends Document {
-    // Profilepic: string,
-    title: string,
-    content: string,
-    pinned: boolean,
-    createdAt: Date,
-    updatedAt: Date,
+  _id: mongoose.Types.ObjectId;   
+  senderName: string;
+  senderProfilePic: string;
+  content: string;
+  pinned: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: mongoose.Types.ObjectId;
 }
 
-const AnnouncementSchema : Schema<Announcement> = new Schema({
-    // Profilepic: {
-    //     type: String,
-    //     required: [true, "ProfilePic is required"],
-    //     trim:  true,
-    // },
-    title: {
-        type: String,
-        required: [true, "Nmae is required"],
-        trim:true,
+const AnnouncementSchema: Schema<Announcement> = new Schema(
+  {
+    senderName: {
+      type: String,
+      required: [true, "Sender name is required"],
+      trim: true,
+    },
+    senderProfilePic: {
+      type: String,
+      required: [true, "Sender profile picture is required"],
+      trim: true,
     },
     content: {
-        type: String,
-        required:[true, "Content is required"],
-        trim:  true,
+      type: String,
+      required: [true, "Content is required"],
+      trim: true,
     },
-    // month: {
-    //     type: Number,
-    //     required: [true, "Month number is required"],
-    // },
     pinned: {
-        type: Boolean,
-        default: false,
+      type: Boolean,
+      default: false,
     },
-} , { timestamps:true });
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  },
+  { timestamps: true }
+);
 
-AnnouncementSchema.index({ pinned:-1, createdAt:-1});
+AnnouncementSchema.index({ pinned: -1, createdAt: -1 });
 
-const AnnouncementModel = (mongoose.models.Announcement as mongoose.Model<Announcement>) ||
-                         mongoose.model<Announcement>("Announcement", AnnouncementSchema);
+const AnnouncementModel =
+  (mongoose.models.Announcement as mongoose.Model<Announcement>) ||
+  mongoose.model<Announcement>("Announcement", AnnouncementSchema);
 
 export default AnnouncementModel;

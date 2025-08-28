@@ -28,11 +28,11 @@ const elements = [
     url: "/member/announcements",
     icon: Bell,
   },
-  {
-    title: "Members",
-    url: "/member/members",
-    icon: User,
-  },
+  // {
+  //   title: "Members",
+  //   url: "/member/members",
+  //   icon: User,
+  // },
 ];
 
 const items = [
