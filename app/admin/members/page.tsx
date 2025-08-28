@@ -150,7 +150,9 @@ export default function AllMembers() {
               {/* Members row */}
               <div className="flex items-center">
                 <div
-                  ref={(el) => (sliders.current[groupIdx] = el)}
+                  ref={(el) => {
+                 sliders.current[groupIdx] = el;
+                   }}
                   className="flex gap-5 overflow-x-auto pb-4 pr-1 w-full scrollbar-hide"
                 >
                   {group.members.map((member, memberIdx) => (

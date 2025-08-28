@@ -37,6 +37,7 @@
 import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
+import AuthProvider from "@/context/AuthProvider";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -60,9 +61,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <AuthProvider>
       <body className={`${inter.variable} ${robotoMono.variable} antialiased`}>
         {children}
       </body>
+      </AuthProvider>
     </html>
   );
 }
