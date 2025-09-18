@@ -50,7 +50,7 @@ const items = [
 
 export function LeadSidebar() {
   return (
-    <Sidebar className="pt-10 [&>div]:bg-[#DCE7F8] shadow-xl">
+    <Sidebar className="pt-10 [&>div]:bg-[#031635] shadow-xl">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel></SidebarGroupLabel>
@@ -64,7 +64,7 @@ export function LeadSidebar() {
                       <span
                         className="
                           font-madimi
-                          text-[#2A2A4A]
+                          text-white
                           text-[16px]
                          
                         "

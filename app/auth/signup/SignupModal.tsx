@@ -136,8 +136,17 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                 <input
                   type="text"
                   name="name"
-                  placeholder="Full Name"
+                  placeholder="Name"
                   value={form.name}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded-lg"
+                  required
+                />
+                <input
+                  type="text"
+                  name="rollNo"
+                  placeholder="Roll Number"
+                  value={form.rollNo}
                   onChange={handleChange}
                   className="w-full p-2 border rounded-lg"
                   required
@@ -162,15 +171,6 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                 />
                 <input
                   type="text"
-                  name="rollNo"
-                  placeholder="Roll Number"
-                  value={form.rollNo}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded-lg"
-                  required
-                />
-                <input
-                  type="text"
                   name="domain"
                   placeholder="Domain"
                   value={form.domain}
@@ -179,17 +179,15 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                   required
                 />
 
-                <select
-                  name="role"
-                  value={form.role}
+                <input
+                  type="text"
+                  name="code"
+                  placeholder="Code (Optional)"
+                  value={form.domain}
                   onChange={handleChange}
                   className="w-full p-2 border rounded-lg"
-                >
-                  <option value="Member">Member</option>
-                  <option value="Lead">Team Lead</option>
-                  <option value="Admin">Admin</option>
-                </select>
-
+                />
+    
                 <button
                   type="submit"
                   disabled={loading}
