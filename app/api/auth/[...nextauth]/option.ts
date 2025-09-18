@@ -75,7 +75,7 @@ export const authOptions: NextAuthOptions = {
         token.githubId = u.githubId;
         token.linkedinId = u.linkedinId;
       }
-      return token;
+      return token;   
     },
 
     async session({ session, token }) {

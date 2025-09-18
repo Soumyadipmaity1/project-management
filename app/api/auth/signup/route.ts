@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     if (!name || !email || !password || !rollNo || !domain || !role) {
       return NextResponse.json(
         { message: "Please fill all the fields" },
-        { status: 400 }
+        { status: 400 }   
       );
     }
 

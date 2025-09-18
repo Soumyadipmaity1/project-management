@@ -6,7 +6,7 @@ import UserModel from "@/model/User";
 export async function POST(req: Request){
     await dbConnect();
     try {
-        const {email,password} = await req.json();
+        const {email,password} = await req.json();  
         if(!email || !password){
             return NextResponse.json({message: "All fields email and password arew required"}, {status: 400});
         }
