@@ -6,7 +6,7 @@ import UserModel from "@/model/User";
 export async function POST(req: Request) {
   try {
     await dbConnect();
-    const { name, email, password, rollNo, domain, role } = await req.json();
+    const { name, email, password, rollNo, domain, role , profilePic} = await req.json();
 
     if (!name || !email || !password || !rollNo || !domain || !role) {
       return NextResponse.json(
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^(2[2-9]|30)[0-9]{5,9}@kiit\.ac\.in$/i;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
         { message: "Invalid email format" },

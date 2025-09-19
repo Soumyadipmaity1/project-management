@@ -51,7 +51,7 @@ const items = [
 export function MemberSidebar() {
   return (
    <>
-    <Sidebar className="[&>div]:bg-[#031635] shadow-xl">
+    <Sidebar className="[&>div]:bg-[#1e1b4b] shadow-xl">
       <SidebarContent>
         <header className="absolute top-6 left-6 text-white text-3xl font-bold tracking-tight">
         WorkPilot

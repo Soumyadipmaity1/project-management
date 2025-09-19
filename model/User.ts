@@ -11,8 +11,9 @@ export interface User extends Document {
   rollNo: string;
   role: "Admin" | "Lead" | "Member";
   domain: string;
-  githubId?: string;
-  linkedinId?: string;
+  githubId: string;
+  linkedinId: string;
+  profilePic: string;
 }
 
 const UserSchema: Schema<User> = new Schema(
@@ -44,14 +45,20 @@ const UserSchema: Schema<User> = new Schema(
   default: "Member",
 },
     githubId: { 
-        type: String 
+        type: String, 
+        required:[true,"GithubId is required"],
     },
     linkedinId: { 
-        type: String 
+        type: String,
+        required:[true,"LinkedId is required"],
     },
     domain: {
       type: String,
       required: [true, "Domain is required"],
+    },
+    profilePic: {
+      type: String,
+      required: [true, "ProfilePic is required"],
     },
   },
   { timestamps: true }
