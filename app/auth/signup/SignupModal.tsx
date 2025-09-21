@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState , useRef} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SignInModal from "@/app/auth/signin/SignInModal";
-import { Upload, Trash } from "lucide-react";
+import { Upload, Trash, User } from "lucide-react";
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -27,6 +27,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const allowedDomains = [
     "Web Development", "Mobile Development", "Competitive Programming",
@@ -63,7 +64,6 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
       setForm({ ...form, [name]: value });
     }
 
-    // Validations
     if (name === "email") {
       if (!value.trim()) setError({ ...error, email: "" });
       else if (!kiitEmailRegex.test(value)) setError({ ...error, email: "Please enter a valid KIIT email" });
@@ -142,7 +142,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
     }
   };
 
-  return (
+ return (
     <>
       <AnimatePresence>
         {isOpen && (
@@ -166,32 +166,57 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="flex justify-center mb-4 relative">
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-2 border-blue-500 overflow-hidden relative flex items-center justify-center bg-gray-100">
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-2 border-indigo-600 overflow-hidden relative flex items-center justify-center bg-gray-100">
                     {form.profilePic ? (
-                      <>
-                        <img src={URL.createObjectURL(form.profilePic)} alt="Profile" className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => setForm({ ...form, profilePic: null })}
-                          className="absolute bottom-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-md"
-                        >
-                          <Trash className="h-4 w-4" />
-                        </button>
-                      </>
+                      <img src={URL.createObjectURL(form.profilePic)} alt="Profile" className="w-full h-full object-cover" />
                     ) : (
-                      <Upload className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 text-blue-500" />
+                      <User 
+                        onClick={() => fileInputRef.current?.click()}
+                      className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 text-indigo-600" />
                     )}
-                    <input type="file" name="profilePic" accept="image/*" onChange={handleChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                   </div>
+
+                  {!form.profilePic && (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="absolute right-32 top-28 transform -translate-y-1/2 h-8 w-8 bg-indigo-600 text-white rounded-full flex items-center justify-center hover:bg-indigo-700 shadow-md"
+                    >
+                      <Upload className="h-4 w-4" />
+                    </button>
+                  )}
+
+                  {form.profilePic && (
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, profilePic: null })}
+                      className="absolute right-32 top-28 transform -translate-y-1/2 h-8 w-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 shadow-md"
+                    >
+                      <Trash className="h-4 w-4" />
+                    </button>
+                  )}
+
+                  <input
+                    type="file"
+                    name="profilePic"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={handleChange}
+                    className="hidden"
+                  />
                 </div>
 
-                {/* Inputs */}
                 {["name","domain","rollNo","email","password","linkedinId","githubId"].map(field => (
                   <div key={field}>
                     <input
                       type={field === "email" ? "email" : field === "password" ? "password" : "text"}
                       name={field}
-                      placeholder={field === "rollNo" ? "Roll Number" : field === "linkedinId" ? "LinkedIn URL" : field === "githubId" ? "GitHub URL" : field.charAt(0).toUpperCase() + field.slice(1)}
+                      placeholder={
+                        field === "rollNo" ? "Roll Number" :
+                        field === "linkedinId" ? "LinkedIn URL" :
+                        field === "githubId" ? "GitHub URL" :
+                        field.charAt(0).toUpperCase() + field.slice(1)
+                      }
                       value={form[field as keyof typeof form] as string}
                       onChange={handleChange}
                       className="w-full p-2 border rounded-lg"
@@ -201,14 +226,14 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                   </div>
                 ))}
 
-                <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition-transform duration-200 hover:scale-105">
+                <button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition-transform duration-200 hover:scale-105">
                   {loading ? "Creating..." : "Sign Up"}
                 </button>
               </form>
 
               <p className="text-sm text-gray-500 text-center mt-4">
                 Already have an account?{" "}
-                <button onClick={() => { resetForm(); onClose(); setIsSignInOpen(true); }} className="text-blue-500 hover:underline">Sign In</button>
+                <button onClick={() => { resetForm(); onClose(); setIsSignInOpen(true); }} className="text-indigo-500 hover:underline">Sign In</button>
               </p>
             </motion.div>
           </motion.div>
@@ -219,5 +244,3 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
     </>
   );
 }
-
-

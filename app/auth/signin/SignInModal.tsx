@@ -13,12 +13,30 @@ interface SignInModalProps {
 }
 
 export default function SignInModal({ isOpen, onClose, onSwitchToSignUp }: SignInModalProps) {
+  const [form, setForm] = useState({
+      email: "",
+      password: "",
+    });
   const { data: session } = useSession();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<Record<string,string>>({});
+  const [success, setSuccess] = useState("");
   const router = useRouter();
+  const kiitEmailRegex = /^(2[2-9]|30)[0-9]{5,9}@kiit\.ac\.in$/i;
+
+
+  const resetForm = () => {
+    setForm({
+      email: "",
+      password: "",
+    });
+    setError({});
+    setSuccess("");
+  };
+
+
 
   useEffect(() => {
     if (session?.user?.role) {
@@ -30,7 +48,7 @@ export default function SignInModal({ isOpen, onClose, onSwitchToSignUp }: SignI
   const handleCredentialsLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError({});
 
     const result = await signIn("credentials", {
       identifier,
@@ -38,7 +56,7 @@ export default function SignInModal({ isOpen, onClose, onSwitchToSignUp }: SignI
       redirect: false,
     });
 
-    if (result?.error) setError(result.error);
+    if (result?.error) setError({...error, result: result.error});
     setLoading(false);
   };
 
@@ -57,7 +75,6 @@ export default function SignInModal({ isOpen, onClose, onSwitchToSignUp }: SignI
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
           >
-            {/* Close Button */}
             <button
               onClick={onClose}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
@@ -68,7 +85,7 @@ export default function SignInModal({ isOpen, onClose, onSwitchToSignUp }: SignI
             <h2 className="text-3xl font-bold text-center text-gray-800">Welcome Back 👋</h2>
             <p className="text-center text-gray-500">Sign in with your Kiit email</p>
 
-            {error && <p className="text-red-500 text-center">{error}</p>}
+            {error && <p className="text-red-500 text-center">{error.general}</p>}
 
             <form onSubmit={handleCredentialsLogin} className="space-y-4">
               <div className="relative">

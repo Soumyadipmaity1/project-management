@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     await dbConnect();
     const { name, email, password, rollNo, domain, role , profilePic} = await req.json();
 
-    if (!name || !email || !password || !rollNo || !domain || !role) {
+    if (!name || !email || !password || !rollNo || !domain || !role || !profilePic)  {
       return NextResponse.json(
         { message: "Please fill all the fields" },
         { status: 400 }   

@@ -14,6 +14,7 @@ export interface User extends Document {
   githubId: string;
   linkedinId: string;
   profilePic: string;
+  profilePicPublicId: string;
 }
 
 const UserSchema: Schema<User> = new Schema(
@@ -58,7 +59,15 @@ const UserSchema: Schema<User> = new Schema(
     },
     profilePic: {
       type: String,
-      required: [true, "ProfilePic is required"],
+      required: false,
+      default: "/user.png",
+    },
+    profilePicPublicId:{
+    type: String,
+    required: [true, "ProfilePicPublicId is required"],
+    default: function (this: any) {
+        return this._id.toString();
+      },
     },
   },
   { timestamps: true }

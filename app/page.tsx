@@ -11,7 +11,7 @@ export default function Home() {
   const [isSignInOpen, setIsSignInOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#031635] text-center px-6 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-[#0e0c2c] text-center px-6 relative overflow-hidden">
       <header className="absolute top-6 left-6 text-white text-3xl font-extrabold tracking-tight">
         WorkPilot
       </header>
@@ -44,7 +44,7 @@ export default function Home() {
         >
           <button
             onClick={() => setIsSignupOpen(true)}
-            className="px-6 py-3 hover:scale-110 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium flex items-center gap-2 shadow-lg transition"
+            className="px-6 py-3 hover:scale-110 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium flex items-center gap-2 shadow-lg transition"
           >
             Get Started <ArrowRight className="w-4 h-4" />
           </button>
