@@ -15,6 +15,9 @@ export interface User extends Document {
   linkedinId: string;
   profilePic: string;
   profilePicPublicId: string;
+  emailVerified: boolean;
+  otp: string;
+  otpExpiry: Date;
 }
 
 const UserSchema: Schema<User> = new Schema(
@@ -59,8 +62,7 @@ const UserSchema: Schema<User> = new Schema(
     },
     profilePic: {
       type: String,
-      required: false,
-      default: "/user.png",
+      required: true,
     },
     profilePicPublicId:{
     type: String,
@@ -68,6 +70,18 @@ const UserSchema: Schema<User> = new Schema(
     default: function (this: any) {
         return this._id.toString();
       },
+    },
+    emailVerified:{
+      type:Boolean,
+      default: false,
+    },
+    otp:{
+      type:String,
+      required: false,
+    },
+    otpExpiry: {
+      type: Date,
+      required: false,
     },
   },
   { timestamps: true }

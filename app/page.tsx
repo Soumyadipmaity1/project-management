@@ -54,7 +54,7 @@ export default function Home() {
       <SignupModal
         isOpen={isSignupOpen}
         onClose={() => setIsSignupOpen(false)}
-        onSwitchToSignIn={() => setIsSignInOpen(true)}
+        // onSwitchToSignIn={() => setIsSignInOpen(true)}
       />
       <SignInModal
         isOpen={isSignInOpen}
