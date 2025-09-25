@@ -1,4 +1,4 @@
-import { Code2, Paperclip, Bell, ClipboardList , User  } from "lucide-react";
+import { Code2, Paperclip, Bell, ClipboardList , User, LayoutDashboard  } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,6 +14,11 @@ import {
 
 const elements = [
   {
+    title: "Dashboard",
+    url: "/member",
+    icon: LayoutDashboard,
+  },
+  {
     title: "Projects",
     url: "/member/projects",
     icon: Paperclip,
@@ -28,11 +33,11 @@ const elements = [
     url: "/member/announcements",
     icon: Bell,
   },
-  {
-    title: "Members",
-    url: "/member/members",
-    icon: User,
-  },
+  // {
+  //   title: "Members",
+  //   url: "/member/members",
+  //   icon: User,
+  // },
 ];
 
 const items = [
@@ -45,9 +50,13 @@ const items = [
 
 export function MemberSidebar() {
   return (
-    <Sidebar className="pt-10 [&>div]:bg-[#DCE7F8] shadow-xl">
+   <>
+    <Sidebar className="[&>div]:bg-[#18163b] shadow-xl">
       <SidebarContent>
-        <SidebarGroup>
+        <header className="absolute top-6 left-6 text-white text-3xl font-bold tracking-tight">
+        WorkPilot
+      </header>
+        <SidebarGroup className="pt-12">
           <SidebarGroupLabel></SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -55,11 +64,11 @@ export function MemberSidebar() {
                 <SidebarMenuItem key={ele.title}>
                   <SidebarMenuButton asChild>
                     <a href={ele.url}>
-                      <ele.icon />
+                      <ele.icon className="text-white"/>
                       <span
                         className="
                           font-madimi
-                          text-[#2A2A4A]
+                          text-white
                           text-[16px]
                          
                         "
@@ -81,7 +90,7 @@ export function MemberSidebar() {
                           text-[16px]
                           
                           
-                          text-[#2A2A4A] 
+                          text-white
                           font-large
                           
                           ">Domains</SidebarGroupLabel>
@@ -91,7 +100,7 @@ export function MemberSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <a href={item.url}>
-                      <item.icon />
+                      <item.icon className="text-white"/>
                       <span
                         className="
                           font-madimi
@@ -100,7 +109,7 @@ export function MemberSidebar() {
                           text-[16px]
                           
                           
-                          text-[#2A2A4A]
+                          text-white
                           
                         "
                       >
@@ -115,5 +124,6 @@ export function MemberSidebar() {
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
+    </>
   );
 }

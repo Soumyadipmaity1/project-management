@@ -1,5 +1,4 @@
 import mongoose, {Schema,Document, mongo} from "mongoose";
-
 export interface Message extends Document {
     content: string,
     createdAt: Date,
@@ -10,12 +9,15 @@ export interface User extends Document {
   email: string;
   password: string;
   rollNo: string;
-  isVerified: boolean;
-  role: "admin" | "team_lead" | "member";
+  role: "Admin" | "Lead" | "Member";
   domain: string;
-  githubId?: string;
-  linkedinId?: string;
-  profilePhoto?: string;
+  githubId: string;
+  linkedinId: string;
+  profilePic: string;
+  profilePicPublicId: string;
+  emailVerified: boolean;
+  otp: string;
+  otpExpiry: Date;
 }
 
 const UserSchema: Schema<User> = new Schema(
@@ -24,7 +26,7 @@ const UserSchema: Schema<User> = new Schema(
       type: String,
       required: [true, "Name is required"],
       trim: true,
-    },
+    },   
     email: {
       type: String,
       required: [true, "Email is required"],
@@ -41,24 +43,45 @@ const UserSchema: Schema<User> = new Schema(
       unique: true,
       trim: true,
     },
-    isVerified: {
-    type: Boolean,
-     default: false,
-    },
     role: {
-      type: String,
-      enum: ["admin", "team_lead", "member"],
-      default: "member",
-    },
+  type: String,
+  enum: ["Admin", "Lead", "Member"],
+  default: "Member",
+},
     githubId: { 
-        type: String 
+        type: String, 
+        required:[true,"GithubId is required"],
     },
     linkedinId: { 
-        type: String 
+        type: String,
+        required:[true,"LinkedId is required"],
     },
     domain: {
       type: String,
       required: [true, "Domain is required"],
+    },
+    profilePic: {
+      type: String,
+      required: true,
+    },
+    profilePicPublicId:{
+    type: String,
+    required: [true, "ProfilePicPublicId is required"],
+    default: function (this: any) {
+        return this._id.toString();
+      },
+    },
+    emailVerified:{
+      type:Boolean,
+      default: false,
+    },
+    otp:{
+      type:String,
+      required: false,
+    },
+    otpExpiry: {
+      type: Date,
+      required: false,
     },
   },
   { timestamps: true }

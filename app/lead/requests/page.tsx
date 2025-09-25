@@ -17,11 +17,13 @@ export default function PendingRequests() {
   const [requests, setRequests] = useState(pendingRequests);
 
   // Handlers for approve/reject
-  const handleApprove = (id) => {
+  // const handleApprove = (id) => {
+    const handleApprove = (id: number): void => {
     setRequests(requests.filter(req => req.id !== id));
     // Add further approval logic here
   };
-  const handleReject = (id) => {
+  // const handleReject = (id) => {
+    const handleReject = (id: number): void => {
     setRequests(requests.filter(req => req.id !== id));
     // Add further rejection logic here
   };
