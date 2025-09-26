@@ -27,7 +27,7 @@ export default function SignInModal({ isOpen, onClose, onSwitchToSignUp }: SignI
     if (session?.user?.role) {
       if (session.user.role === "Lead") router.push("/lead");
       else if (session.user.role === "Admin") router.push("/admin");
-      else router.push("/member");
+      else if (session.user.role === "Member") router.push("/member");
     }
   }, [session, router]);
 
