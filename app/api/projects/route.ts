@@ -16,7 +16,6 @@ export async function GET(req: Request) {
   }
 }
 
-// In your API route (e.g., /api/projects/route.ts)
 export async function POST(req: Request) {
   await dbConnect();
   const session = await getServerSession(authOptions);
@@ -32,7 +31,6 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     
-    // Add validation for GitHub and liveDemo URLs if provided
     if (body.github) {
       try {
         new URL(body.github);
@@ -72,6 +70,5 @@ export async function POST(req: Request) {
 
     return NextResponse.json(newProject, { status: 201 });
   } catch (error: any) {
-    // Error handling remains the same
   }
 }
