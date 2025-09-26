@@ -22,6 +22,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
     domain: "",
     role: "Member",
     adminCode: "",
+    leadCode: "",
     profilePic: null as File | null,
     githubId: "",
     linkedinId: "",
@@ -36,7 +37,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
 
   const allowedDomains = [
     "Web Development", "Mobile Development", "Competitive Programming",
-    "Design & Branding", "President", "Vice President", "Content Writing",
+    "Design & Branding", "Content Writing",
     "Administration", "Marketing & PR", "Cloud Computing", "Cybersecurity",
     "AI / Machine Learning"
   ];
@@ -54,6 +55,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
       domain: "",
       role: "Member",
       adminCode: "",
+      leadCode: "",
       profilePic: null,
       githubId: "",
       linkedinId: "",
@@ -65,20 +67,26 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, files } = e.target as HTMLInputElement;
-    if (name === "profilePic" && files) setForm(prev => ({ ...prev, profilePic: files[0] }));
-    else setForm(prev => ({ ...prev, [name]: value }));
+    if (name === "profilePic" && files) {
+      setForm(prev => ({ ...prev, profilePic: files[0] }));
+    } else {
+      setForm(prev => ({ ...prev, [name]: value }));
+    }
 
-    if (name === "email" && value && !kiitEmailRegex.test(value)) toast.error("Enter a valid KIIT email");
-    if (name === "linkedinId" && value && !linkedinIdRegex.test(value)) toast.error("Enter a valid LinkedIn URL");
-    if (name === "githubId" && value && !githubIdRegex.test(value)) toast.error("Enter a valid GitHub URL");
-
-    if (name === "adminCode" && value === "ADMIN_25") setForm(prev => ({ ...prev, role: "Admin" }));
+    if (name === "adminCode" && value === "ADMIN_25") {
+      setForm(prev => ({ ...prev, role: "Admin" }));
+    }
+     if (name === "leadCode" && value === "LEAD_25") {
+      setForm(prev => ({ ...prev, role: "Lead" }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.profilePic) return toast.error("Upload profile picture");
-    if (!kiitEmailRegex.test(form.email)) return toast.error("Provide a KIIT email");
+    if (!kiitEmailRegex.test(form.email)) return toast.error("Provide a valid KIIT email");
+    if (!linkedinIdRegex.test(form.linkedinId)) return toast.error("Provide a valid LinkedIn URL");
+    if (!githubIdRegex.test(form.githubId)) return toast.error("Provide a valid GitHub URL");
 
     const rollFromEmail = form.email.match(/^(\d+)@/)?.[1] || "";
     if (!rollFromEmail || rollFromEmail !== form.rollNo) return toast.error("Roll number mismatch");
@@ -118,11 +126,12 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
-      toast.success("Email verified! Redirecting...");
-       const roleToRedirect = form.role;
+
+      toast.success("Email verified! Please sign in to continue.");
+      
       resetForm();
-      onClose();
-      router.push(`/${roleToRedirect.toLowerCase()}/`);
+      onClose();            
+      setIsSignInOpen(true); 
     } catch (err: any) {
       toast.error(err.message || "OTP verification failed");
     } finally {
@@ -171,52 +180,94 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                 ✕
               </button>
 
-
               {!verified ? (
                 <>
                   <h2 className="text-2xl sm:text-3xl font-bold text-center mb-4">Create an Account</h2>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="flex justify-center mb-4 relative">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-2 border-indigo-600 overflow-hidden flex items-center justify-center bg-gray-100">
-                      {form.profilePic ? (
-                        <img src={URL.createObjectURL(form.profilePic)} alt="Profile" className="w-full h-full object-cover" />
-                      ) : (
-                        <User onClick={() => fileInputRef.current?.click()} className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 text-indigo-600" />
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="flex justify-center mb-4 relative">
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-2 border-indigo-600 overflow-hidden flex items-center justify-center bg-gray-100">
+                        {form.profilePic ? (
+                          <img src={URL.createObjectURL(form.profilePic)} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                          <User onClick={() => fileInputRef.current?.click()} className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 text-indigo-600" />
+                        )}
+                      </div>
+                      {!form.profilePic && (
+                        <button type="button" onClick={() => fileInputRef.current?.click()} className="absolute left-[14rem] top-[4rem] sm:left-[15rem] sm:top-[4.5rem] md:left-[18rem] md:top-[6rem] transform -translate-y-1/2 h-8 w-8 bg-indigo-600 text-white rounded-full flex items-center justify-center hover:bg-indigo-700 shadow-md">
+                          <Upload className="h-4 w-4" />
+                        </button>
                       )}
+                      {form.profilePic && (
+                        <button type="button" onClick={() => setForm({ ...form, profilePic: null })} className="absolute right-[-1rem] top-[4rem] sm:right-[-1.5rem] sm:top-[4.5rem] md:right-[-2rem] md:top-[5rem] transform -translate-y-1/2 h-8 w-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 shadow-md">
+                          <Trash className="h-4 w-4" />
+                        </button>
+                      )}
+                      <input type="file" name="profilePic" accept="image/*" ref={fileInputRef} onChange={handleChange} className="hidden" />
                     </div>
-                    {!form.profilePic && (
-                      <button type="button" onClick={() => fileInputRef.current?.click()} className="absolute right-[-1rem] top-[4rem] sm:right-[-1.5rem] sm:top-[4.5rem] md:right-[-2rem] md:top-[5rem] transform -translate-y-1/2 h-8 w-8 bg-indigo-600 text-white rounded-full flex items-center justify-center hover:bg-indigo-700 shadow-md">
-                        <Upload className="h-4 w-4" />
-                      </button>
-                    )}
-                    {form.profilePic && (
-                      <button type="button" onClick={() => setForm({ ...form, profilePic: null })} className="absolute right-[-1rem] top-[4rem] sm:right-[-1.5rem] sm:top-[4.5rem] md:right-[-2rem] md:top-[5rem] transform -translate-y-1/2 h-8 w-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 shadow-md">
-                        <Trash className="h-4 w-4" />
-                      </button>
-                    )}
-                    <input type="file" name="profilePic" accept="image/*" ref={fileInputRef} onChange={handleChange} className="hidden" />
-                  </div>
 
-                  <input type="text" name="name" placeholder="Name" value={form.name} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" required />
+                    <input type="text" name="name" placeholder="Name" value={form.name} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" required />
 
-                  <select name="domain" value={form.domain} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" required>
-                    <option value="" disabled>Select Domain</option>
-                    {allowedDomains.map(domain => <option key={domain} value={domain}>{domain}</option>)}
-                  </select>
+                    <select name="domain" value={form.domain} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" required>
+                      <option value="" disabled>Select Domain</option>
+                      {allowedDomains.map(domain => <option key={domain} value={domain}>{domain}</option>)}
+                    </select>
 
-                  <input type="text" name="rollNo" placeholder="Roll Number" value={form.rollNo} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" required />
-                  <input type="email" name="email" placeholder="KIIT Email" value={form.email} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" required />
-                  <input type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" required />
+                    <input type="text" name="rollNo" placeholder="Roll Number" value={form.rollNo} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" required />
+
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder="KIIT Email"
+                      value={form.email}
+                      onChange={handleChange}
+                      onBlur={() => {
+                        if (form.email && !kiitEmailRegex.test(form.email)) {
+                          toast.error("Enter a valid KIIT email");
+                        }
+                      }}
+                      className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base"
+                      required
+                    />
+
+                    <input type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" required />
 
                     <input type="text" name="adminCode" placeholder="Code (optional)" value={form.adminCode} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" />
+                    <input type="text" name="leadCode" placeholder="Code (optional)" value={form.leadCode} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" />
 
-                  <input type="text" name="linkedinId" placeholder="LinkedIn URL" value={form.linkedinId} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" required />
-                  <input type="text" name="githubId" placeholder="GitHub URL" value={form.githubId} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" required/>
+                    <input
+                      type="text"
+                      name="linkedinId"
+                      placeholder="LinkedIn URL"
+                      value={form.linkedinId}
+                      onChange={handleChange}
+                      onBlur={() => {
+                        if (form.linkedinId && !linkedinIdRegex.test(form.linkedinId)) {
+                          toast.error("Enter a valid LinkedIn URL");
+                        }
+                      }}
+                      className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base"
+                      required
+                    />
 
-                  <button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 sm:py-3 rounded-lg text-sm sm:text-base">
-                    {loading ? "Creating..." : "Sign Up"}
-                  </button>
-                </form>
+                    <input
+                      type="text"
+                      name="githubId"
+                      placeholder="GitHub URL"
+                      value={form.githubId}
+                      onChange={handleChange}
+                      onBlur={() => {
+                        if (form.githubId && !githubIdRegex.test(form.githubId)) {
+                          toast.error("Enter a valid GitHub URL");
+                        }
+                      }}
+                      className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base"
+                      required
+                    />
+
+                    <button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 sm:py-3 rounded-lg text-sm sm:text-base">
+                      {loading ? "Creating..." : "Sign Up"}
+                    </button>
+                  </form>
                 </>
               ) : (
                 <div className="text-center space-y-4">
@@ -226,7 +277,6 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                   <button onClick={handleVerifyOtp} disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 sm:py-3 rounded-lg text-sm sm:text-base">
                     {loading ? "Verifying..." : "Verify Email"}
                   </button>
-
 
                   {resendAvailable ? (
                     <button onClick={handleResendOtp} className="text-indigo-500 hover:underline mt-2 text-sm sm:text-base">Resend OTP</button>
@@ -251,4 +301,3 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
     </>
   );
 }
-
