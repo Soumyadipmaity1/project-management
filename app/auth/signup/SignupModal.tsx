@@ -168,28 +168,28 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-white rounded-2xl shadow-xl w-full max-w-md sm:max-w-lg md:max-w-xl p-6 sm:p-8 relative overflow-y-auto max-h-[90vh]"
+              className="bg-gray-900 rounded-2xl shadow-xl w-full max-w-md sm:max-w-lg md:max-w-xl p-6 sm:p-8 relative overflow-y-auto max-h-[90vh]"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
             >
               <button
                 onClick={() => { resetForm(); onClose(); }}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-200"
               >
                 ✕
               </button>
 
               {!verified ? (
                 <>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-center mb-4">Create an Account</h2>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-center mb-4 text-white">Create an Account</h2>
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="flex justify-center mb-4 relative">
-                      <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-2 border-indigo-600 overflow-hidden flex items-center justify-center bg-gray-100">
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-2 border-indigo-500 overflow-hidden flex items-center justify-center bg-gray-800">
                         {form.profilePic ? (
                           <img src={URL.createObjectURL(form.profilePic)} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
-                          <User onClick={() => fileInputRef.current?.click()} className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 text-indigo-600" />
+                          <User onClick={() => fileInputRef.current?.click()} className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 text-indigo-400" />
                         )}
                       </div>
                       {!form.profilePic && (
@@ -205,14 +205,14 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                       <input type="file" name="profilePic" accept="image/*" ref={fileInputRef} onChange={handleChange} className="hidden" />
                     </div>
 
-                    <input type="text" name="name" placeholder="Name" value={form.name} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" required />
+                    <input type="text" name="name" placeholder="Name" value={form.name} onChange={handleChange} className="w-full p-2 sm:p-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-lg text-sm sm:text-base focus:border-indigo-500 focus:ring-indigo-500" required />
 
-                    <select name="domain" value={form.domain} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" required>
-                      <option value="" disabled>Select Domain</option>
-                      {allowedDomains.map(domain => <option key={domain} value={domain}>{domain}</option>)}
+                    <select name="domain" value={form.domain} onChange={handleChange} className="w-full p-2 sm:p-3 border border-gray-700 bg-gray-800 text-white rounded-lg text-sm sm:text-base focus:border-indigo-500 focus:ring-indigo-500" required>
+                      <option value="" disabled className="text-gray-400">Select Domain</option>
+                      {allowedDomains.map(domain => <option key={domain} value={domain} className="text-white bg-gray-800">{domain}</option>)}
                     </select>
 
-                    <input type="text" name="rollNo" placeholder="Roll Number" value={form.rollNo} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" required />
+                    <input type="text" name="rollNo" placeholder="Roll Number" value={form.rollNo} onChange={handleChange} className="w-full p-2 sm:p-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-lg text-sm sm:text-base focus:border-indigo-500 focus:ring-indigo-500" required />
 
                     <input
                       type="email"
@@ -225,14 +225,14 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                           toast.error("Enter a valid KIIT email");
                         }
                       }}
-                      className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base"
+                      className="w-full p-2 sm:p-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-lg text-sm sm:text-base focus:border-indigo-500 focus:ring-indigo-500"
                       required
                     />
 
-                    <input type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" required />
+                    <input type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} className="w-full p-2 sm:p-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-lg text-sm sm:text-base focus:border-indigo-500 focus:ring-indigo-500" required />
 
-                    <input type="text" name="adminCode" placeholder="Code (optional)" value={form.adminCode} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" />
-                    <input type="text" name="leadCode" placeholder="Code (optional)" value={form.leadCode} onChange={handleChange} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" />
+                    <input type="text" name="adminCode" placeholder="Code (optional)" value={form.adminCode} onChange={handleChange} className="w-full p-2 sm:p-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-lg text-sm sm:text-base focus:border-indigo-500 focus:ring-indigo-500" />
+                    <input type="text" name="leadCode" placeholder="Code (optional)" value={form.leadCode} onChange={handleChange} className="w-full p-2 sm:p-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-lg text-sm sm:text-base focus:border-indigo-500 focus:ring-indigo-500" />
 
                     <input
                       type="text"
@@ -245,7 +245,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                           toast.error("Enter a valid LinkedIn URL");
                         }
                       }}
-                      className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base"
+                      className="w-full p-2 sm:p-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-lg text-sm sm:text-base focus:border-indigo-500 focus:ring-indigo-500"
                       required
                     />
 
@@ -260,36 +260,36 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                           toast.error("Enter a valid GitHub URL");
                         }
                       }}
-                      className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base"
+                      className="w-full p-2 sm:p-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-lg text-sm sm:text-base focus:border-indigo-500 focus:ring-indigo-500"
                       required
                     />
 
-                    <button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 sm:py-3 rounded-lg text-sm sm:text-base">
+                    <button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-800 text-white py-2 sm:py-3 rounded-lg text-sm sm:text-base transition-colors">
                       {loading ? "Creating..." : "Sign Up"}
                     </button>
                   </form>
                 </>
               ) : (
                 <div className="text-center space-y-4">
-                  <h2 className="text-2xl sm:text-3xl font-bold mb-2">Verify Your Email</h2>
-                  <p className="text-gray-700 text-sm sm:text-base">We've sent an OTP to <b>{form.email}</b>. Enter it below:</p>
-                  <input type="text" placeholder="Enter OTP" value={otpInput} onChange={e => setOtpInput(e.target.value)} className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base" />
-                  <button onClick={handleVerifyOtp} disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 sm:py-3 rounded-lg text-sm sm:text-base">
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-white">Verify Your Email</h2>
+                  <p className="text-gray-300 text-sm sm:text-base">We've sent an OTP to <b className="text-white">{form.email}</b>. Enter it below:</p>
+                  <input type="text" placeholder="Enter OTP" value={otpInput} onChange={e => setOtpInput(e.target.value)} className="w-full p-2 sm:p-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-lg text-sm sm:text-base focus:border-indigo-500 focus:ring-indigo-500" />
+                  <button onClick={handleVerifyOtp} disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-800 text-white py-2 sm:py-3 rounded-lg text-sm sm:text-base transition-colors">
                     {loading ? "Verifying..." : "Verify Email"}
                   </button>
 
                   {resendAvailable ? (
-                    <button onClick={handleResendOtp} className="text-indigo-500 hover:underline mt-2 text-sm sm:text-base">Resend OTP</button>
+                    <button onClick={handleResendOtp} className="text-indigo-400 hover:text-indigo-300 hover:underline mt-2 text-sm sm:text-base transition-colors">Resend OTP</button>
                   ) : (
-                    <p className="text-gray-400 mt-2 text-sm sm:text-base">Resend OTP available in 2 min</p>
+                    <p className="text-gray-500 mt-2 text-sm sm:text-base">Resend OTP available in 2 min</p>
                   )}
                 </div>
               )}
 
               {!verified && (
-                <p className="text-sm sm:text-base text-gray-500 text-center mt-4">
+                <p className="text-sm sm:text-base text-gray-400 text-center mt-4">
                   Already have an account?{" "}
-                  <button onClick={() => { resetForm(); onClose(); setIsSignInOpen(true); }} className="text-indigo-500 hover:underline">Sign In</button>
+                  <button onClick={() => { resetForm(); onClose(); setIsSignInOpen(true); }} className="text-indigo-400 hover:text-indigo-300 hover:underline transition-colors">Sign In</button>
                 </p>
               )}
             </motion.div>
