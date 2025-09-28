@@ -45,7 +45,7 @@ const elements = [
 const items = [
   {
     title: "Web Development",
-    url: "/member/domains/web-development",
+    url: "/member/domains",
     icon: Code2,
   },
 ];
