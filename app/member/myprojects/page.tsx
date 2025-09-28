@@ -20,11 +20,11 @@ function StatusBadge({ status }: { status: Project["badge"] }) {
     "inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold";
   switch (status) {
     case "active":
-      return <span className={`${base} bg-indigo-100 text-indigo-700`}>Active</span>;
+      return <span className={`${base} bg-indigo-900/30 text-indigo-300`}>Active</span>;
     case "completed":
-      return <span className={`${base} bg-green-100 text-green-700`}>Completed</span>;
+      return <span className={`${base} bg-green-900/30 text-green-300`}>Completed</span>;
     case "disabled":
-      return <span className={`${base} bg-gray-200 text-gray-600`}>Disabled</span>;
+      return <span className={`${base} bg-gray-700 text-gray-300`}>Disabled</span>;
     default:
       return null;
   }
@@ -32,7 +32,7 @@ function StatusBadge({ status }: { status: Project["badge"] }) {
 
 function ProjectCard({ project }: { project: Project }) {
   return (
-    <article className="bg-white rounded-xl shadow-md overflow-hidden max-w-md w-full ring-1 ring-gray-200 hover:shadow-lg transition">
+    <article className="bg-gray-800 rounded-xl shadow-md overflow-hidden max-w-md w-full ring-1 ring-gray-700 hover:shadow-xl hover:shadow-gray-900/20 transition">
       {project.image && (
         <img
           src={project.image}
@@ -42,32 +42,32 @@ function ProjectCard({ project }: { project: Project }) {
       )}
       <div className="p-6 flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-white">
             {project.title}
           </h3>
           <StatusBadge status={project.badge} />
         </div>
 
-        <p className="text-sm text-gray-500">{project.domain}</p>
-        <p className="text-sm text-gray-700">{project.description}</p>
+        <p className="text-sm text-gray-400">{project.domain}</p>
+        <p className="text-sm text-gray-300">{project.description}</p>
 
-        <div className="mt-2 text-sm text-gray-800">
+        <div className="mt-2 text-sm text-gray-200">
           <div>
-            Team Lead: <span className="text-gray-600">{project.teamlead}</span>
+            Team Lead: <span className="text-gray-400">{project.teamlead}</span>
           </div>
           <div>
             Assistant Lead:{" "}
-            <span className="text-gray-600">{project.colead || "-"}</span>
+            <span className="text-gray-400">{project.colead || "-"}</span>
           </div>
-          <div className="flex items-center gap-1 mt-2 text-gray-700">
-            <FaUsers className="text-gray-500" /> Members visible in backend
+          <div className="flex items-center gap-1 mt-2 text-gray-300">
+            <FaUsers className="text-gray-400" /> Members visible in backend
           </div>
         </div>
 
         <div className="flex gap-3 mt-4">
           <a
             href={`/projects/${project._id}`}
-            className="px-3 py-2 rounded-md text-xs font-medium bg-indigo-600 text-white hover:bg-indigo-700"
+            className="px-3 py-2 rounded-md text-xs font-medium bg-indigo-600 text-white hover:bg-indigo-500"
           >
             View Project
           </a>
@@ -169,32 +169,32 @@ export default function ProjectGrid() {
   ];
 
   return (
-    <main className="min-h-screen p-8">
+    <main className="min-h-screen p-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Projects</h1>
-            <p className="text-gray-600 mb-4">Browse and manage projects</p>
+            <h1 className="text-4xl font-bold text-white mb-2">My Projects</h1>
+            <p className="text-gray-400 mb-4">Browse and manage projects</p>
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-indigo-700 hover:bg-indigo-800 text-white rounded px-5 py-2 font-semibold flex items-center gap-2 shadow-md"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white rounded px-5 py-2 font-semibold flex items-center gap-2 shadow-md"
           >
             <FaPlus /> Add Project
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 bg-gray-100 rounded-lg p-1 w-fit">
+        <div className="flex gap-2 mb-6 bg-gray-800 rounded-lg p-1 w-fit">
           {(["all", "enrolled", "available"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-2 rounded-md text-sm font-medium transition ${
                 activeTab === tab
-                  ? "bg-white text-indigo-700 shadow"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-gray-700 text-indigo-400 shadow"
+                  : "text-gray-400 hover:text-gray-200"
               }`}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -204,9 +204,9 @@ export default function ProjectGrid() {
 
         {/* Content */}
         {loading ? (
-          <p>Loading projects...</p>
+          <p className="text-gray-300">Loading projects...</p>
         ) : error ? (
-          <p className="text-red-600">{error}</p>
+          <p className="text-red-400">{error}</p>
         ) : filteredProjects.length === 0 ? (
           <p className="text-gray-500">No projects found.</p>
         ) : (
@@ -220,16 +220,16 @@ export default function ProjectGrid() {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl shadow w-full max-w-md relative">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-6 rounded-xl shadow-xl w-full max-w-md relative border border-gray-700">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-200"
               disabled={submitting}
             >
               <FaTimes />
             </button>
-            <h2 className="text-2xl font-bold mb-4 text-center">
+            <h2 className="text-2xl font-bold mb-4 text-center text-white">
               Send Request for Project Creation
             </h2>
 
@@ -242,7 +242,7 @@ export default function ProjectGrid() {
                 onChange={handleInputChange}
                 required
                 disabled={submitting}
-                className="border p-2 rounded w-full"
+                className="border border-gray-600 bg-gray-700 text-white placeholder-gray-400 p-2 rounded w-full focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
               />
 
               <select
@@ -251,9 +251,9 @@ export default function ProjectGrid() {
                 onChange={handleInputChange}
                 required
                 disabled={submitting}
-                className="border p-2 rounded w-full"
+                className="border border-gray-600 bg-gray-700 text-white p-2 rounded w-full focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
               >
-                <option value="">Select Domain *</option>
+                <option value="" className="text-gray-400">Select Domain *</option>
                 {domains.map((d) => (
                   <option key={d} value={d}>
                     {d}
@@ -268,7 +268,7 @@ export default function ProjectGrid() {
                 onChange={handleInputChange}
                 required
                 disabled={submitting}
-                className="border p-2 rounded w-full"
+                className="border border-gray-600 bg-gray-700 text-white placeholder-gray-400 p-2 rounded w-full focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                 rows={3}
               />
 
@@ -280,7 +280,7 @@ export default function ProjectGrid() {
                 onChange={handleInputChange}
                 required
                 disabled={submitting}
-                className="border p-2 rounded w-full"
+                className="border border-gray-600 bg-gray-700 text-white placeholder-gray-400 p-2 rounded w-full focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
               />
 
               <input
@@ -290,7 +290,7 @@ export default function ProjectGrid() {
                 value={formData.colead}
                 onChange={handleInputChange}
                 disabled={submitting}
-                className="border p-2 rounded w-full"
+                className="border border-gray-600 bg-gray-700 text-white placeholder-gray-400 p-2 rounded w-full focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
               />
 
               <input
@@ -300,13 +300,13 @@ export default function ProjectGrid() {
                 value={formData.github}
                 onChange={handleInputChange}
                 disabled={submitting}
-                className="border p-2 rounded w-full"
+                className="border border-gray-600 bg-gray-700 text-white placeholder-gray-400 p-2 rounded w-full focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
               />
 
               <button
                 type="submit"
                 disabled={submitting}
-                className="bg-indigo-700 text-white px-4 py-2 rounded shadow hover:bg-indigo-800 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold"
+                className="bg-indigo-600 text-white px-4 py-2 rounded shadow hover:bg-indigo-500 disabled:bg-gray-600 disabled:cursor-not-allowed font-semibold"
               >
                 {submitting ? "Sending..." : "Send Request"}
               </button>
