@@ -45,26 +45,26 @@ export default function ProjectGrid() {
     return true;
   });
 
-  if (loading) return <p className="text-center">Loading projects...</p>;
+  if (loading) return <p className="text-center text-gray-300">Loading projects...</p>;
 
   return (
-    <main className="min-h-screen p-8">
+    <main className="min-h-screen p-4">
       <Toaster position="top-right" /> 
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Projects</h1>
-        <p className="text-gray-600 mb-6">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-bold text-white mb-2">Projects</h1>
+        <p className="text-gray-400 mb-6">
           View and manage projects across your domains
         </p>
 
-        <div className="flex gap-2 mb-6 bg-gray-100 rounded-lg p-1 w-fit">
+        <div className="flex gap-2 mb-6 bg-gray-800 rounded-lg p-1 w-fit">
           {(["all", "enrolled", "available"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-2 rounded-md text-sm font-medium transition ${
                 activeTab === tab
-                  ? "bg-white text-indigo-700 shadow"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-gray-700 text-indigo-400 shadow-lg"
+                  : "text-gray-400 hover:text-gray-200"
               }`}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -87,24 +87,24 @@ function StatusBadge({ status }: { status: Project["status"] }) {
     "inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold";
   switch (status) {
     case "active":
-      return <span className={`${base} bg-blue-100 text-blue-700`}>Active</span>;
+      return <span className={`${base} bg-blue-900 text-blue-300`}>Active</span>;
     case "in-progress":
       return (
-        <span className={`${base} bg-indigo-100 text-indigo-700`}>
+        <span className={`${base} bg-indigo-900 text-indigo-300`}>
           In Progress
         </span>
       );
     case "completed":
       return (
-        <span className={`${base} bg-green-100 text-green-700`}>Completed</span>
+        <span className={`${base} bg-green-900 text-green-300`}>Completed</span>
       );
     case "disabled":
       return (
-        <span className={`${base} bg-gray-200 text-gray-600`}>Disabled</span>
+        <span className={`${base} bg-gray-700 text-gray-400`}>Disabled</span>
       );
     case "available":
       return (
-        <span className={`${base} bg-yellow-100 text-yellow-700`}>
+        <span className={`${base} bg-yellow-900 text-yellow-300`}>
           Available
         </span>
       );
@@ -122,41 +122,41 @@ function ProjectCard({ project }: { project: Project }) {
   };
 
   return (
-    <article className="bg-white rounded-xl shadow-md overflow-hidden max-w-md w-full ring-1 ring-gray-200 hover:shadow-lg transition">
+    <article className="bg-gray-800 rounded-xl shadow-lg overflow-hidden max-w-md w-full ring-1 ring-gray-700 hover:shadow-xl hover:ring-gray-600 transition">
       <div className="p-6 flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-white">
             {project.title}
           </h3>
           <StatusBadge status={project.status} />
         </div>
 
-        <p className="text-sm text-gray-500">{project.domain}</p>
-        <p className="text-sm text-gray-700">{project.description}</p>
+        <p className="text-sm text-gray-400">{project.domain}</p>
+        <p className="text-sm text-gray-300">{project.description}</p>
 
-        <div className="mt-2 text-sm text-gray-800">
+        <div className="mt-2 text-sm text-gray-200">
           <div>
-            Team Lead: <span className="text-gray-600">{project.teamLead}</span>
+            Team Lead: <span className="text-gray-400">{project.teamLead}</span>
           </div>
           <div>
             Assistant Lead:{" "}
-            <span className="text-gray-600">{project.assistantLead}</span>
+            <span className="text-gray-400">{project.assistantLead}</span>
           </div>
-          <div className="flex items-center gap-1 mt-2 text-gray-700">
-            <FaUsers className="text-gray-500" /> {project.members} members
+          <div className="flex items-center gap-1 mt-2 text-gray-300">
+            <FaUsers className="text-gray-400" /> {project.members} members
           </div>
         </div>
 
-        <div className="mt-3 text-xs font-medium text-indigo-600">
+        <div className="mt-3 text-xs font-medium text-indigo-400">
           Domain: {project.domain}
         </div>
 
         <div className="flex gap-3 mt-4">
           <button
             disabled={disabled}
-            className={`px-3 py-2 rounded-md text-xs font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-300 ${
+            className={`px-3 py-2 rounded-md text-xs font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:ring-offset-gray-800 ${
               disabled
-                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                ? "bg-gray-700 text-gray-500 cursor-not-allowed"
                 : "bg-indigo-600 text-white hover:bg-indigo-700"
             }`}
           >
@@ -166,7 +166,7 @@ function ProjectCard({ project }: { project: Project }) {
           {available && (
             <button
               onClick={handleSendRequest}
-              className="px-3 py-2 rounded-md text-xs font-medium border border-indigo-200 text-indigo-600 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-300"
+              className="px-3 py-2 rounded-md text-xs font-medium border border-indigo-500 text-indigo-400 bg-gray-800 hover:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:ring-offset-gray-800"
             >
               Send Request
             </button>
