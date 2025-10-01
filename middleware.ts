@@ -18,13 +18,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  if (url.pathname.startsWith("/admin") && token.role !== "Admin") {
-    return NextResponse.redirect(new URL("/unauthorized", request.url));
-  }
+  // if (url.pathname.startsWith("/admin") && token.role !== "Admin") {
+  //   return NextResponse.redirect(new URL("/unauthorized", request.url));
+  // }
 
-  if (url.pathname.startsWith("/team") && token.role !== "Lead") {
-    return NextResponse.redirect(new URL("/unauthorized", request.url));
-  }
+  // if (url.pathname.startsWith("/team") && token.role !== "Lead") {
+  //   return NextResponse.redirect(new URL("/unauthorized", request.url));
+  // }
 
   return NextResponse.next();
 }
