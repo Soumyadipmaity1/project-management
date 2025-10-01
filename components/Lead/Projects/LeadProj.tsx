@@ -36,57 +36,72 @@ type ProjectCardProps = {
 function ProjectCard({ project }: ProjectCardProps) {
   const statusColor =
     project.badge === "active"
-      ? "bg-indigo-500 text-white"
+      ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30"
       : project.badge === "completed"
-      ? "bg-green-500 text-white"
-      : "bg-gray-500 text-white";
+      ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/30"
+      : "bg-gradient-to-r from-slate-500 to-slate-600 text-white shadow-lg shadow-slate-500/30";
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-6 flex flex-col justify-between shadow-md hover:shadow-lg transition min-w-[320px] max-w-[360px]">
-      {/* Project Image */}
-      {project.image && (
-        <img
-          src={project.image}
-          alt={project.title}
-          className="w-full h-44 object-cover rounded-md mb-4"
-        />
-      )}
+    <div className="group relative">
+      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl opacity-0 group-hover:opacity-100 blur-xl transition-all duration-500" />
+      <div className="relative rounded-xl bg-gradient-to-br from-slate-900/98 via-slate-800/98 to-slate-900/98 backdrop-blur-xl border border-slate-700/50 shadow-2xl hover:border-emerald-400/60 transition-all duration-500 hover:shadow-emerald-500/25 overflow-hidden flex flex-col w-[360px] group-hover:transform group-hover:scale-[1.02]">
+        {project.image && (
+          <div className="relative overflow-hidden">
+            <img
+              src={project.image}
+              alt={project.title}
+              className="w-full h-44 object-cover group-hover:scale-110 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent" />
+          </div>
+        )}
 
-      <div className="flex items-start justify-between mb-2">
-        <h3 className="font-bold text-lg text-[#031635]">{project.title}</h3>
-        <StatusBadge status={project.badge || "active"} color={statusColor} />
-      </div>
+        <div className="p-6 flex flex-col gap-4 flex-grow">
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="font-bold text-xl bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent font-mclaren leading-tight">{project.title}</h3>
+            <StatusBadge status={project.badge || "active"} color={statusColor} />
+          </div>
 
-      <span className="text-sm text-gray-500 mb-2">{project.domain}</span>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-400"></div>
+            <span className="text-sm font-semibold text-emerald-300 font-mclaren">
+              {project.domain}
+            </span>
+          </div>
 
-      <p className="text-sm text-gray-700 flex-1 mb-4">{project.description}</p>
+          <p className="text-slate-300 text-sm leading-relaxed font-mclaren">
+            {project.description}
+          </p>
 
-      <div className="text-sm text-[#031635] mb-3">
-        <div>
-          <span className="font-semibold">Team Lead: </span>
-          <span className="text-gray-600">{project.teamLead}</span>
+          <div className="space-y-2 bg-slate-800/30 rounded-lg p-3 border border-slate-700/30">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-emerald-300 text-xs font-mclaren">Team Lead:</span>
+              <span className="text-slate-300 text-xs font-mclaren">{project.teamLead}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-emerald-300 text-xs font-mclaren">Assistant Lead:</span>
+              <span className="text-slate-300 text-xs font-mclaren">{project.assistantLead || "-"}</span>
+            </div>
+          </div>
+
+          {project.github && (
+            <a
+              href={project.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group/link flex items-center gap-2 text-emerald-400 text-sm font-medium hover:text-emerald-300 transition-all duration-200 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-lg p-3 border border-emerald-500/20 hover:border-emerald-400/40"
+            >
+              <FaGithub className="group-hover/link:rotate-12 transition-transform duration-200" /> 
+              <span className="font-mclaren">GitHub Repository</span>
+            </a>
+          )}
+
+          <div className="flex gap-3 mt-4">
+            <button className="flex-1 bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-600 hover:from-emerald-700 hover:via-emerald-700 hover:to-teal-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:transform hover:scale-105 border border-emerald-500/20 font-mclaren">
+              View Project
+            </button>
+          </div>
         </div>
-        <div>
-          <span className="font-semibold">Assistant Lead: </span>
-          <span className="text-gray-600">{project.assistantLead}</span>
-        </div>
-      </div>
-
-      {project.github && (
-        <a
-          href={project.github}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 text-indigo-600 text-sm font-medium hover:underline mb-3"
-        >
-          <FaGithub /> GitHub Repository
-        </a>
-      )}
-
-      <div className="flex gap-2">
-        <button className="bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-indigo-700">
-          View Project
-        </button>
       </div>
     </div>
   );
@@ -125,53 +140,42 @@ export default function LeadProjects() {
   });
 
   return (
-    <div className="ml-15 py-8">
-      <h2 className="font-mclaren text-[38px] mb-4 pt-5 text-[#2A2A4A]">
-        Projects
-      </h2>
-      <p className="text-[#2A2A4AB0] font-mclaren text-[20px] mb-10">
-        View and manage projects across your domains
-      </p>
+    <div className="p-4 py-6 min-h-screen">
+      <div className="mb-8">
+        <h2 className="font-mclaren text-[36px] mb-3 font-bold bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent">
+          Projects
+        </h2>
+        <p className="text-slate-400 text-lg font-medium font-mclaren">
+          View and manage projects across your domains
+        </p>
+      </div>
 
-      <div className="flex gap-2 mb-6 bg-[#ececec] rounded w-fit border-gray-500">
-        <button
-          className={`px-4 py-2 rounded font-semibold ${
-            activeTab === "all"
-              ? "bg-white border-b-2 border-indigo-600"
-              : "text-gray-500"
-          }`}
-          onClick={() => setActiveTab("all")}
-        >
-          All Projects
-        </button>
-        <button
-          className={`px-4 py-2 rounded font-semibold ${
-            activeTab === "enrolled"
-              ? "bg-white border-b-2 border-indigo-600"
-              : "text-gray-500"
-          }`}
-          onClick={() => setActiveTab("enrolled")}
-        >
-          Enrolled
-        </button>
-        <button
-          className={`px-4 py-2 rounded font-semibold ${
-            activeTab === "available"
-              ? "bg-white border-b-2 border-indigo-600"
-              : "text-gray-500"
-          }`}
-          onClick={() => setActiveTab("available")}
-        >
-          Available
-        </button>
+      <div className="flex gap-1 mb-8 bg-slate-800/60 rounded-xl w-fit border border-slate-700/50 p-1.5 backdrop-blur-sm">
+        {["all", "enrolled", "available"].map((tab) => (
+          <button
+            key={tab}
+            className={`px-5 py-2.5 rounded-lg font-semibold transition-all duration-300 font-mclaren ${
+              activeTab === tab
+                ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/30 transform scale-105"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-700/50"
+            }`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab === "all"
+              ? "All Projects"
+              : tab === "enrolled"
+              ? "Enrolled"
+              : "Available"}
+          </button>
+        ))}
       </div>
 
       {error && (
-        <div className="text-red-500 mb-4">
-          Error: {error}{" "}
+        <div className="bg-red-900/50 border border-red-500/50 rounded-xl p-4 mb-6 text-red-200 font-mclaren shadow-lg">
+          <p className="mb-2">{error}</p>
           <button
             onClick={fetchProjects}
-            className="ml-2 bg-indigo-600 text-white px-3 py-1 rounded"
+            className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300"
           >
             Retry
           </button>
@@ -179,19 +183,26 @@ export default function LeadProjects() {
       )}
 
       {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <p className="text-[#2A2A4A]">Loading projects...</p>
+        <div className="flex items-center justify-center py-16">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-400 mx-auto mb-4"></div>
+            <p className="text-slate-300 text-lg font-mclaren">Loading projects...</p>
+          </div>
         </div>
       ) : filteredProjects.length === 0 ? (
-        <div className="flex justify-center items-center h-64">
-          <p className="text-[#2A2A4A]">
-            {activeTab === "all"
-              ? "No projects found"
-              : `No ${activeTab} projects found`}
-          </p>
+        <div className="flex items-center justify-center py-16">
+          <div className="text-center bg-slate-800/30 backdrop-blur-sm rounded-2xl p-8 border border-slate-700/50">
+            <div className="text-6xl mb-4 text-slate-600">📋</div>
+            <p className="text-slate-300 text-lg font-mclaren">
+              {activeTab === "all"
+                ? "No projects found"
+                : `No ${activeTab} projects found`}
+            </p>
+            <p className="text-slate-500 text-sm mt-2 font-mclaren">Projects will appear here once they're available</p>
+          </div>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-6">
+        <div className="flex flex-wrap gap-8 justify-start">
           {filteredProjects.map((project) => (
             <ProjectCard key={project.id} project={project} />
           ))}
