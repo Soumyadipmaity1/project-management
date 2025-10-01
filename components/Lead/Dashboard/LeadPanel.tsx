@@ -1,83 +1,116 @@
 // app/admin/page.tsx
+"use client";
 
-export default function MemberPanel() {
-  const stats = [
-     {
-      title: "Total Projects",
-      value: 12,
-      description: "Across All Domain",
-    },
-    {
-      title: "Total Projects",
-      value: 12,
-      description: "Across All Domain",
-    },
-    {
-      title: "Total Projects",
-      value: 12,
-      description: "Across All Domain",
-    },
-    {
-      title: "Total Projects",
-      value: 12,
-      description: "Across All Domain",
-    },
-  ];
-  return (
-    <div className="pl-2 py-8">
-      <h2 className="font-mclaren font-normal text-[38px] leading-[100%] tracking-[0] mb-2 pt-10 text-[#2A2A4A]">Welcome back, Team Lead</h2>
-      <p className="text-[#2A2A4AB0] mb-6 font-mclaren font-normal text-[18px] leading-[100%] tracking-[0] pt-2 ">
-        View and work on your assigned projects
-      </p>
-      {/* Your dashboard stats and other content go here */}
+import { FolderOpen, CheckCircle2, Clock, AlertCircle, Code2, ArrowRight } from "lucide-react";
 
-      <div className="grid grid-cols-4 gap-6 mb-8">
-        {stats.map((stat, idx) => (
-          <div key={idx} className="rounded-[15px] bg-[#eaf2ff] bg-opacity-70 border border-gray-300 p-6 font-bold shadow-lg"
-          style={{ boxShadow: '0 4px 12px rgba(77, 77, 83, 0.25)' }}
-          >
-          <div className="text-[#2A2A4A] font-mclaren font-normal text-[20px] leading-[100%] tracking- mb-2 ">{stat.title}</div>
-          <div className="text-[#2A2A4A] font-mclaren  text-[38px] leading-[100%] tracking- mb-2 font-bold">{stat.value}</div>
-          <div className="text-[#2A2A4A] font-mclaren font-normal text-[15px] leading-[100%] tracking-">{stat.description}</div>
-        </div>
-        ))}
-        
+interface Stat {
+  title: string;
+  value: number;
+  description: string;
+}
 
-        
+interface Domain {
+  name: string;
+  description: string;
+}
 
-        
+interface LeadPanelProps {
+  role?: "Team Lead";
+  stats?: Stat[];
+  domains?: Domain[];
+}
 
-        
-
-        
-        
-      </div>
-      <div>
-          <h2 className="font-mclaren font-normal text-[30px] leading-[100%] tracking- text-[#2A2A4A] mb-4 pt-10">Your Domains </h2>
-        </div>
-
-        <div className="grid grid-cols-3 gap-6">
-          <div className="rounded-lg border border-gray-300 shadow-lg">
-            <div className="bg-[#D8E6FF] rounded-t-lg p-4 flex items-center gap-2">
-              <span className="font-madimiOne font-normal text-[18px] leading-[100%] tracking- text-[#2A2A4A] font-['Madimi_One',sans-serif]">{"</>"}</span>
-              <span className="font-madimiOne font-normal text-[18px] leading-[100%] tracking- text-[#2A2A4A] font-['Madimi_One',sans-serif]">Web Development</span>
-
-            </div>
-            <div className="p-6 bg-[#EAF2FFB0] rounded-b-lg">
-              <div className="text-[#2A2A4A] font-mclaren font-normal text-[18px] leading-[100%] tracking- mb-4 flex justify-center">Acess Projects and Resources in Web</div>
-              <button className="bg-[#4A4080] font-mclaren font-normal text-[16px] leading-[100%] tracking- text-[#FFF6EB] py-2 px-4 rounded flex items-center gap-2 w-full justify-center">View Domain
-                <span>→</span>
-              </button>
-            </div>
-
+const StatCard = ({ stat, icon: Icon }: { stat: Stat; icon: any }) => (
+  <div className="group relative">
+    <div className="relative rounded-xl bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-slate-700/50 p-6 shadow-2xl flex flex-col hover:border-emerald-400/50 transition-all duration-500 hover:shadow-emerald-500/20">
+      <div className="flex items-center justify-between mb-5">
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg opacity-20 blur-sm group-hover:opacity-40 transition-opacity duration-300" />
+          <div className="relative p-3 rounded-lg bg-gradient-to-br from-emerald-500/20 via-emerald-400/15 to-teal-500/20 border border-emerald-400/30 group-hover:border-emerald-300/50 transition-all duration-300">
+            <Icon className="w-5 h-5 text-emerald-300 group-hover:text-emerald-200 transition-colors duration-300" />
           </div>
+        </div>
+      </div>
+      <div className="space-y-3">
+        <div className="text-3xl font-bold bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent font-mclaren group-hover:from-emerald-200 group-hover:via-teal-200 group-hover:to-green-200 transition-all duration-300">
+          {stat.value}
+        </div>
+        <div className="text-sm font-semibold text-slate-200 font-mclaren leading-tight group-hover:text-white transition-colors duration-300">
+          {stat.title}
+        </div>
+        <div className="text-xs text-slate-400 font-mclaren group-hover:text-slate-300 transition-colors duration-300">
+          {stat.description}
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
-          
+const DomainCard = ({ domain }: { domain: Domain }) => (
+  <div className="group">
+    <div className="rounded-lg border border-slate-700 bg-slate-900 hover:border-emerald-500 transition-all duration-300 overflow-hidden hover:shadow-lg hover:shadow-emerald-500/20">
+      <div className="bg-emerald-600 p-4 flex items-center gap-3">
+        <div className="p-2 rounded-md bg-emerald-700">
+          <Code2 className="w-5 h-5 text-white" />
+        </div>
+        <span className="font-madimiOne text-lg text-white font-semibold">{domain.name}</span>
+      </div>
+      <div className="p-4">
+        <p className="text-slate-300 font-mclaren text-sm mb-4 leading-relaxed">
+          {domain.description}
+        </p>
+        <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-4 rounded-md flex items-center gap-2 justify-center font-medium transition-colors duration-200">
+          <span>View Domain</span>
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-200" />
+        </button>
+      </div>
+    </div>
+  </div>
+);
 
-          
+export default function LeadPanel({ role = "Team Lead" }: LeadPanelProps) {
+  const stats: Stat[] = [
+    { title: "Total Projects", value: 12, description: "Across All Domains" },
+    { title: "Team Members", value: 8, description: "Active Contributors" },
+    { title: "Completed Projects", value: 5, description: "This Quarter" },
+    { title: "Pending Reviews", value: 3, description: "Awaiting Approval" },
+  ];
 
+  const statIcons = [FolderOpen, CheckCircle2, Clock, AlertCircle];
+
+  const domains: Domain[] = [
+    { name: "Web Development", description: "Access Projects and Resources in Web Development" },
+  ];
+
+  return (
+    <div className="py-8 w-full min-h-screen">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="mb-10">
+          <h2 className="font-mclaren text-4xl mb-3 font-bold bg-gradient-to-r from-white via-emerald-200 via-teal-200 to-green-200 bg-clip-text text-transparent">
+            Welcome back, {role}
+          </h2>
+          <p className="text-slate-400 font-mclaren text-lg font-medium">
+            View and work on your assigned projects
+          </p>
         </div>
 
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 w-full">
+          {stats.map((stat, idx) => (
+            <StatCard key={idx} stat={stat} icon={statIcons[idx]} />
+          ))}
+        </div>
+
+        <div className="mb-8">
+          <h2 className="font-mclaren text-3xl mb-8 bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent font-bold">
+            Your Domains
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {domains.map((domain, idx) => (
+            <DomainCard key={idx} domain={domain} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
