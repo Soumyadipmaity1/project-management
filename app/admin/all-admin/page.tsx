@@ -52,10 +52,10 @@ export default function TeamMembers() {
   return (
     <div className="min-h-screen py-6 px-4 ">
       <h2 className="font-mclaren font-normal text-[38px] text-neutral-100 mb-3 leading-[100%] tracking-[0]">
-        All Leads
+        All Admins
       </h2>
       <p className="text-neutral-300 text-[18px] font-mclaren mb-8 leading-[100%] tracking-[0] font-normal">
-        Manage Leads Across All Domains
+        Manage Admins Across Entire Platform
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {team.map((member) => (
