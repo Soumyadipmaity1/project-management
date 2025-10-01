@@ -352,7 +352,6 @@ export default function AllMembers() {
 					</p>
 				</div>
 			</div>
-
 			{/* Search Bar */}
 			<div className="px-0 py-4">
 				<div className="max-w-md">
