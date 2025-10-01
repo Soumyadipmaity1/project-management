@@ -1,4 +1,8 @@
-import { Code2, Paperclip, Bell, ClipboardList , User , File } from "lucide-react";
+"use client";
+
+import { Code2, Paperclip, Bell, ClipboardList, User, File, LayoutDashboard } from "lucide-react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import {
   Sidebar,
   SidebarContent,
@@ -10,9 +14,17 @@ import {
   SidebarGroupContent,
   SidebarMenuButton,
   SidebarGroupLabel,
+  useSidebar,
 } from "@/components/ui/sidebar";
+import { Logo } from "./Logo";
+import { cn } from "@/lib/utils";
 
 const elements = [
+  {
+    title: "Dashboard",
+    url: "/admin",
+    icon: LayoutDashboard,
+  },
   {
     title: "Projects",
     url: "/admin/projects",
@@ -24,8 +36,8 @@ const elements = [
     icon: Bell,
   },
   {
-    title: "All Leads",
-    url: "/admin/leads",
+    title: "All Admins",
+    url: "/admin/all-admin",
     icon: User,
   },
   {
@@ -40,84 +52,98 @@ const elements = [
   },
 ];
 
-// const items = [
-//   {
-//     title: "Web development",
-//     url: "#",
-//     icon: Code2,
-//   },
-// ];
 
-export function AdminSidebar() { 
+export function AdminSidebar() {
+  const pathname = usePathname();
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
+
+  const isActiveLink = (url: string) => {
+    if (url === "/admin") {
+      return pathname === url;
+    }
+    return pathname?.startsWith(url);
+  };
+
   return (
-    <Sidebar className="pt-10 [&>div]:bg-[#031635] shadow-xl">
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel></SidebarGroupLabel>
+    <Sidebar 
+      collapsible="icon" 
+      className="bg-neutral-950 border-r border-slate-800/50 shadow-2xl"
+    >
+      <SidebarContent className="relative bg-neutral-950">
+        {/* Header with Logo */}
+        <SidebarHeader className="border-b  border-slate-800/50  backdrop-blur-sm">
+          <Logo />
+        </SidebarHeader>
+        
+        <SidebarGroup className="px-2 py-4 ">
           <SidebarGroupContent>
-            <SidebarMenu>
-              {elements.map((ele) => (
-                <SidebarMenuItem key={ele.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={ele.url}>
-                      <ele.icon />
-                      <span
-                        className="
-                          font-madimi
-                          text-white
-                          text-[16px]
-                         
-                        "
-                      >
-                        {ele.title}
-                      </span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+            <SidebarMenu className="space-y-1">
+              {elements.map((ele) => {
+                const isActive = isActiveLink(ele.url);
+                return (
+                  <SidebarMenuItem key={ele.title}>
+                    <SidebarMenuButton 
+                      asChild
+                      isActive={isActive && !isCollapsed}
+                      tooltip={isCollapsed ? ele.title : undefined}
+                      className={cn(
+                        "relative h-10 rounded-r-3xl",
+                        isCollapsed 
+                          ? '!bg-transparent !border-0 !shadow-none hover:!bg-transparent hover:!border-0 hover:!shadow-none data-[active=true]:!bg-transparent data-[active=true]:!border-0' 
+                          : 'group',
+                        !isCollapsed && isActive 
+                          ? 'bg-gradient-to-r from-white/15 to-gray-200/15 border border-white/25 shadow-lg shadow-white/10' 
+                          : !isCollapsed 
+                            ? 'hover:bg-slate-900/60 hover:border hover:border-white/20'
+                            : ''
+                      )}
+                    >
+                      <Link href={ele.url} className="flex items-center gap-3 px-3">
+                        {/* Active indicator */}
+                        {isActive && !isCollapsed && (
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-white to-gray-300 rounded-r-full"></div>
+                        )}
+                        
+                        <div className={cn(
+                          "flex items-center justify-center",
+                          isCollapsed ? "w-6 h-6" : "w-5 h-5"
+                        )}>
+                          <ele.icon 
+                            className={cn(
+                              isCollapsed ? "w-6 h-6" : "w-5 h-5 transition-all duration-300",
+                              isCollapsed
+                                ? isActive 
+                                  ? 'text-white'
+                                  : 'text-gray-400'
+                                : isActive 
+                                  ? 'text-white' 
+                                  : 'text-gray-400 group-hover:text-gray-200'
+                            )}
+                          />
+                        </div>
+                        
+                        {!isCollapsed && (
+                          <span
+                            className={cn(
+                              "font-madimi text-[15px] font-medium transition-all duration-300",
+                              isActive 
+                                ? 'text-white font-semibold' 
+                                : 'text-gray-300 group-hover:text-white'
+                            )}
+                          >
+                            {ele.title}
+                          </span>
+                        )}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup className="mt-8">
-          {/* <SidebarGroupLabel className="font-madimi
-                          
-                          text-bold
-                          text-[16px]
-                          
-                          
-                          text-[#2A2A4A] 
-                          font-large
-                          
-                          ">Domains</SidebarGroupLabel> */}
-          <SidebarGroupContent>
-            {/* <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span
-                        className="
-                          font-madimi
-                          font-normal
-                          text-bold
-                          text-[16px]
-                          
-                          
-                          text-[#2A2A4A]
-                          
-                        "
-                      >
-                        {item.title}
-                      </span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu> */}
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );
