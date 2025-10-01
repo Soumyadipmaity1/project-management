@@ -1,5 +1,4 @@
 "use client";
-import MemberLayout from "@/app/member/layout";
 import React, { useState, useEffect } from "react";
 import { FaGithub, FaLinkedin, FaUser } from "react-icons/fa";
 
@@ -75,34 +74,50 @@ export default function TeamMembersSample() {
     setTeam(filteredTeam);
   }, []);
 
-  if (!project) return <div>Loading...</div>;
+  if (!project)
+    return (
+      <div className="min-h-screen flex items-center justify-center text-emerald-400">
+        Loading...
+      </div>
+    );
 
   return (
-    <div className="min-h-screen py-8 px-6 bg-gray-50">
-      <h2 className="text-3xl font-bold mb-6">
-        Web devlopment
-      </h2>
+    <div className="min-h-screen py-6 px-4">
+      <div className="flex items-start justify-between mb-8">
+        <div>
+          <h2 className="font-mclaren text-[36px] mb-3 font-bold bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent">
+            Members
+          </h2>
+          <p className="text-slate-400 text-lg font-medium font-mclaren">
+            View and manage team members in your project
+          </p>
+        </div>
+      </div>
 
       <div className="flex flex-wrap gap-6">
         {team.map((member) => (
           <div
             key={member._id}
-            className="bg-white border border-gray-200 rounded-lg flex flex-col items-center px-6 py-4 w-[240px] shadow-md"
+            className="bg-gray-800 border border-gray-700 rounded-lg flex flex-col items-center px-6 py-4 w-[240px] shadow-xl hover:shadow-emerald-500/20 hover:border-emerald-500/50 transition-all duration-300"
           >
             {member.profilePhoto ? (
               <img
                 src={member.profilePhoto}
                 alt={member.name}
-                className="w-20 h-20 rounded-full mb-3"
+                className="w-20 h-20 rounded-full mb-3 ring-2 ring-emerald-500/30"
               />
             ) : (
-              <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center mb-3">
-                <FaUser size={24} className="text-gray-500" />
+              <div className="w-20 h-20 rounded-full bg-gray-700 flex items-center justify-center mb-3 ring-2 ring-emerald-500/30">
+                <FaUser size={24} className="text-emerald-400" />
               </div>
             )}
 
-            <div className="text-lg font-semibold">{member.name}</div>
-            {member.email && <div className="text-sm text-gray-600">{member.email}</div>}
+            <div className="text-lg font-semibold text-white">{member.name}</div>
+            <div className="text-sm text-emerald-400 font-medium">Project Management Tool</div>
+            <div className="text-sm text-gray-300">Web development</div>
+            {member.email && (
+              <div className="text-sm text-gray-300">{member.email}</div>
+            )}
 
             <div className="flex gap-3 mt-2">
               {member.githubId && (
@@ -110,7 +125,7 @@ export default function TeamMembersSample() {
                   href={`https://github.com/${member.githubId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-black text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-800 transition"
+                  className="bg-gray-700 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-emerald-600 hover:scale-110 transition-all duration-200"
                   title="GitHub"
                 >
                   <FaGithub size={18} />
@@ -121,7 +136,7 @@ export default function TeamMembersSample() {
                   href={`https://linkedin.com/in/${member.linkedinId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-[#0077b5] text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-[#006097] transition"
+                  className="bg-gray-700 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-emerald-600 hover:scale-110 transition-all duration-200"
                   title="LinkedIn"
                 >
                   <FaLinkedin size={18} />
