@@ -1,5 +1,3 @@
-// app/admin/page.tsx
-
 export default function MemberPanel() {
   const stats = [
     {
@@ -9,14 +7,7 @@ export default function MemberPanel() {
       color: "from-slate-700 to-slate-900",
       accent: "from-blue-400 to-blue-600"
     },
-    {
-      title: "Total Domain Leads",
-      value: 8,
-      description: "Managing Domains",
-      color: "from-zinc-700 to-zinc-900",
-      accent: "from-purple-400 to-purple-600"
-    },
-    {
+      {
       title: "Total Admins",
       value: 3,
       description: "System Administrators",
@@ -24,11 +15,26 @@ export default function MemberPanel() {
       accent: "from-emerald-400 to-emerald-600"
     },
     {
+      title: "Total Domain Leads",
+      value: 8,
+      description: "Managing Domains",
+      color: "from-zinc-700 to-zinc-900",
+      accent: "from-purple-400 to-purple-600"
+    },
+  
+    {
       title: "Total Project Leads",
       value: 15,
       description: "Leading Projects",
       color: "from-neutral-700 to-neutral-900",
       accent: "from-orange-400 to-orange-600"
+    },
+       {
+      title: "Total Assistant Leads",
+      value: 12,
+      description: "Supporting Projects",
+      color: "from-gray-700 to-gray-900",
+      accent: "from-violet-400 to-violet-600"
     },
     {
       title: "Total Members",
@@ -58,6 +64,28 @@ export default function MemberPanel() {
       color: "from-gray-700 to-gray-900",
       accent: "from-teal-400 to-teal-600"
     },
+    {
+      title: "Total Announcements",
+      value: 12,
+      description: "Active Notifications",
+      color: "from-neutral-700 to-neutral-900",
+      accent: "from-cyan-400 to-cyan-600"
+    },
+    {
+      title: "New Project Requests",
+      value: 5,
+      description: "Pending Approval",
+      color: "from-stone-700 to-stone-900",
+      accent: "from-red-400 to-red-600"
+    },
+    {
+      title: "Contribution Requests",
+      value: 23,
+      description: "Awaiting Review",
+      color: "from-slate-700 to-slate-900",
+      accent: "from-green-400 to-green-600"
+    },
+ 
   ];
 
   return (
