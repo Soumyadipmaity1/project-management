@@ -113,11 +113,11 @@ export default function TeamMembersSample() {
             )}
 
             <div className="text-lg font-semibold text-white">{member.name}</div>
+            {member.email && (
+              <div className="text-sm text-gray-400 mb-1">{member.email}</div>
+            )}
             <div className="text-sm text-emerald-400 font-medium">Project Management Tool</div>
             <div className="text-sm text-gray-300">Web development</div>
-            {member.email && (
-              <div className="text-sm text-gray-300">{member.email}</div>
-            )}
 
             <div className="flex gap-3 mt-2">
               {member.githubId && (
