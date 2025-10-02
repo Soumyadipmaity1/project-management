@@ -153,10 +153,10 @@ export default function LeadProjects() {
 
   return (
     <div className="px-4 py-6 min-h-screen">
-      <h2 className="font-mclaren font-normal text-[38px] leading-[100%] tracking-[0] mb-4 text-white">
+      <h2 className="text-4xl font-bold text-white">
         Projects
       </h2>
-      <p className="text-neutral-400 font-mclaren font-normal text-[20px] leading-[100%] tracking-[0] mb-10">
+      <p className="text-neutral-300 text-lg mb-8">
         View and manage projects across your domains
       </p>
 
