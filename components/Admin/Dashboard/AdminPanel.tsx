@@ -90,8 +90,8 @@ export default function MemberPanel() {
 
   return (
     <div className="px-4 py-6 w-full min-h-screen ">
-      <h2 className="font-mclaren font-normal text-[38px] leading-[100%] tracking-[0] mb-2 text-white">Welcome back, Admin</h2>
-      <p className="text-gray-300 font-mclaren font-normal text-[18px] leading-[100%] tracking-[0] pt-2 mb-15">
+      <h2 className="text-4xl font-bold text-white">Welcome back, Admin</h2>
+      <p className="text-neutral-300 text-lg mb-8">
         View and manage your platform statistics and projects
       </p>
 
