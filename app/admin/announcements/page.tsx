@@ -180,7 +180,7 @@ export default function AnnouncementsPage() {
 		<div className="min-h-screen py-6 px-4 text-white">
 			{/* Heading and Create button */}
 			<div className="flex items-center justify-between  mb-8">
-				<h1 className="font-mclaren font-normal text-[40px] leading-[100%] tracking-[0] text-white">
+				<h1 className="text-4xl font-bold text-white">
 					Announcements
 				</h1>
 				<button 
