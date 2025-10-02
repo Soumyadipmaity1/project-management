@@ -346,8 +346,10 @@ export default function AllMembers() {
 			{/* Header */}
 			<div className=" ">
 				<div className="">
-					<h1 className="text-4xl font-bold text-neutral-100">Members</h1>
-					<p className="text-neutral-300 mt-2">
+					<h1 className="text-4xl font-bold text-white">
+						Members
+					</h1>
+					<p className="text-neutral-300 text-lg mb-8">
 						Manage team members across all domains and projects
 					</p>
 				</div>
