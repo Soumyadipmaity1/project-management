@@ -114,10 +114,10 @@ export default function PendingRequests() {
   return (
     <div className="py-6 lg:px-4 min-h-screen">
       {/* Header */}
-      <h2 className="font-mclaren font-normal text-[38px] text-neutral-100 mb-3 leading-[100%]">
+      <h2 className="text-4xl font-bold text-white">
         Pending Requests
       </h2>
-      <p className="text-neutral-400 text-[18px] font-mclaren mb-8 leading-[100%]">
+      <p className="text-neutral-300 text-lg mb-8">
         Approve or reject member requests
       </p>
 
