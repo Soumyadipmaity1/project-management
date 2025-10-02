@@ -268,12 +268,11 @@ export default function ProjectDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="w-full min-h-screen bg-neutral-950 py-8 mt-10 overflow-x-hidden">
+    <div className="w-full min-h-screen  py-6 overflow-x-hidden">
       <div className="flex items-center justify-between mb-8 px-4">
-        <Link href="/projects" className="text-blue-400 hover:text-blue-300 transition-colors flex items-center group">
-          <FaChevronLeft className="mr-3 text-xl text-neutral-400 group-hover:text-blue-300 transition-colors" />
+        <div className="text-blue-400 hover:text-blue-300 transition-colors flex items-center group">
           <span className="font-['Inter',sans-serif] font-bold text-2xl lg:text-3xl text-white">{project.name}</span>
-        </Link>
+        </div>
         <span className="px-6 py-2 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-semibold shadow-lg">
           {project.status}
         </span>
@@ -338,33 +337,104 @@ export default function ProjectDetailPage({ params }: Props) {
           </div>
 
           <div className="bg-neutral-900/60 backdrop-blur-lg p-8 rounded-xl shadow-2xl border border-neutral-700/40">
-            <div className="flex flex-col md:flex-row md:justify-between mb-8">
-              <div>
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8">
+              <div className="flex-1">
                 <h2 className="font-semibold text-xl mb-4 text-white">Timeline</h2>
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <span className="text-neutral-400 w-24">Start:</span>
-                    <span className="text-neutral-200 font-medium">2023-09-15</span>
+                {!isTimelineEditMode ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center">
+                      <span className="text-neutral-400 w-24">Start:</span>
+                      <span className="text-neutral-200 font-medium">{timelineData.startDate}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-neutral-400 w-24">Target:</span>
+                      <span className="text-neutral-200 font-medium">{timelineData.targetDate}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center">
-                    <span className="text-neutral-400 w-24">Target:</span>
-                    <span className="text-neutral-200 font-medium">2024-06-30</span>
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-neutral-300 text-sm font-medium mb-2">Start Date</label>
+                      <input
+                        type="date"
+                        value={timelineData.startDate}
+                        onChange={(e) => setTimelineData({...timelineData, startDate: e.target.value})}
+                        className="bg-neutral-800 border border-neutral-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-300 text-sm font-medium mb-2">Target Date</label>
+                      <input
+                        type="date"
+                        value={timelineData.targetDate}
+                        onChange={(e) => setTimelineData({...timelineData, targetDate: e.target.value})}
+                        className="bg-neutral-800 border border-neutral-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-300 text-sm font-medium mb-2">Live URL</label>
+                      <input
+                        type="url"
+                        value={timelineData.liveUrl}
+                        onChange={(e) => setTimelineData({...timelineData, liveUrl: e.target.value})}
+                        placeholder="https://example.com"
+                        className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-300 text-sm font-medium mb-2">Code Repository URL</label>
+                      <input
+                        type="url"
+                        value={timelineData.codeUrl}
+                        onChange={(e) => setTimelineData({...timelineData, codeUrl: e.target.value})}
+                        placeholder="https://github.com/username/repo"
+                        className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
+              </div>
+              <div className="mt-4 md:mt-0 md:ml-4">
+                {!isTimelineEditMode ? (
+                  <button 
+                    onClick={() => setIsTimelineEditMode(true)}
+                    className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg font-medium flex items-center gap-2"
+                  >
+                    <FaEdit className="text-sm" />
+                    Edit
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={handleSaveTimeline}
+                      className="px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-300 font-medium text-sm"
+                    >
+                      Save
+                    </button>
+                    <button 
+                      onClick={handleCancelTimelineEdit}
+                      className="px-4 py-2 border border-neutral-600 text-neutral-200 rounded-lg hover:bg-neutral-800 transition-all duration-300 text-sm"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="flex gap-4">
               <button 
                 onClick={handleViewLive}
-                className="bg-gradient-to-r from-neutral-800 to-neutral-900 text-white px-6 py-3 rounded-lg hover:from-neutral-700 hover:to-neutral-800 transition-all duration-300 shadow-lg font-medium border border-neutral-600 flex items-center gap-2"
+                disabled={!timelineData.liveUrl}
+                className="bg-gradient-to-r from-neutral-800 to-neutral-900 text-white px-6 py-3 rounded-lg hover:from-neutral-700 hover:to-neutral-800 transition-all duration-300 shadow-lg font-medium border border-neutral-600 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FaExternalLinkAlt className="text-sm" />
                 View Live
               </button>
               <button 
                 onClick={handleViewCode}
-                className="border border-neutral-600 text-neutral-200 px-6 py-3 rounded-lg hover:bg-neutral-800 transition-all duration-300 font-medium flex items-center gap-2"
+                disabled={!timelineData.codeUrl}
+                className="border border-neutral-600 text-neutral-200 px-6 py-3 rounded-lg hover:bg-neutral-800 transition-all duration-300 font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FaCode className="text-sm" />
                 View Code
