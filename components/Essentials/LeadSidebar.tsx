@@ -75,11 +75,11 @@ export function LeadSidebar() {
   return (
     <Sidebar 
       collapsible="icon" 
-      className="bg-slate-900 border-r border-slate-700/50 shadow-2xl"
+      className=" border-r border-gray-700/50 shadow-2xl"
     >
-      <SidebarContent className="relative">
+      <SidebarContent className="relative bg-gray-900">
         {/* Header with Logo */}
-        <SidebarHeader className="border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-sm">
+        <SidebarHeader className="border-b border-gray-700/50 bg-gray-900/50 backdrop-blur-sm">
           <Logo />
         </SidebarHeader>
         
@@ -102,14 +102,14 @@ export function LeadSidebar() {
                         !isCollapsed && isActive 
                           ? 'bg-gradient-to-r from-emerald-600/20 to-emerald-700/20 border border-emerald-500/30 shadow-lg shadow-emerald-500/10' 
                           : !isCollapsed 
-                            ? 'hover:bg-slate-800/50 hover:border hover:border-emerald-600/30 '
+                            ? 'hover:bg-gray-800/50 hover:border hover:border-emerald-600/30 '
                             : ''
                       )}
                     >
                       <Link href={ele.url} className="flex items-center gap-3 px-3">
                         {/* Active indicator */}
                         {isActive && !isCollapsed && (
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-r-full"></div>
+                          <div className="absolute left-0 top-1/2 -trangray-y-1/2 w-1 h-8 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-r-full"></div>
                         )}
                         
                         <div className={cn(
@@ -122,10 +122,10 @@ export function LeadSidebar() {
                               isCollapsed
                                 ? isActive 
                                   ? 'text-[#10b981]'
-                                  : 'text-slate-400'
+                                  : 'text-gray-400'
                                 : isActive 
                                   ? 'text-emerald-400' 
-                                  : 'text-slate-400 group-hover:text-emerald-300'
+                                  : 'text-gray-400 group-hover:text-emerald-300'
                             )}
                           />
                         </div>
@@ -136,7 +136,7 @@ export function LeadSidebar() {
                               "font-madimi text-[15px] font-medium transition-all duration-300",
                               isActive 
                                 ? 'text-white font-semibold ' 
-                                : 'text-slate-300 group-hover:text-white'
+                                : 'text-gray-300 group-hover:text-white'
                             )}
                           >
                             {ele.title}
@@ -183,14 +183,14 @@ export function LeadSidebar() {
                         !isCollapsed && isActive 
                           ? 'bg-gradient-to-r from-emerald-600/20 to-emerald-700/20 border border-emerald-500/30 shadow-lg shadow-emerald-500/10' 
                           : !isCollapsed 
-                            ? 'hover:bg-slate-800/50 hover:border hover:border-emerald-600/30 hover:shadow-md hover:shadow-emerald-500/5'
+                            ? 'hover:bg-gray-800/50 hover:border hover:border-emerald-600/30 hover:shadow-md hover:shadow-emerald-500/5'
                             : ''
                       )}
                     >
                       <Link href={item.url} className="flex items-center gap-3 px-3">
                         {/* Active indicator */}
                         {isActive && !isCollapsed && (
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-r-full"></div>
+                          <div className="absolute left-0 top-1/2 -trangray-y-1/2 w-1 h-8 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-r-full"></div>
                         )}
                         
                         <div className={cn(
@@ -203,10 +203,10 @@ export function LeadSidebar() {
                               isCollapsed
                                 ? isActive 
                                   ? 'text-emerald-400'
-                                  : 'text-slate-400'
+                                  : 'text-gray-400'
                                 : isActive 
                                   ? 'text-emerald-400' 
-                                  : 'text-slate-400 group-hover:text-emerald-300'
+                                  : 'text-gray-400 group-hover:text-emerald-300'
                             )}
                           />
                         </div>
@@ -217,7 +217,7 @@ export function LeadSidebar() {
                               "font-mclaren text-[15px] font-medium transition-all duration-300",
                               isActive 
                                 ? 'text-white font-semibold' 
-                                : 'text-slate-300 group-hover:text-white'
+                                : 'text-gray-300 group-hover:text-white'
                             )}
                           >
                             {item.title}
@@ -235,27 +235,3 @@ export function LeadSidebar() {
     </Sidebar>
   );
 }
-//                           font-madimi
-//                           font-normal
-//                           text-bold
-//                           text-[16px]
-                          
-                          
-//                           text-white
-                          
-//                         "
-//                       >
-//                         {item.title}
-//                       </span>
-//                     </a>
-//                   </SidebarMenuButton>
-//                 </SidebarMenuItem>
-//               ))}
-//             </SidebarMenu>
-//           </SidebarGroupContent>
-//         </SidebarGroup>
-//       </SidebarContent>
-//     </Sidebar>
-//     </>
-//   );
-// }
