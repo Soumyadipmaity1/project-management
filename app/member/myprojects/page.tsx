@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { FaUsers, FaPlus, FaTimes } from "react-icons/fa";
+import { FaUsers, FaPlus, FaTimes, FaArrowRight, FaCheckCircle } from "react-icons/fa";
 
 type Project = {
   _id: string;
@@ -20,57 +20,140 @@ function StatusBadge({ status }: { status: Project["badge"] }) {
     "inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold";
   switch (status) {
     case "active":
-      return <span className={`${base} bg-indigo-900/30 text-indigo-300`}>Active</span>;
+      return <span className={`${base} bg-blue-900/30 text-blue-300`}>Active</span>;
     case "completed":
       return <span className={`${base} bg-green-900/30 text-green-300`}>Completed</span>;
     case "disabled":
-      return <span className={`${base} bg-gray-700 text-gray-300`}>Disabled</span>;
+      return <span className={`${base} bg-gray-700/50 text-gray-400`}>Disabled</span>;
     default:
       return null;
   }
 }
 
 function ProjectCard({ project }: { project: Project }) {
+  const disabled = project.badge === "disabled";
+  const approved = project.approved;
+
+  // Get initials with fallback
+  const getInitial = (name: string | undefined): string => {
+    return name && name.length > 0 ? name.charAt(0).toUpperCase() : '?';
+  };
+
   return (
-    <article className="bg-gray-800 rounded-xl shadow-md overflow-hidden max-w-md w-full ring-1 ring-gray-700 hover:shadow-xl hover:shadow-gray-900/20 transition">
+    <article className="group relative bg-gradient-to-br from-gray-800 via-gray-800 to-gray-900 rounded-2xl shadow-2xl overflow-hidden w-full ring-1 ring-gray-700/50 hover:ring-indigo-500/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1">
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      
+      {/* Shine Effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+
       {project.image && (
-        <img
-          src={project.image}
-          alt={project.title}
-          className="w-full h-40 object-cover"
-        />
+        <div className="relative h-40 overflow-hidden">
+          <img
+            src={project.image}
+            alt={project.title}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent" />
+        </div>
       )}
-      <div className="p-6 flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-white">
-            {project.title}
-          </h3>
+
+      <div className="relative p-6 flex flex-col gap-4">
+        {/* Header Section */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1">
+            <h3 className="text-xl font-bold text-white mb-1 group-hover:text-indigo-300 transition-colors line-clamp-2">
+              {project.title}
+            </h3>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                {project.domain}
+              </span>
+            </div>
+          </div>
           <StatusBadge status={project.badge} />
         </div>
 
-        <p className="text-sm text-gray-400">{project.domain}</p>
-        <p className="text-sm text-gray-300">{project.description}</p>
+        {/* Description */}
+        <p className="text-sm text-gray-300/90 leading-relaxed line-clamp-3 min-h-[3.75rem]">
+          {project.description}
+        </p>
 
-        <div className="mt-2 text-sm text-gray-200">
-          <div>
-            Team Lead: <span className="text-gray-400">{project.teamlead}</span>
+        {/* Divider */}
+        <div className="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
+
+        {/* Team Info */}
+        <div className="space-y-2.5">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
+              {getInitial(project.teamlead)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-gray-400">Team Lead</p>
+              <p className="text-sm font-medium text-gray-200 truncate">{project.teamlead || 'Not assigned'}</p>
+            </div>
           </div>
-          <div>
-            Assistant Lead:{" "}
-            <span className="text-gray-400">{project.colead || "-"}</span>
-          </div>
-          <div className="flex items-center gap-1 mt-2 text-gray-300">
-            <FaUsers className="text-gray-400" /> Members visible in backend
+          
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-white text-xs font-bold">
+              {getInitial(project.colead)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-gray-400">Assistant Lead</p>
+              <p className="text-sm font-medium text-gray-200 truncate">{project.colead || 'Not assigned'}</p>
+            </div>
           </div>
         </div>
 
-        <div className="flex gap-3 mt-4">
+        {/* Members Count */}
+        <div className="flex items-center justify-between p-3 rounded-lg bg-gray-900/50 border border-gray-700/50">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-full bg-indigo-500/10">
+              <FaUsers className="text-indigo-400 text-sm" />
+            </div>
+            <span className="text-sm font-medium text-gray-300">Members visible in backend</span>
+          </div>
+          {approved && (
+            <div className="flex items-center gap-1.5 text-green-400">
+              <FaCheckCircle className="text-xs" />
+              <span className="text-xs font-semibold">Approved</span>
+            </div>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 mt-2">
           <a
             href={`/projects/${project._id}`}
-            className="px-3 py-2 rounded-md text-xs font-medium bg-indigo-600 text-white hover:bg-indigo-500"
+            className={`group/btn relative flex-1 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-800 overflow-hidden text-center ${
+              disabled
+                ? "bg-gray-700/50 text-gray-500 cursor-not-allowed pointer-events-none"
+                : "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white hover:from-indigo-500 hover:to-indigo-400 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40"
+            }`}
           >
-            View Project
+            {!disabled && (
+              <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-700" />
+            )}
+            <span className="relative flex items-center justify-center gap-2">
+              View Project
+              {!disabled && <FaArrowRight className="text-xs group-hover/btn:translate-x-1 transition-transform" />}
+            </span>
           </a>
+
+          {project.github && (
+            <a
+              href={project.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group/git relative px-4 py-3 rounded-xl text-sm font-semibold border-2 border-indigo-500/50 text-indigo-300 bg-indigo-500/5 hover:bg-indigo-500/10 hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-800 transition-all duration-300 overflow-hidden"
+            >
+              <span className="absolute inset-0 bg-indigo-500/10 scale-0 group-hover/git:scale-100 rounded-xl transition-transform duration-300" />
+              <span className="relative flex items-center justify-center gap-2">
+                GitHub
+                <FaArrowRight className="text-xs group-hover/git:translate-x-1 transition-transform" />
+              </span>
+            </a>
+          )}
         </div>
       </div>
     </article>
