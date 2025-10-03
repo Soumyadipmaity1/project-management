@@ -109,7 +109,7 @@ export function LeadSidebar() {
                       <Link href={ele.url} className="flex items-center gap-3 px-3">
                         {/* Active indicator */}
                         {isActive && !isCollapsed && (
-                          <div className="absolute left-0 top-1/2 -trangray-y-1/2 w-1 h-8 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-r-full"></div>
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-r-full"></div>
                         )}
                         
                         <div className={cn(
@@ -190,7 +190,7 @@ export function LeadSidebar() {
                       <Link href={item.url} className="flex items-center gap-3 px-3">
                         {/* Active indicator */}
                         {isActive && !isCollapsed && (
-                          <div className="absolute left-0 top-1/2 -trangray-y-1/2 w-1 h-8 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-r-full"></div>
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-r-full"></div>
                         )}
                         
                         <div className={cn(
