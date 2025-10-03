@@ -53,8 +53,8 @@ export default function AnnouncementsPage() {
     return (
       <div
         key={ann._id}
-        className={`bg-gray-800 border rounded-lg p-6 shadow-lg hover:shadow-xl transition-all duration-200 hover:border-gray-500 relative ${
-          ann.pinned ? "border-indigo-500 bg-gray-800/80" : "border-gray-600"
+        className={`bg-gray-900 border rounded-lg p-6 shadow-lg hover:shadow-xl transition-all duration-200 hover:border-gray-500 relative ${
+          ann.pinned ? "border-indigo-500 bg-gray-900/80" : "border-gray-700"
         }`}
       >
         {ann.pinned && (
@@ -70,7 +70,7 @@ export default function AnnouncementsPage() {
           <img
             src={ann.senderProfilePic || "/default-avatar.png"}
             alt={ann.senderName}
-            className="w-12 h-12 rounded-full object-cover bg-gray-600 flex-shrink-0"
+            className="w-12 h-12 rounded-full object-cover bg-gray-700 flex-shrink-0"
           />
           <div className="flex-1">
             <div className="flex flex-col space-y-1">
