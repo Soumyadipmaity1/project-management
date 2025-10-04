@@ -46,7 +46,7 @@ export default function LeadLayout({ children }: { children: React.ReactNode }) 
             <div className="relative w-full min-h-screen">
               <div className="w-full text-white">
                 <div className="w-full lg:p-5 p-3 ">
-                  <div className="w-full bg-gray-900/20  rounded-2xl border border-gray-700/30 p-4 px-6 ">
+                  <div className="w-full bg-gray-900/20  rounded-2xl border border-gray-700/30 lg:p-4 p-3 lg:px-6 ">
                     {children}
                   </div>
                 </div>
