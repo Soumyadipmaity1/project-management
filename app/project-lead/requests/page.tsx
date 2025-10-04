@@ -247,7 +247,7 @@ export default function PendingRequests() {
           <select
             value={projectFilter}
             onChange={(e) => setProjectFilter(e.target.value)}
-            className="bg-gray-900 border border-gray-800 text-gray-200 px-4 py-2 rounded font-mclaren focus:outline-none focus:border-blue-500 transition-colors"
+            className="bg-gray-900 border border-gray-800 text-gray-200 px-4 py-2 rounded font-mclaren focus:outline-none focus:border-fuchsia-500 transition-colors"
           >
             <option value="all">All Projects</option>
             {uniqueProjects.map((project) => (
@@ -269,7 +269,7 @@ export default function PendingRequests() {
               placeholder="Search by name or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-800 text-gray-200 pl-10 pr-4 py-2 rounded font-mclaren focus:outline-none focus:border-blue-500 transition-colors placeholder-gray-500"
+              className="w-full bg-gray-900 border border-gray-800 text-gray-200 pl-10 pr-4 py-2 rounded font-mclaren focus:outline-none focus:border-fuchsia-500 transition-colors placeholder-gray-500"
             />
           </div>
         </div>
@@ -304,7 +304,7 @@ export default function PendingRequests() {
             {/* Email */}
             <div className="text-gray-200 text-[14px] font-mclaren mb-2">
               <span className="text-gray-400">Email:</span>{" "}
-              <span className="font-semibold text-blue-400 break-all">{request.email}</span>
+              <span className="font-semibold text-fuchsia-400 break-all">{request.email}</span>
             </div>
 
             {/* Domain */}
