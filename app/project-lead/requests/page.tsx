@@ -162,10 +162,9 @@ interface Request {
   project: string;
   domain: string;
   content: string;
-  requestType: "new_project" | "contribute";
 }
 
-// Sample data
+// Sample data - only contribution requests
 const initialRequests: Request[] = [
   {
     id: 1,
@@ -176,18 +175,6 @@ const initialRequests: Request[] = [
     domain: "Cloud",
     content:
       "I want to contribute to this existing project and help with the backend development.",
-    requestType: "contribute",
-  },
-  {
-    id: 2,
-    name: "John Doe",
-    email: "john.doe@example.com",
-    img: "https://images.unsplash.com/photo-1508003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    project: "AI Chat Bot",
-    domain: "Machine Learning",
-    content:
-      "I want to add a new AI-powered chatbot project for customer service automation.",
-    requestType: "new_project",
   },
   {
     id: 3,
@@ -198,18 +185,6 @@ const initialRequests: Request[] = [
     domain: "Fintech",
     content:
       "I would like to contribute to the mobile banking app project, specifically on the UI/UX design.",
-    requestType: "contribute",
-  },
-  {
-    id: 4,
-    name: "Mike Chen",
-    email: "mike.chen@example.com",
-    img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    project: "IoT Dashboard",
-    domain: "IoT",
-    content:
-      "I want to create a new IoT dashboard project for smart home automation and monitoring.",
-    requestType: "new_project",
   },
   {
     id: 5,
@@ -220,18 +195,6 @@ const initialRequests: Request[] = [
     domain: "Blockchain",
     content:
       "I would like to contribute to the blockchain wallet development, focusing on security features.",
-    requestType: "contribute",
-  },
-  {
-    id: 6,
-    name: "David Kumar",
-    email: "david.kumar@example.com",
-    img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    project: "Data Analytics Tool",
-    domain: "Data Science",
-    content:
-      "I want to add a new data analytics tool project for business intelligence and reporting.",
-    requestType: "new_project",
   },
 ];
 
@@ -272,7 +235,7 @@ export default function PendingRequests() {
         Pending Requests
       </h2>
       <p className="text-gray-300 text-lg mb-8">
-        Approve or reject member requests
+        Approve or reject member contribution requests
       </p>
 
       {/* Filters */}
@@ -351,24 +314,9 @@ export default function PendingRequests() {
             </div>
 
             {/* Project */}
-            <div className="text-gray-200 text-[14px] font-mclaren mb-3">
+            <div className="text-gray-200 text-[14px] font-mclaren mb-4">
               <span className="text-gray-400">Project:</span>{" "}
               <span className="font-semibold text-gray-100">{request.project}</span>
-            </div>
-
-            {/* Request Type Badge */}
-            <div className="mb-3 flex justify-center">
-              <span
-                className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
-                  request.requestType === "new_project"
-                    ? "bg-blue-900 text-blue-300 border border-blue-800"
-                    : "bg-green-900 text-green-300 border border-green-800"
-                }`}
-              >
-                {request.requestType === "new_project"
-                  ? "NEW PROJECT"
-                  : "CONTRIBUTE"}
-              </span>
             </div>
 
             {/* Content */}
