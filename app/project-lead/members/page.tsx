@@ -120,7 +120,7 @@ export default function TeamMembersSample() {
 
   if (!project)
     return (
-      <div className="min-h-screen flex items-center justify-center text-emerald-400">
+      <div className="min-h-screen flex items-center justify-center text-fuchsia-400">
         Loading...
       </div>
     );
@@ -129,7 +129,7 @@ export default function TeamMembersSample() {
     <div className="min-h-screen py-6 px-4">
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h2 className="font-mclaren text-[36px] mb-3 font-bold bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent">
+          <h2 className="font-mclaren text-[36px] mb-3 font-bold bg-gradient-to-r from-white via-fuchsia-200 to-teal-300 bg-clip-text text-transparent">
             Members
           </h2>
           <p className="text-slate-400 text-lg font-medium font-mclaren">
@@ -148,7 +148,7 @@ export default function TeamMembersSample() {
           <select
             value={selectedProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value)}
-            className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-fuchsia-500 focus:border-transparent"
           >
             <option value="all">All Projects</option>
             {allProjects.map((proj) => (
@@ -171,7 +171,7 @@ export default function TeamMembersSample() {
               placeholder="Search by name or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-800 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full bg-gray-900 border border-gray-800 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -191,17 +191,17 @@ export default function TeamMembersSample() {
           team.map((member) => (
             <div
               key={member._id}
-              className="bg-gray-900 border border-gray-800 rounded-lg flex flex-col items-center px-6 py-4 w-[240px] shadow-xl hover:shadow-emerald-500/20 hover:border-emerald-500/50 transition-all duration-300"
+              className="bg-gray-900 border border-gray-800 rounded-lg flex flex-col items-center px-6 py-4 w-[240px] shadow-xl hover:shadow-fuchsia-500/20 hover:border-fuchsia-500/50 transition-all duration-300"
             >
               {member.profilePhoto ? (
                 <img
                   src={member.profilePhoto}
                   alt={member.name}
-                  className="w-20 h-20 rounded-full mb-3 ring-2 ring-emerald-500/30"
+                  className="w-20 h-20 rounded-full mb-3 ring-2 ring-fuchsia-500/30"
                 />
               ) : (
-                <div className="w-20 h-20 rounded-full bg-gray-800 flex items-center justify-center mb-3 ring-2 ring-emerald-500/30">
-                  <FaUser size={24} className="text-emerald-400" />
+                <div className="w-20 h-20 rounded-full bg-gray-800 flex items-center justify-center mb-3 ring-2 ring-fuchsia-500/30">
+                  <FaUser size={24} className="text-fuchsia-400" />
                 </div>
               )}
 
@@ -211,7 +211,7 @@ export default function TeamMembersSample() {
               {member.email && (
                 <div className="text-sm text-gray-400 mb-1">{member.email}</div>
               )}
-              <div className="text-sm text-emerald-400 font-medium">
+              <div className="text-sm text-fuchsia-400 font-medium">
                 Project Management Tool
               </div>
               <div className="text-sm text-gray-300">Web development</div>
@@ -222,7 +222,7 @@ export default function TeamMembersSample() {
                     href={`https://github.com/${member.githubId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-gray-800 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-emerald-600 hover:scale-110 transition-all duration-200"
+                    className="bg-gray-800 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-fuchsia-600 hover:scale-110 transition-all duration-200"
                     title="GitHub"
                   >
                     <FaGithub size={18} />
@@ -233,7 +233,7 @@ export default function TeamMembersSample() {
                     href={`https://linkedin.com/in/${member.linkedinId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-gray-800 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-emerald-600 hover:scale-110 transition-all duration-200"
+                    className="bg-gray-800 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-fuchsia-600 hover:scale-110 transition-all duration-200"
                     title="LinkedIn"
                   >
                     <FaLinkedin size={18} />
