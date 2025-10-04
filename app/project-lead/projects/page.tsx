@@ -1,8 +1,8 @@
-import LeadProjects from '@/components/Lead/Projects/LeadProj'
+import ProjectLeadProjects from '@/components/ProjectLead/ProjectLeadPro'
 import React from 'react'
 
 export default function ProjLead()  {
   return (
-    <LeadProjects />
+    <ProjectLeadProjects/>
   )
 }
