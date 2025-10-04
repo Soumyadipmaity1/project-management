@@ -35,7 +35,7 @@ export default function AnnouncementsPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto"></div>
+              <div className="w-16 h-16 border-4 border-fuchsia-500/20 border-t-fuchsia-500 rounded-full animate-spin mx-auto"></div>
               <p className="text-slate-300 font-mclaren text-lg">
                 Loading announcements...
               </p>
@@ -169,7 +169,7 @@ export default function AnnouncementsPage() {
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mt-5 mb-12">
           <div>
-            <h1 className="font-mclaren text-4xl font-bold bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent mb-2">
+            <h1 className="font-mclaren text-4xl font-bold bg-gradient-to-r from-white via-fuchsia-200 to-fuchsia-300 bg-clip-text text-transparent mb-2">
               Announcements
             </h1>
             <p className="text-slate-400 font-mclaren">
@@ -178,7 +178,7 @@ export default function AnnouncementsPage() {
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="group flex items-center gap-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-8 py-3.5 rounded-xl shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 font-mclaren font-semibold border border-emerald-500/20 hover:border-emerald-400/30"
+            className="group flex items-center gap-3 bg-gradient-to-r from-fuchsia-600 to-fuchsia-500 hover:from-fuchsia-500 hover:to-fuchsia-400 text-white px-8 py-3.5 rounded-xl shadow-lg hover:shadow-fuchsia-500/25 transition-all duration-300 font-mclaren font-semibold border border-fuchsia-500/20 hover:border-fuchsia-400/30"
           >
             <FaPlus className="group-hover:rotate-90 transition-transform duration-300" />
             Create announcement
@@ -187,9 +187,9 @@ export default function AnnouncementsPage() {
 
         {pinnedAnnouncements.length > 0 && (
           <div className="mb-12">
-            <h2 className="font-mclaren text-2xl font-bold mb-6 bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-400/30">
-                <Pin className="text-emerald-400" size={20} />
+            <h2 className="font-mclaren text-2xl font-bold mb-6 bg-gradient-to-r from-white via-fuchsia-200 to-fuchsia-300 bg-clip-text text-transparent flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-gradient-to-r from-fuchsia-500/20 to-fuchsia-400/20 border border-fuchsia-400/30">
+                <Pin className="text-fuchsia-400" size={20} />
               </div>
               Pinned Announcements
             </h2>
@@ -197,17 +197,17 @@ export default function AnnouncementsPage() {
               {pinnedAnnouncements.map((ann: any) => (
                 <div
                   key={ann._id}
-                  className="group relative rounded-2xl bg-gradient-to-br from-emerald-900/30 via-emerald-800/20 to-teal-900/30 backdrop-blur-xl border border-emerald-400/30 p-8 shadow-2xl hover:border-emerald-300/50 transition-all duration-500 hover:shadow-emerald-500/25"
+                  className="group relative rounded-2xl bg-gradient-to-br from-fuchsia-900/30 via-fuchsia-800/20 to-fuchsia-900/30 backdrop-blur-xl border border-fuchsia-400/30 p-8 shadow-2xl hover:border-fuchsia-300/50 transition-all duration-500 hover:shadow-fuchsia-500/25"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/3 to-teal-500/3 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/3 to-fuchsia-400/3 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="relative flex gap-6 items-start">
                     <div className="relative flex-shrink-0">
                       <img
                         src={ann.senderProfilePic}
                         alt={ann.senderName}
-                        className="w-16 h-16 rounded-full object-cover border-2 border-emerald-400/40 shadow-lg"
+                        className="w-16 h-16 rounded-full object-cover border-2 border-fuchsia-400/40 shadow-lg"
                       />
-                      <div className="absolute -top-2 -right-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full p-1.5 shadow-lg">
+                      <div className="absolute -top-2 -right-2 bg-gradient-to-r from-fuchsia-500 to-fuchsia-400 rounded-full p-1.5 shadow-lg">
                         <Pin size={14} className="text-white" />
                       </div>
                     </div>
@@ -228,14 +228,14 @@ export default function AnnouncementsPage() {
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
                           <button
                             onClick={() => openModalForEdit(ann)}
-                            className="p-2.5 rounded-lg bg-emerald-600/15 text-emerald-400 hover:bg-emerald-600/25 hover:text-emerald-300 transition-all duration-200 border border-emerald-500/20 hover:border-emerald-400/30"
+                            className="p-2.5 rounded-lg bg-fuchsia-600/15 text-fuchsia-400 hover:bg-fuchsia-600/25 hover:text-fuchsia-300 transition-all duration-200 border border-fuchsia-500/20 hover:border-fuchsia-400/30"
                             title="Edit announcement"
                           >
                             <LucideEdit size={16} />
                           </button>
                           <button
                             onClick={() => handleTogglePin(ann._id, ann.pinned)}
-                            className="p-2.5 rounded-lg bg-emerald-600/15 text-emerald-400 hover:bg-emerald-600/25 hover:text-emerald-300 transition-all duration-200 border border-emerald-500/20 hover:border-emerald-400/30"
+                            className="p-2.5 rounded-lg bg-fuchsia-600/15 text-fuchsia-400 hover:bg-fuchsia-600/25 hover:text-fuchsia-300 transition-all duration-200 border border-fuchsia-500/20 hover:border-fuchsia-400/30"
                             title="Unpin"
                           >
                             <Pin size={16} />
@@ -260,7 +260,7 @@ export default function AnnouncementsPage() {
         )}
 
         <div>
-          <h2 className="font-mclaren text-2xl font-bold mb-6 bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent">
+          <h2 className="font-mclaren text-2xl font-bold mb-6 bg-gradient-to-r from-white via-fuchsia-200 to-fuchsia-300 bg-clip-text text-transparent">
             Recent Announcements
           </h2>
           {otherAnnouncements.length > 0 ? (
@@ -268,14 +268,14 @@ export default function AnnouncementsPage() {
               {otherAnnouncements.map((ann: any) => (
                 <div
                   key={ann._id}
-                  className="group relative rounded-2xl bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-slate-700/50 p-8 shadow-2xl hover:border-emerald-400/50 transition-all duration-500 hover:shadow-emerald-500/20"
+                  className="group relative rounded-2xl bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-slate-700/50 p-8 shadow-2xl hover:border-fuchsia-400/50 transition-all duration-500 hover:shadow-fuchsia-500/20"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/2 to-teal-500/2 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/2 to-fuchsia-400/2 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="relative flex gap-6 items-start">
                     <img
                       src={ann.senderProfilePic}
                       alt={ann.senderName}
-                      className="w-16 h-16 rounded-full object-cover border-2 border-slate-600/50 shadow-lg group-hover:border-emerald-400/30 transition-colors duration-300 flex-shrink-0"
+                      className="w-16 h-16 rounded-full object-cover border-2 border-slate-600/50 shadow-lg group-hover:border-fuchsia-400/30 transition-colors duration-300 flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-3">
@@ -294,14 +294,14 @@ export default function AnnouncementsPage() {
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
                           <button
                             onClick={() => openModalForEdit(ann)}
-                            className="p-2.5 rounded-lg bg-slate-700/30 text-slate-400 hover:bg-emerald-600/15 hover:text-emerald-400 transition-all duration-200 border border-slate-600/30 hover:border-emerald-500/20"
+                            className="p-2.5 rounded-lg bg-slate-700/30 text-slate-400 hover:bg-fuchsia-600/15 hover:text-fuchsia-400 transition-all duration-200 border border-slate-600/30 hover:border-fuchsia-500/20"
                             title="Edit announcement"
                           >
                             <LucideEdit size={16} />
                           </button>
                           <button
                             onClick={() => handleTogglePin(ann._id, ann.pinned)}
-                            className="p-2.5 rounded-lg bg-slate-700/30 text-slate-400 hover:bg-emerald-600/15 hover:text-emerald-400 transition-all duration-200 border border-slate-600/30 hover:border-emerald-500/20"
+                            className="p-2.5 rounded-lg bg-slate-700/30 text-slate-400 hover:bg-fuchsia-600/15 hover:text-fuchsia-400 transition-all duration-200 border border-slate-600/30 hover:border-fuchsia-500/20"
                             title="Pin"
                           >
                             <Pin size={16} />
@@ -342,7 +342,7 @@ export default function AnnouncementsPage() {
         {isModalOpen && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="relative rounded-2xl bg-gradient-to-br from-slate-900/98 via-slate-800/98 to-slate-900/98 backdrop-blur-xl border border-slate-700/50 p-8 shadow-2xl w-full max-w-lg">
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/3 to-teal-500/3 rounded-2xl" />
+              <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/3 to-fuchsia-400/3 rounded-2xl" />
               <button
                 onClick={resetModal}
                 className="absolute top-4 right-4 p-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all duration-200"
@@ -350,7 +350,7 @@ export default function AnnouncementsPage() {
                 <FaTimes size={16} />
               </button>
               <div className="relative">
-                <h2 className="font-mclaren text-2xl font-bold mb-8 bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent">
+                <h2 className="font-mclaren text-2xl font-bold mb-8 bg-gradient-to-r from-white via-fuchsia-200 to-fuchsia-300 bg-clip-text text-transparent">
                   {editingId ? "Edit Announcement" : "Create Announcement"}
                 </h2>
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -360,7 +360,7 @@ export default function AnnouncementsPage() {
                       placeholder="Enter announcement title"
                       value={senderName}
                       onChange={(e) => setSenderName(e.target.value)}
-                      className="w-full bg-slate-800/50 border border-slate-600/50 rounded-xl px-5 py-4 text-white placeholder-slate-400 focus:border-emerald-400/50 focus:bg-slate-800/70 transition-all duration-200 font-mclaren text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                      className="w-full bg-slate-800/50 border border-slate-600/50 rounded-xl px-5 py-4 text-white placeholder-slate-400 focus:border-fuchsia-400/50 focus:bg-slate-800/70 transition-all duration-200 font-mclaren text-lg focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20"
                       required
                     />
                   </div>
@@ -370,7 +370,7 @@ export default function AnnouncementsPage() {
                       value={content}
                       onChange={(e) => setContent(e.target.value)}
                       rows={5}
-                      className="w-full bg-slate-800/50 border border-slate-600/50 rounded-xl px-5 py-4 text-white placeholder-slate-400 focus:border-emerald-400/50 focus:bg-slate-800/70 transition-all duration-200 font-mclaren resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                      className="w-full bg-slate-800/50 border border-slate-600/50 rounded-xl px-5 py-4 text-white placeholder-slate-400 focus:border-fuchsia-400/50 focus:bg-slate-800/70 transition-all duration-200 font-mclaren resize-none focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20"
                       required
                     />
                   </div>
@@ -380,13 +380,13 @@ export default function AnnouncementsPage() {
                       id="pinned"
                       checked={pinned}
                       onChange={(e) => setPinned(e.target.checked)}
-                      className="w-5 h-5 text-emerald-500 bg-slate-800 border-slate-600 rounded focus:ring-emerald-500 focus:ring-2"
+                      className="w-5 h-5 text-fuchsia-500 bg-slate-800 border-slate-600 rounded focus:ring-fuchsia-500 focus:ring-2"
                     />
                     <label
                       htmlFor="pinned"
                       className="text-slate-300 font-mclaren font-medium flex items-center gap-2"
                     >
-                      <Pin size={16} className="text-emerald-400" />
+                      <Pin size={16} className="text-fuchsia-400" />
                       Pin this announcement
                     </label>
                   </div>
@@ -394,13 +394,13 @@ export default function AnnouncementsPage() {
                     <input
                       type="file"
                       onChange={(e) => setFile(e.target.files?.[0] || null)}
-                      className="w-full bg-slate-800/50 border border-slate-600/50 rounded-xl px-5 py-4 text-slate-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:bg-emerald-600 file:text-white file:font-mclaren file:font-medium hover:file:bg-emerald-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                      className="w-full bg-slate-800/50 border border-slate-600/50 rounded-xl px-5 py-4 text-slate-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:bg-fuchsia-600 file:text-white file:font-mclaren file:font-medium hover:file:bg-fuchsia-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20"
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:from-slate-700 disabled:to-slate-700 text-white px-6 py-4 rounded-xl shadow-lg font-mclaren font-semibold transition-all duration-300 disabled:cursor-not-allowed text-lg"
+                    className="w-full bg-gradient-to-r from-fuchsia-600 to-fuchsia-500 hover:from-fuchsia-500 hover:to-fuchsia-400 disabled:from-slate-700 disabled:to-slate-700 text-white px-6 py-4 rounded-xl shadow-lg font-mclaren font-semibold transition-all duration-300 disabled:cursor-not-allowed text-lg"
                   >
                     {submitting
                       ? "Saving..."
