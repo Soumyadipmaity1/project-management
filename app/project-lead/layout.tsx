@@ -1,12 +1,12 @@
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
-import { LeadSidebar } from "@/components/Essentials/LeadSidebar";
 import { Menu, User } from "lucide-react";
+import { ProjectLeadSidebar } from "@/components/Essentials/projectLeadSidebar";
 
 export default function LeadLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex h-screen w-full bg-gray-950 text-white overflow-hidden">
-        <LeadSidebar />
+        <ProjectLeadSidebar />
 
         <SidebarInset className="flex flex-col w-full min-w-0 bg-gray-950">
           {/* Professional Dark Header */}
@@ -23,7 +23,7 @@ export default function LeadLayout({ children }: { children: React.ReactNode }) 
                   <div className="h-6 w-px bg-gray-600 flex-shrink-0"></div>
                   <div className="min-w-0">
                     <h2 className="text-lg font-semibold text-white tracking-tight truncate">
-                     Domain Lead Dashboard
+                     Project Lead Dashboard
                     </h2>
                     <p className="text-xs text-gray-400 truncate">
                       Manage your domain and team
@@ -33,7 +33,7 @@ export default function LeadLayout({ children }: { children: React.ReactNode }) 
 
                 {/* User info and actions */}
                 <div className="flex items-center gap-3 flex-shrink-0">
-                  <div className="h-9 w-9 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-emerald-500/25 transition-all duration-200 cursor-pointer group">
+                  <div className="h-9 w-9 bg-gradient-to-r from-fuchsia-500 to-fuchsia-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-fuchsia-500/25 transition-all duration-200 cursor-pointer group">
                     <User className="w-4 h-4 text-white group-hover:scale-110 transition-transform duration-200" />
                   </div>
                 </div>
