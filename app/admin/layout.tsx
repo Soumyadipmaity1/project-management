@@ -50,7 +50,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="relative w-full min-h-screen">
               <div className="w-full text-white">
                 <div className="w-full lg:p-5 p-2">
-                  <div className="w-full bg-neutral-950/50 rounded-2xl border border-slate-700/30 p-4 px-6">
+                  <div className="w-full bg-neutral-950/50 rounded-2xl border border-slate-700/30 lg:p-4 lg:px-6 p-2">
                     {children}
                   </div>
                 </div>
