@@ -68,7 +68,7 @@ const DomainCard = ({ domain }: { domain: Domain }) => (
   </div>
 );
 
-export default function ProjectLeadPanel({ role = "Team Lead" }: LeadPanelProps) {
+export default function ProjectLeadPanel({ role = "Team Project Lead" }: LeadPanelProps) {
   const stats: Stat[] = [
     { title: "Total Projects", value: 12, description: "Across All Domains" },
     { title: "Team Members", value: 8, description: "Active Contributors" },
