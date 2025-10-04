@@ -62,7 +62,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark h-full">
       <AuthProvider>
-      <body className={`${inter.variable} ${robotoMono.variable} antialiased bg-slate-950 text-white h-full w-full overflow-hidden`}>
+      <body className={`${inter.variable} ${robotoMono.variable} antialiased bg-slate-950 text-white w-full`}>
         {children}
       </body>
       </AuthProvider>
