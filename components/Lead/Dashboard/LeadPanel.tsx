@@ -71,7 +71,7 @@ const DomainCard = ({ domain }: { domain: Domain }) => (
 export default function LeadPanel({ role = "Team Lead" }: LeadPanelProps) {
   const stats: Stat[] = [
     { title: "Total Projects", value: 12, description: "Across All Domains" },
-    { title: "Team Members", value: 8, description: "Active Contributors" },
+    { title: "Domain Members", value: 8, description: "Active Contributors" },
     { title: "Completed Projects", value: 5, description: "This Quarter" },
     { title: "Pending Reviews", value: 3, description: "Awaiting Approval" },
   ];
