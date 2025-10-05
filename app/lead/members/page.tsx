@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { FaGithub, FaLinkedin, FaUser, FaSearch, FaEye } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaUser, FaSearch, FaEye, FaTrash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 
 interface TeamMember {
@@ -28,6 +28,8 @@ export default function TeamMembersSample() {
   const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
+  const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null);
 
   useEffect(() => {
     const sampleProjects: Project[] = [
@@ -122,6 +124,29 @@ export default function TeamMembersSample() {
 
   const handleViewProfile = (memberId: string) => {
     router.push(`/lead/members/${memberId}`);
+  };
+
+  const handleRemoveClick = (member: TeamMember) => {
+    setMemberToRemove(member);
+    setShowRemoveDialog(true);
+  };
+
+  const confirmRemove = () => {
+    if (memberToRemove) {
+      // Remove from allMembers
+      setAllMembers((prev) => prev.filter((m) => m._id !== memberToRemove._id));
+      // Remove from team
+      setTeam((prev) => prev.filter((m) => m._id !== memberToRemove._id));
+      
+      // Close dialog
+      setShowRemoveDialog(false);
+      setMemberToRemove(null);
+    }
+  };
+
+  const cancelRemove = () => {
+    setShowRemoveDialog(false);
+    setMemberToRemove(null);
   };
 
   if (!project)
@@ -237,6 +262,14 @@ export default function TeamMembersSample() {
                   <span>View Profile</span>
                 </button>
 
+                <button
+                  onClick={() => handleRemoveClick(member)}
+                  className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:transform hover:scale-105"
+                >
+                  <FaTrash className="text-xs" />
+                  <span>Remove</span>
+                </button>
+
                 <div className="flex gap-2 justify-center">
                   {member.githubId && (
                     <a
@@ -266,6 +299,38 @@ export default function TeamMembersSample() {
           ))
         )}
       </div>
+
+      {/* Remove Confirmation Dialog */}
+      {showRemoveDialog && memberToRemove && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-4">
+              Confirm Remove Member
+            </h3>
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to remove{" "}
+              <span className="font-semibold text-emerald-400">
+                {memberToRemove.name}
+              </span>{" "}
+              from the domain? This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={cancelRemove}
+                className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-semibold transition-all duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmRemove}
+                className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-lg shadow-red-500/25"
+              >
+                Remove Member
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
