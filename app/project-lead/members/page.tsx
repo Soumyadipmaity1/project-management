@@ -26,6 +26,8 @@ export default function TeamMembersSample() {
   const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [showRemoveDialog, setShowRemoveDialog] = useState<boolean>(false);
+  const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null);
 
   useEffect(() => {
     const sampleProjects: Project[] = [
@@ -118,6 +120,25 @@ export default function TeamMembersSample() {
     setTeam(filteredTeam);
   }, [selectedProjectId, searchQuery, allMembers, allProjects]);
 
+  const handleRemoveClick = (member: TeamMember) => {
+    setMemberToRemove(member);
+    setShowRemoveDialog(true);
+  };
+
+  const confirmRemove = () => {
+    if (memberToRemove) {
+      setAllMembers((prev) => prev.filter((m) => m._id !== memberToRemove._id));
+      setTeam((prev) => prev.filter((m) => m._id !== memberToRemove._id));
+    }
+    setShowRemoveDialog(false);
+    setMemberToRemove(null);
+  };
+
+  const cancelRemove = () => {
+    setShowRemoveDialog(false);
+    setMemberToRemove(null);
+  };
+
   if (!project)
     return (
       <div className="min-h-screen flex items-center justify-center text-fuchsia-400">
@@ -182,7 +203,7 @@ export default function TeamMembersSample() {
         Showing {team.length} member{team.length !== 1 ? "s" : ""}
       </div>
 
-      <div className="flex flex-wrap gap-6">
+      <div className=" grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4  gap-3 w-full">
         {team.length === 0 ? (
           <div className="w-full text-center py-12 text-gray-400">
             No members found matching your criteria
@@ -191,7 +212,7 @@ export default function TeamMembersSample() {
           team.map((member) => (
             <div
               key={member._id}
-              className="bg-gray-900 border border-gray-800 rounded-lg flex flex-col items-center px-6 py-4 w-[240px] shadow-xl hover:shadow-fuchsia-500/20 hover:border-fuchsia-500/50 transition-all duration-300"
+              className="bg-gray-900 border border-gray-800 rounded-lg flex flex-col items-center px-6 py-4 shadow-xl hover:shadow-fuchsia-500/20 hover:border-fuchsia-500/50 transition-all duration-300"
             >
               {member.profilePhoto ? (
                 <img
@@ -246,13 +267,53 @@ export default function TeamMembersSample() {
                 )}
               </div>
 
-              <button className="mt-3 w-full bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-700 hover:to-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 focus:ring-offset-2 focus:ring-offset-gray-900">
-                View Profile
-              </button>
+              <div className="mt-3 w-full flex flex-col gap-2">
+                <button className="flex-1 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-700 hover:to-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 focus:ring-offset-2 focus:ring-offset-gray-900">
+                  View Profile
+                </button>
+                <button
+                  onClick={() => handleRemoveClick(member)}
+                  className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
           ))
         )}
       </div>
+
+      {/* Confirmation Dialog */}
+      {showRemoveDialog && memberToRemove && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-4">
+              Remove Team Member
+            </h3>
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to remove{" "}
+              <span className="font-semibold text-fuchsia-400">
+                {memberToRemove.name}
+              </span>{" "}
+              from the team? This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={cancelRemove}
+                className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmRemove}
+                className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
