@@ -5,6 +5,8 @@ import { LucideTrash, Edit as LucideEdit, Pin } from "lucide-react";
 
 export default function AnnouncementsPage() {
   const [groups, setGroups] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [selectedProject, setSelectedProject] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [file, setFile] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,18 +17,23 @@ export default function AnnouncementsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchAnnouncements = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch("/api/announcement", { cache: "no-store" });
-        const data = await res.json();
-        setGroups(data);
+        const [announcementsRes, projectsRes] = await Promise.all([
+          fetch("/api/announcement", { cache: "no-store" }),
+          fetch("/api/projects", { cache: "no-store" }),
+        ]);
+        const announcementsData = await announcementsRes.json();
+        const projectsData = await projectsRes.json();
+        setGroups(announcementsData);
+        setProjects(projectsData);
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchAnnouncements();
+    fetchData();
   }, []);
 
   if (loading)
@@ -161,8 +168,13 @@ export default function AnnouncementsPage() {
     }
   };
 
-  const pinnedAnnouncements = groups.filter((a) => a.pinned);
-  const otherAnnouncements = groups.filter((a) => !a.pinned);
+  const filteredGroups =
+    selectedProject === "all"
+      ? groups
+      : groups.filter((g) => g.projectId === selectedProject);
+
+  const pinnedAnnouncements = filteredGroups.filter((a) => a.pinned);
+  const otherAnnouncements = filteredGroups.filter((a) => !a.pinned);
 
   return (
     <div className="min-h-screen  py-6 px-4">
@@ -183,6 +195,26 @@ export default function AnnouncementsPage() {
             <FaPlus className="group-hover:rotate-90 transition-transform duration-300" />
             Create announcement
           </button>
+        </div>
+
+        <div className="mb-8">
+          <div className="flex items-center gap-4">
+            <label className="text-slate-300 font-mclaren font-medium">
+              Filter by Project:
+            </label>
+            <select
+              value={selectedProject}
+              onChange={(e) => setSelectedProject(e.target.value)}
+              className="bg-slate-800/50 border border-slate-600/50 rounded-xl px-5 py-3 text-white font-mclaren focus:border-fuchsia-400/50 focus:bg-slate-800/70 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 min-w-[200px]"
+            >
+              <option value="all">All Projects</option>
+              {projects.map((project) => (
+                <option key={project._id} value={project._id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {pinnedAnnouncements.length > 0 && (
