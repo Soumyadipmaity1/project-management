@@ -101,7 +101,7 @@ const getInitials = (name: string) => {
     .toUpperCase();
 };
 
-export default function Project({ params }: Props) {
+export default function Projectleadcontent({ params }: Props) {
   const { projectId } = params;
   const project = useMemo(() => getProjectById(projectId), [projectId]);
   
