@@ -8,11 +8,13 @@ interface Announcement {
   content: string;
   pinned: boolean;
   createdAt: string;
+  type?: "project" | "other"; // Add type field
 }
 
 export default function AnnouncementsPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"project" | "other">("project");
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
@@ -42,8 +44,8 @@ export default function AnnouncementsPage() {
     );
   }
 
-  const pinnedAnnouncements = announcements.filter((a) => a.pinned);
-  const otherAnnouncements = announcements.filter((a) => !a.pinned);
+  const projectAnnouncements = announcements.filter((a) => a.type === "project");
+  const otherAnnouncements = announcements.filter((a) => a.type === "other");
 
   const renderAnnouncement = (ann: Announcement) => {
     const dateObj = new Date(ann.createdAt);
@@ -101,27 +103,86 @@ export default function AnnouncementsPage() {
     );
   }
 
+  const displayedAnnouncements = activeTab === "project" ? projectAnnouncements : otherAnnouncements;
+  const pinnedInTab = displayedAnnouncements.filter((a) => a.pinned);
+  const unpinnedInTab = displayedAnnouncements.filter((a) => !a.pinned);
+
   return (
     <div className="min-h-screen p-4">
       <div className="mx-auto">
         <h1 className="text-4xl font-bold text-gray-100 mb-8">Announcements</h1>
 
-        {pinnedAnnouncements.length > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center mb-6">
-              <svg className="w-6 h-6 text-indigo-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5 5a2 2 0 012-2h6a2 2 0 012 2v6.59l1.3 1.3a1 1 0 01-1.4 1.42L14 13.41V16a2 2 0 01-2 2H8a2 2 0 01-2-2v-2.59l-.9.9a1 1 0 01-1.4-1.42L5 11.59V5z" />
-              </svg>
-              <h2 className="text-2xl font-semibold text-gray-100">Pinned Announcements</h2>
-            </div>
-            <div className="space-y-6">{pinnedAnnouncements.map(renderAnnouncement)}</div>
+        {/* Tab Navigation */}
+        <div className="mb-8 border-b border-gray-700">
+          <div className="flex space-x-8">
+            <button
+              onClick={() => setActiveTab("project")}
+              className={`pb-4 px-2 font-medium transition-colors relative ${
+                activeTab === "project"
+                  ? "text-indigo-400"
+                  : "text-gray-400 hover:text-gray-300"
+              }`}
+            >
+              Project Announcements
+              {projectAnnouncements.length > 0 && (
+                <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-indigo-500/20 text-indigo-400">
+                  {projectAnnouncements.length}
+                </span>
+              )}
+              {activeTab === "project" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-400"></div>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab("other")}
+              className={`pb-4 px-2 font-medium transition-colors relative ${
+                activeTab === "other"
+                  ? "text-indigo-400"
+                  : "text-gray-400 hover:text-gray-300"
+              }`}
+            >
+              Other Announcements
+              {otherAnnouncements.length > 0 && (
+                <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-700 text-gray-300">
+                  {otherAnnouncements.length}
+                </span>
+              )}
+              {activeTab === "other" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-400"></div>
+              )}
+            </button>
           </div>
-        )}
+        </div>
 
-        {otherAnnouncements.length > 0 && (
-          <div>
-            <h2 className="text-2xl font-semibold text-gray-100 mb-6">Recent Announcements</h2>
-            <div className="space-y-6">{otherAnnouncements.map(renderAnnouncement)}</div>
+        {/* Announcements List */}
+        {displayedAnnouncements.length > 0 ? (
+          <>
+            {pinnedInTab.length > 0 && (
+              <div className="mb-12">
+                <div className="flex items-center mb-6">
+                  <svg className="w-6 h-6 text-indigo-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M5 5a2 2 0 012-2h6a2 2 0 012 2v6.59l1.3 1.3a1 1 0 01-1.4 1.42L14 13.41V16a2 2 0 01-2 2H8a2 2 0 01-2-2v-2.59l-.9.9a1 1 0 01-1.4-1.42L5 11.59V5z" />
+                  </svg>
+                  <h2 className="text-2xl font-semibold text-gray-100">Pinned</h2>
+                </div>
+                <div className="space-y-6">{pinnedInTab.map(renderAnnouncement)}</div>
+              </div>
+            )}
+
+            {unpinnedInTab.length > 0 && (
+              <div>
+                {pinnedInTab.length > 0 && (
+                  <h2 className="text-2xl font-semibold text-gray-100 mb-6">Recent</h2>
+                )}
+                <div className="space-y-6">{unpinnedInTab.map(renderAnnouncement)}</div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-12">
+            <div className="text-gray-400 text-lg">
+              No {activeTab === "project" ? "project" : "other"} announcements
+            </div>
           </div>
         )}
       </div>
