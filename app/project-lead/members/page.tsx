@@ -211,6 +211,11 @@ export default function TeamMembersSample() {
               {member.email && (
                 <div className="text-sm text-gray-400 mb-1">{member.email}</div>
               )}
+              {member.githubId && (
+                <div className="text-sm text-gray-500 mb-1">
+                  @{member.githubId}
+                </div>
+              )}
               <div className="text-sm text-fuchsia-400 font-medium">
                 Project Management Tool
               </div>
@@ -240,6 +245,10 @@ export default function TeamMembersSample() {
                   </a>
                 )}
               </div>
+
+              <button className="mt-3 w-full bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-700 hover:to-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 focus:ring-offset-2 focus:ring-offset-gray-900">
+                View Profile
+              </button>
             </div>
           ))
         )}
