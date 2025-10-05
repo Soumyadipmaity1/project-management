@@ -1,8 +1,22 @@
+"use client"
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { MemberSidebar } from "@/components/Essentials/MemberSidebar";
-import { Menu, User } from "lucide-react";
+import { Menu, User, LogOut, UserCircle } from "lucide-react";
+import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function MemberLayout({ children }: { children: React.ReactNode }) {
+  const handleLogout = () => {
+    // Add your logout logic here
+    console.log("Logging out...");
+    // Example: router.push('/login');
+  };
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex h-screen w-full bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white overflow-hidden">
@@ -33,9 +47,36 @@ export default function MemberLayout({ children }: { children: React.ReactNode }
 
                 {/* User info and actions */}
                 <div className="flex items-center gap-3 flex-shrink-0">
-                  <div className="h-9 w-9 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-indigo-500/25 transition-all duration-200 cursor-pointer group">
-                    <User className="w-4 h-4 text-white group-hover:scale-110 transition-transform duration-200" />
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <div
+                        className="h-9 w-9 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-indigo-500/25 transition-all duration-200 cursor-pointer group"
+                      >
+                        <User className="w-4 h-4 text-white group-hover:scale-110 transition-transform duration-200" />
+                      </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-56 bg-slate-800 border-slate-700 text-slate-300"
+                    >
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href="/member/profile"
+                          className="flex items-center gap-3 cursor-pointer"
+                        >
+                          <UserCircle className="w-4 h-4" />
+                          <span>View Profile</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 cursor-pointer text-slate-300 focus:bg-red-900/20 focus:text-red-400"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Logout</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </div>
