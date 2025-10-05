@@ -213,7 +213,7 @@ export default function TeamMembersSample() {
         Showing {team.length} member{team.length !== 1 ? "s" : ""}
       </div>
 
-      <div className="flex flex-wrap gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {team.length === 0 ? (
           <div className="w-full text-center py-12 text-gray-400">
             No members found matching your criteria
@@ -222,7 +222,7 @@ export default function TeamMembersSample() {
           team.map((member) => (
             <div
               key={member._id}
-              className="bg-gray-900 border border-gray-800 rounded-lg flex flex-col items-center px-6 py-4 w-[240px] shadow-xl hover:shadow-emerald-500/20 hover:border-emerald-500/50 transition-all duration-300"
+              className="bg-gray-900 border border-gray-800 rounded-lg flex flex-col items-center px-6 py-4 shadow-xl hover:shadow-emerald-500/20 hover:border-emerald-500/50 transition-all duration-300"
             >
               {member.profilePhoto ? (
                 <img
