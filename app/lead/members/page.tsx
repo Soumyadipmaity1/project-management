@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { FaGithub, FaLinkedin, FaUser, FaSearch } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaUser, FaSearch, FaEye } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 interface TeamMember {
   _id: string;
@@ -20,6 +21,7 @@ interface Project {
 }
 
 export default function TeamMembersSample() {
+  const router = useRouter();
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [project, setProject] = useState<Project | null>(null);
   const [allProjects, setAllProjects] = useState<Project[]>([]);
@@ -118,6 +120,10 @@ export default function TeamMembersSample() {
     setTeam(filteredTeam);
   }, [selectedProjectId, searchQuery, allMembers, allProjects]);
 
+  const handleViewProfile = (memberId: string) => {
+    router.push(`/lead/members/${memberId}`);
+  };
+
   if (!project)
     return (
       <div className="min-h-screen flex items-center justify-center text-emerald-400">
@@ -211,34 +217,50 @@ export default function TeamMembersSample() {
               {member.email && (
                 <div className="text-sm text-gray-400 mb-1">{member.email}</div>
               )}
+              {member.githubId && (
+                <div className="text-sm text-gray-500 mb-2 flex items-center gap-1">
+                  <FaGithub size={12} />
+                  <span>@{member.githubId}</span>
+                </div>
+              )}
               <div className="text-sm text-emerald-400 font-medium">
                 Project Management Tool
               </div>
-              <div className="text-sm text-gray-300">Web development</div>
+              <div className="text-sm text-gray-300 mb-3">Web development</div>
 
-              <div className="flex gap-3 mt-2">
-                {member.githubId && (
-                  <a
-                    href={`https://github.com/${member.githubId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gray-800 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-emerald-600 hover:scale-110 transition-all duration-200"
-                    title="GitHub"
-                  >
-                    <FaGithub size={18} />
-                  </a>
-                )}
-                {member.linkedinId && (
-                  <a
-                    href={`https://linkedin.com/in/${member.linkedinId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gray-800 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-emerald-600 hover:scale-110 transition-all duration-200"
-                    title="LinkedIn"
-                  >
-                    <FaLinkedin size={18} />
-                  </a>
-                )}
+              <div className="flex flex-col gap-2 w-full">
+                <button
+                  onClick={() => handleViewProfile(member._id)}
+                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:transform hover:scale-105"
+                >
+                  <FaEye className="text-xs" />
+                  <span>View Profile</span>
+                </button>
+
+                <div className="flex gap-2 justify-center">
+                  {member.githubId && (
+                    <a
+                      href={`https://github.com/${member.githubId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-gray-800 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-emerald-600 hover:scale-110 transition-all duration-200"
+                      title="GitHub"
+                    >
+                      <FaGithub size={18} />
+                    </a>
+                  )}
+                  {member.linkedinId && (
+                    <a
+                      href={`https://linkedin.com/in/${member.linkedinId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-gray-800 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-emerald-600 hover:scale-110 transition-all duration-200"
+                      title="LinkedIn"
+                    >
+                      <FaLinkedin size={18} />
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           ))
