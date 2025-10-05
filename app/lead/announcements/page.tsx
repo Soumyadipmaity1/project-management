@@ -522,28 +522,7 @@ export default function AnnouncementsPage() {
                       ))}
                     </select>
                   </div>
-                  <div className="flex items-center gap-3 p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
-                    <input
-                      type="checkbox"
-                      id="isAdmin"
-                      checked={isAdmin}
-                      onChange={(e) => setIsAdmin(e.target.checked)}
-                      className="w-5 h-5 text-emerald-500 bg-slate-800 border-slate-600 rounded focus:ring-emerald-500 focus:ring-2"
-                    />
-                    <label
-                      htmlFor="isAdmin"
-                      className="text-slate-300 font-mclaren font-medium"
-                    >
-                      Mark as Admin Announcement
-                    </label>
-                  </div>
-                  <div>
-                    <input
-                      type="file"
-                      onChange={(e) => setFile(e.target.files?.[0] || null)}
-                      className="w-full bg-slate-800/50 border border-slate-600/50 rounded-xl px-5 py-4 text-slate-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:bg-emerald-600 file:text-white file:font-mclaren file:font-medium hover:file:bg-emerald-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                    />
-                  </div>
+          
                   <button
                     type="submit"
                     disabled={submitting}
