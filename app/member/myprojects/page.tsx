@@ -123,36 +123,45 @@ function ProjectCard({ project }: { project: Project }) {
 
         {/* Action Buttons */}
         <div className="flex gap-3 mt-2">
-          <a
-            href={`/projects/${project._id}`}
-            className={`group/btn relative flex-1 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-800 overflow-hidden text-center ${
-              disabled
-                ? "bg-gray-700/50 text-gray-500 cursor-not-allowed pointer-events-none"
-                : "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white hover:from-indigo-500 hover:to-indigo-400 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40"
-            }`}
-          >
-            {!disabled && (
-              <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-700" />
-            )}
-            <span className="relative flex items-center justify-center gap-2">
-              View Project
-              {!disabled && <FaArrowRight className="text-xs group-hover/btn:translate-x-1 transition-transform" />}
-            </span>
-          </a>
+          {approved ? (
+            <>
+              <a
+                href={`/projects/${project._id}`}
+                className={`group/btn relative flex-1 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-800 overflow-hidden text-center ${
+                  disabled
+                    ? "bg-gray-700/50 text-gray-500 cursor-not-allowed pointer-events-none"
+                    : "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white hover:from-indigo-500 hover:to-indigo-400 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40"
+                }`}
+              >
+                {!disabled && (
+                  <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-700" />
+                )}
+                <span className="relative flex items-center justify-center gap-2">
+                  View Project
+                  {!disabled && <FaArrowRight className="text-xs group-hover/btn:translate-x-1 transition-transform" />}
+                </span>
+              </a>
 
-          {project.github && (
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group/git relative px-4 py-3 rounded-xl text-sm font-semibold border-2 border-indigo-500/50 text-indigo-300 bg-indigo-500/5 hover:bg-indigo-500/10 hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-800 transition-all duration-300 overflow-hidden"
-            >
-              <span className="absolute inset-0 bg-indigo-500/10 scale-0 group-hover/git:scale-100 rounded-xl transition-transform duration-300" />
-              <span className="relative flex items-center justify-center gap-2">
-                GitHub
-                <FaArrowRight className="text-xs group-hover/git:translate-x-1 transition-transform" />
-              </span>
-            </a>
+              {project.github && (
+                <a
+                  href={project.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group/git relative px-4 py-3 rounded-xl text-sm font-semibold border-2 border-indigo-500/50 text-indigo-300 bg-indigo-500/5 hover:bg-indigo-500/10 hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-800 transition-all duration-300 overflow-hidden"
+                >
+                  <span className="absolute inset-0 bg-indigo-500/10 scale-0 group-hover/git:scale-100 rounded-xl transition-transform duration-300" />
+                  <span className="relative flex items-center justify-center gap-2">
+                    GitHub
+                    <FaArrowRight className="text-xs group-hover/git:translate-x-1 transition-transform" />
+                  </span>
+                </a>
+              )}
+            </>
+          ) : (
+            <div className="w-full px-4 py-3 rounded-xl text-sm font-semibold text-center bg-yellow-900/30 text-yellow-300 border border-yellow-500/30 flex items-center justify-center gap-2">
+              <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
+              Pending Approval
+            </div>
           )}
         </div>
       </div>
@@ -164,7 +173,7 @@ export default function ProjectGrid() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"all" | "enrolled" | "available">(
+  const [activeTab, setActiveTab] = useState<"all" | "pending" | "approved">(
     "all"
   );
 
@@ -175,9 +184,7 @@ export default function ProjectGrid() {
     title: "",
     domain: "",
     description: "",
-    teamlead: "",
-    colead: "",
-    github: "",
+    prototypeLink: "",
   });
 
   useEffect(() => {
@@ -199,8 +206,8 @@ export default function ProjectGrid() {
   };
 
   const filteredProjects = projects.filter((p) => {
-    if (activeTab === "enrolled") return p.approved;
-    if (activeTab === "available") return !p.approved;
+    if (activeTab === "approved") return p.approved;
+    if (activeTab === "pending") return !p.approved;
     return true;
   });
 
@@ -227,9 +234,7 @@ export default function ProjectGrid() {
         title: "",
         domain: "",
         description: "",
-        teamlead: "",
-        colead: "",
-        github: "",
+        prototypeLink: "",
       });
     } catch (err) {
       alert(err instanceof Error ? err.message : "Error sending request");
@@ -270,7 +275,7 @@ export default function ProjectGrid() {
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6 bg-gray-800 rounded-lg p-1 w-fit">
-          {(["all", "enrolled", "available"] as const).map((tab) => (
+          {(["all", "pending", "approved"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -356,32 +361,12 @@ export default function ProjectGrid() {
               />
 
               <input
-                type="text"
-                name="teamlead"
-                placeholder="Team Lead *"
-                value={formData.teamlead}
+                type="url"
+                name="prototypeLink"
+                placeholder="Prototype Link *"
+                value={formData.prototypeLink}
                 onChange={handleInputChange}
                 required
-                disabled={submitting}
-                className="border border-gray-600 bg-gray-700 text-white placeholder-gray-400 p-2 rounded w-full focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-              />
-
-              <input
-                type="text"
-                name="colead"
-                placeholder="Assistant Lead (optional)"
-                value={formData.colead}
-                onChange={handleInputChange}
-                disabled={submitting}
-                className="border border-gray-600 bg-gray-700 text-white placeholder-gray-400 p-2 rounded w-full focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-              />
-
-              <input
-                type="url"
-                name="github"
-                placeholder="GitHub Repository (optional)"
-                value={formData.github}
-                onChange={handleInputChange}
                 disabled={submitting}
                 className="border border-gray-600 bg-gray-700 text-white placeholder-gray-400 p-2 rounded w-full focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
               />
