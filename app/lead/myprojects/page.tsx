@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { FaPlus, FaTimes, FaEdit, FaTrash, FaGithub } from "react-icons/fa";
+import { FaPlus, FaTimes, FaTrash, FaGithub, FaEye } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 type Project = {
   _id?: string;
@@ -35,12 +36,12 @@ function StatusBadge({ status, color }: StatusBadgeProps) {
 
 type ProjectCardProps = {
   project: Project;
-  onEdit: (project: Project) => void;
+  onView: (projectId: string) => void;
   onDelete: (projectId: string) => void;
   isOwner: boolean;
 };
 
-function ProjectCard({ project, onEdit, onDelete, isOwner }: ProjectCardProps) {
+function ProjectCard({ project, onView, onDelete, isOwner }: ProjectCardProps) {
   const statusColor =
     project.badge === "active"
       ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30"
@@ -106,11 +107,11 @@ function ProjectCard({ project, onEdit, onDelete, isOwner }: ProjectCardProps) {
           {isOwner && (
             <div className="flex gap-3 mt-4">
               <button
-                onClick={() => onEdit(project)}
+                onClick={() => project._id && onView(project._id)}
                 className="flex-1 bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-600 hover:from-emerald-700 hover:via-emerald-700 hover:to-teal-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:transform hover:scale-105 border border-emerald-500/20"
               >
-                <FaEdit className="text-xs" /> 
-                <span className="font-mclaren">Edit</span>
+                <FaEye className="text-xs" /> 
+                <span className="font-mclaren">View Project</span>
               </button>
               <button
                 onClick={() => project._id && onDelete(project._id)}
@@ -128,13 +129,12 @@ function ProjectCard({ project, onEdit, onDelete, isOwner }: ProjectCardProps) {
 }
 
 export default function MemProjects() {
+  const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("all");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
@@ -206,31 +206,13 @@ export default function MemProjects() {
       image: "",
     });
     setPreviewImage(null);
-    setIsEditMode(false);
     setError(null);
     setFieldErrors({});
     setIsModalOpen(true);
   };
 
-  const openEditModal = (project: Project) => {
-    setFormData({
-      _id: project._id || "",
-      title: project.title,
-      domain: project.domain,
-      description: project.description,
-      teamlead: project.teamlead,
-      colead: project.colead || "",
-      github: project.github || "",
-      linkedin: project.linkedin || "",
-      badge: project.badge || "active",
-      approved: project.approved || false,
-      image: project.image || "",
-    });
-    setPreviewImage(project.image || null);
-    setIsEditMode(true);
-    setError(null);
-    setFieldErrors({});
-    setIsModalOpen(true);
+  const handleViewProject = (projectId: string) => {
+    router.push(`/lead/myprojects/${projectId}`);
   };
 
   const resetModal = () => {
@@ -246,13 +228,8 @@ export default function MemProjects() {
 
     try {
       const requestBody = { ...formData };
-      let url = "/api/projects";
-      let method = "POST";
-
-      if (isEditMode && formData._id) {
-        url = `/api/projects/${formData._id}`;
-        method = "PUT";
-      }
+      const url = "/api/projects";
+      const method = "POST";
 
       const res = await fetch(url, {
         method,
@@ -283,13 +260,6 @@ export default function MemProjects() {
       setError(err instanceof Error ? err.message : "Failed to delete project");
     }
   };
-
-  const filteredProjects = projects.filter((p) => {
-    if (activeTab === "all") return true;
-    if (activeTab === "enrolled") return p.approved;
-    if (activeTab === "available") return !p.approved;
-    return true;
-  });
 
   const domains = [
     "Web Development",
@@ -327,27 +297,6 @@ export default function MemProjects() {
         </div>
       </div>
 
-      {/* tabs */}
-      <div className="flex gap-1 mb-8 bg-slate-800/60 rounded-xl w-fit border border-slate-700/50 p-1.5 backdrop-blur-sm">
-        {["all", "enrolled", "available"].map((tab) => (
-          <button
-            key={tab}
-            className={`px-5 py-2.5 rounded-lg font-semibold transition-all duration-300 font-mclaren ${
-              activeTab === tab
-                ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/30 transform scale-105"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-700/50"
-            }`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab === "all"
-              ? "All Projects"
-              : tab === "enrolled"
-              ? "Enrolled"
-              : "Available"}
-          </button>
-        ))}
-      </div>
-
       {/* error */}
       {error && !loading && (
         <div className="bg-red-900/50 border border-red-500/50 rounded-xl p-4 mb-6 text-red-200 font-mclaren shadow-lg">
@@ -360,17 +309,17 @@ export default function MemProjects() {
         <div className="flex items-center justify-center py-16">
           <div className="text-slate-300 font-mclaren text-lg">Loading projects...</div>
         </div>
-      ) : filteredProjects.length === 0 ? (
+      ) : projects.length === 0 ? (
         <div className="flex items-center justify-center py-16">
           <div className="text-slate-500 font-mclaren text-lg">No projects found.</div>
         </div>
       ) : (
         <div className="flex flex-wrap gap-8 justify-start">
-          {filteredProjects.map((project) => (
+          {projects.map((project) => (
             <ProjectCard
               key={project._id || Math.random().toString()}
               project={project}
-              onEdit={openEditModal}
+              onView={handleViewProject}
               onDelete={handleDelete}
               isOwner={true}
             />
@@ -391,7 +340,7 @@ export default function MemProjects() {
                 <FaTimes />
               </button>
               <h2 className="text-2xl font-bold mb-6 text-center bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent font-mclaren">
-                {isEditMode ? "Edit Project" : "Create Project"}
+                Create Project
               </h2>
 
               {error && (
@@ -511,13 +460,7 @@ export default function MemProjects() {
                     disabled={submitting}
                     className="relative w-full bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-600 hover:from-emerald-700 hover:via-emerald-700 hover:to-teal-700 disabled:from-slate-600 disabled:to-slate-700 text-white px-6 py-3 rounded-lg shadow-2xl disabled:cursor-not-allowed font-semibold transition-all duration-300 font-mclaren border border-emerald-500/20 hover:border-emerald-400/40 hover:transform hover:scale-105"
                   >
-                    {submitting
-                      ? isEditMode
-                        ? "Updating..."
-                        : "Creating..."
-                      : isEditMode
-                      ? "Update Project"
-                      : "Create Project"}
+                    {submitting ? "Creating..." : "Create Project"}
                   </button>
                 </div>
               </form>
