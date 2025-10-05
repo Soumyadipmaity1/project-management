@@ -1,6 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import { FaChevronLeft } from 'react-icons/fa';
-
+import { useMemo } from 'react';
 
 const mockProject = [
   {
@@ -22,8 +24,7 @@ const mockProject = [
       { id: 'a2', icon: '📝', description: 'Updated Resume', time: '2 hours ago' },
     ],
   },
- 
- {
+  {
     id: '2',
     name: 'E-commerce Platform',
     status: 'Active',
@@ -42,8 +43,7 @@ const mockProject = [
       { id: 'a2', icon: '📝', description: 'Updated Resume', time: '2 hours ago' },
     ],
   },
-
-   {
+  {
     id: '3',
     name: 'E-commerce Platform',
     status: 'Active',
@@ -62,7 +62,14 @@ const mockProject = [
       { id: 'a2', icon: '📝', description: 'Updated Resume', time: '2 hours ago' },
     ],
   },
+];
 
+const TEAM_MEMBERS = [
+  { id: '1', name: 'John Doe', email: 'john@example.com', role: 'Team Lead' },
+  { id: '2', name: 'Jane Smith', email: 'jane@example.com', role: 'Assistant Lead' },
+  { id: '3', name: 'Alice', email: 'alice@example.com', role: 'Member' },
+  { id: '4', name: 'Bob', email: 'bob@example.com', role: 'Member' },
+  { id: '5', name: 'Charlie', email: 'charlie@example.com', role: 'Member' },
 ];
 
 function getProjectById(projectId: string) {
@@ -75,202 +82,191 @@ type Props = {
   };
 };
 
-export default async function Project({ params }: Props) {
+const getRoleStyles = (role: string) => {
+  switch (role) {
+    case 'Team Lead':
+      return 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg';
+    case 'Assistant Lead':
+      return 'bg-gradient-to-r from-emerald-600/80 to-emerald-700/80 text-white shadow-md';
+    default:
+      return 'bg-gray-700 text-gray-300 border border-gray-600';
+  }
+};
+
+const getInitials = (name: string) => {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase();
+};
+
+export default function Project({ params }: Props) {
   const { projectId } = params;
-  const project = await getProjectById(projectId);
+  const project = useMemo(() => getProjectById(projectId), [projectId]);
 
   if (!project) {
     return (
-      <div className="w-screen min-h-screen flex items-center justify-center text-3xl text-red-500">
+      <div className="w-screen min-h-screen bg-gray-950 flex items-center justify-center text-3xl text-red-400">
         Project not found!!
       </div>
     );
   }
 
   return (
-    <div className="w-full min-h-screen  py-8 mt-10 overflow-x-hidden">
-      <div className="flex items-center justify-between mb-8">
-        <Link href="/projects" className="text-[#000000] hover:underline flex items-center">
-        <FaChevronLeft className="mr-2 text-xl text-[#4A4080B8]" />
-
-        <span className="font-['Maven_Pro',sans-serif] font-bold text-[30px] leading-[100%] tracking-[0]">{project.name}</span>
-        </Link>
-         <span className={`px-4 py-1 rounded-full bg-[#14A1FF] text-white text-sm font-semibold ml-4" style={{minWidth: "110px", textAlign: "center"}}${project.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-600'}`}>{project.status}</span>
+    <div className="w-full min-h-screen overflow-x-hidden">
+      <div className="flex items-center justify-between mb-8 px-4">
+        <div className="text-emerald-400 hover:text-emerald-300 transition-colors flex items-center group">
+          <span className="font-['Maven_Pro',sans-serif] font-bold text-2xl lg:text-3xl text-white">
+            {project.name}
+          </span>
+        </div>
+        <span className="px-6 py-2 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-semibold shadow-lg min-w-[110px] text-center">
+          {project.status}
+        </span>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-8 w-full shadow-xl">
-        <div className="md:flex-[2_1_0%] w-full">
-          <div className="w-full h-56 bg-gray-300 rounded-lg mb-6 flex items-center justify-center ">
-            <span className="text-black ">Project Image</span>
+      <div className="flex flex-col xl:flex-row gap-8 w-full px-4">
+        {/* Main Content */}
+        <div className="xl:flex-[2_1_0%] w-full space-y-6">
+          {/* Project Image */}
+          <div className="w-full h-64 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl mb-6 flex items-center justify-center border border-gray-700/50 shadow-2xl">
+            <span className="text-gray-400 text-lg font-medium">Project Image</span>
           </div>
 
-          <div className="bg-white p-6 w-full rounded-lg shadow-xl">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Project Details</h2>
-             
-            </div>
-            <h3 className="font-semibold mt-4 mb-1">Description</h3>
-            <p className="text-gray-700 mb-4">{project.description}</p>
-            <h3 className="font-semibold mb-1">Tech Stack</h3>
-            <div className="flex flex-wrap gap-2">
-              {project.technologies.map((tech) => (
-                 <span  key={tech.id} className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
-                  {tech.name}
-                 </span>
-              ))}
-              
-            </div>
-          </div>
-
-           <div className="bg-white p-6 mt-2 rounded-lg shadow-xl">
-            <div className="flex flex-col md:flex-row md:justify-between mb-8">
-              <div>
-                <h2 className="font-semibold text-lg mb-2">Timeline</h2>
-                <ul>
-                  <li>
-                    Start Date: 2023-09-15
-                  </li>
-                  <li>
-                    Target Date: 2024-06-30
-                  </li>
-                </ul>
-              </div>
-
-              {/* <div>
-                <h2 className="font-semibold text-lg mb-2">Progress</h2>
-                <div className="w-full bg-gray-400 rounded-lg h-2"></div>
-                 <span className="text-sm text-gray-600 mt-1 block">65% Complete</span>
-              </div> */}
-
-              
-
-            </div>
-
-            <div className="mb-8 flex gap-4">
-            <button className="bg-[#7989A3] text-white px-4 py-2 rounded">View Live</button>
-            <button className="border px-4 py-2">View Code</button>
-            </div>
-           </div>
-
-          <div className="bg-white p-6 mt-2 shadow rounded">
-           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold">Team Members</h3>
+          {/* Project Details */}
+          <div className="bg-gray-900/70 backdrop-blur-lg p-8 w-full rounded-xl shadow-2xl border border-gray-700/50">
+            <h2 className="text-2xl font-bold text-white mb-6">Project Details</h2>
             
-           </div>
-          
-              <div className="space-y-4">
-              {[
-                { name: 'John Doe', email: 'john@example.com', role: 'Team Lead' },
-                { name: 'Jane Smith', email: 'jane@example.com', role: 'Assistant Lead' },
-                { name: 'Alice', email: 'alice@example.com', role: 'Member' },
-                { name: 'Bob', email: 'bob@example.com', role: 'Member' },
-                { name: 'Charlie', email: 'charlie@example.com', role: 'Member' },
-              ].map((member) => (
-                <div key={member.email} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-600">
-                      {member.name
-                        .split(' ')
-                        .map((n) => n[0])
-                        .join('')
-                        .toUpperCase()}
+            <h3 className="font-semibold text-lg text-gray-200 mb-3">Description</h3>
+            <p className="text-gray-300 mb-6 leading-relaxed">{project.description}</p>
+            
+            <h3 className="font-semibold text-lg text-gray-200 mb-4">Tech Stack</h3>
+            <div className="flex flex-wrap gap-3">
+              {project.technologies.map((tech) => (
+                <span 
+                  key={tech.id} 
+                  className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 text-emerald-300 px-4 py-2 rounded-full text-sm font-medium border border-emerald-500/30 backdrop-blur-sm hover:from-emerald-500/30 hover:to-green-500/30 transition-all duration-300"
+                >
+                  {tech.name}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Timeline */}
+          <div className="bg-gray-900/70 backdrop-blur-lg p-8 rounded-xl shadow-2xl border border-gray-700/50">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-8 gap-6">
+              <div className="flex-1">
+                <h2 className="font-semibold text-xl text-white mb-4">Timeline</h2>
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <span className="text-gray-400 w-28">Start Date:</span>
+                    <span className="text-gray-200 font-medium">2023-09-15</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-gray-400 w-28">Target Date:</span>
+                    <span className="text-gray-200 font-medium">2024-06-30</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-4">
+              <button className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-3 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 shadow-lg font-medium">
+                View Live
+              </button>
+              <button className="border border-gray-600 text-gray-200 px-6 py-3 rounded-lg hover:bg-gray-800 transition-all duration-300 font-medium">
+                View Code
+              </button>
+            </div>
+          </div>
+
+          {/* Team Members */}
+          <div className="bg-gray-900/70 backdrop-blur-lg p-8 rounded-xl shadow-2xl border border-gray-700/50">
+            <h3 className="text-xl font-bold text-white mb-6">Team Members</h3>
+            
+            <div className="space-y-4">
+              {TEAM_MEMBERS.map((member) => (
+                <div 
+                  key={member.id} 
+                  className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 border border-gray-700/30 hover:bg-gray-800/70 transition-all duration-300"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center font-semibold text-white shadow-lg">
+                      {getInitials(member.name)}
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900">{member.name}</div>
-                      <div className="text-sm text-gray-500">{member.email}</div>
+                      <div className="font-medium text-gray-100">{member.name}</div>
+                      <div className="text-sm text-gray-400">{member.email}</div>
                     </div>
                   </div>
-                  <span
-                    className={`px-3 py-1 text-xs rounded-full font-semibold ${
-                      member.role === 'Team Lead'
-                        ? 'bg-[#7989A3] text-white'
-                        : member.role === 'Assistant Lead'
-                        ? 'bg-gray-100 text-gray-800'
-                        : 'bg-gray-100 text-gray-500'
-                    }`}
-                  >
+                  <span className={`px-4 py-2 text-xs rounded-full font-semibold ${getRoleStyles(member.role)}`}>
                     {member.role}
                   </span>
                 </div>
               ))}
             </div>
-
           </div>
-
-           
-
         </div>
 
-        <div className="md:flex-[1_1_0%] w-full space-y-6">
-          <div className="bg-white p-6 w-full  rounded-lg shadow-xl">
-          <h3 className="text-lg font-bold mb-4 ">Project Info</h3>
+        {/* Sidebar */}
+        <div className="xl:flex-[1_1_0%] w-full space-y-6">
+          {/* Project Info */}
+          <div className="bg-gray-900/70 backdrop-blur-lg p-8 w-full rounded-xl shadow-2xl border border-gray-700/50">
+            <h3 className="text-xl font-bold text-white mb-6">Project Info</h3>
 
-          <div className="mb-4">
-          <span className="font-semibold">Domain:</span>&nbsp;
-          <span>{project.domain}</span>
-          </div>
+            <div className="space-y-6">
+              <div className="p-4 rounded-lg bg-gray-800/40 border border-gray-700/30">
+                <span className="font-semibold text-gray-200 block mb-2">Domain</span>
+                <span className="text-gray-300">{project.domain}</span>
+              </div>
 
-         <div className="mb-4">
-          <span className="font-semibold">Leadership</span>
-          <div className="mt-2 space-y-1">
-            <div>
-              <span className="text-gray-600">
-               Team Lead: 
-              </span>&nbsp;
-              <span>
-                {project.teamLead}
-              </span>
+              <div className="p-4 rounded-lg bg-gray-800/40 border border-gray-700/30">
+                <span className="font-semibold text-gray-200 block mb-3">Leadership</span>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Team Lead:</span>
+                    <span className="text-gray-200 font-medium">{project.teamLead}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Assistant Lead:</span>
+                    <span className="text-gray-200 font-medium">{project.assistantLead}</span>
+                  </div>
+                </div>
+              </div>
               
+              <div className="p-4 rounded-lg bg-gray-800/40 border border-gray-700/30">
+                <span className="font-semibold text-gray-200 block mb-2">Team Size</span>
+                <span className="text-gray-300">{project.teamSize} members</span>
+              </div>
             </div>
-
-            <div>
-              <span className="text-gray-600">
-                Assistant Lead: 
-              </span>&nbsp;
-              <span>
-                {project.assistantLead}
-              </span>
-              
-            </div>
-          </div>
-         </div>
-              
-          <div className="mb-4">
-            <span className="font-semibold">Team Size:</span>&nbsp;
-            <span>{project.teamSize} members</span>
-           
           </div>
 
-          
-
-
-          </div>
-
-          <div className="bg-white p-6  rounded-lg shadow-xl">
-            <h3 className="text-lg font-bold mb-4">Recent Activity</h3>
+          {/* Recent Activity */}
+          <div className="bg-gray-900/70 backdrop-blur-lg p-8 rounded-xl shadow-2xl border border-gray-700/50">
+            <h3 className="text-xl font-bold text-white mb-6">Recent Activity</h3>
             <div className="space-y-4">
-               {project.activities.length > 0 ? (
+              {project.activities.length > 0 ? (
                 project.activities.map((activity) => (
-                  <div key={activity.id} className="flex items-start gap-3">
-                    <div className="text-blue-600">{activity.icon}</div>
-                    <div>
-                      <div>{activity.description}</div>
-                      <div className="text-xs text-gray-400">{activity.time}</div>
+                  <div 
+                    key={activity.id} 
+                    className="flex items-start gap-4 p-4 rounded-lg bg-gray-800/40 border border-gray-700/30 hover:bg-gray-800/60 transition-all duration-300"
+                  >
+                    <div className="text-2xl">{activity.icon}</div>
+                    <div className="flex-1">
+                      <div className="text-gray-200 font-medium">{activity.description}</div>
+                      <div className="text-sm text-gray-400 mt-1">{activity.time}</div>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-gray-500 text-sm">No recent activity.</div>
+                <div className="text-gray-400 text-center py-8 text-sm">No recent activity.</div>
               )}
             </div>
           </div>
-
-          
-
         </div>
-
       </div>
-       
     </div>
   );
 }
