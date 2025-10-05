@@ -1,32 +1,47 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { FaPlus, FaTimes } from "react-icons/fa";
-import { LucideTrash, Edit as LucideEdit, Pin } from "lucide-react";
+import { LucideTrash, Edit as LucideEdit, Pin, Filter } from "lucide-react";
 
 export default function AnnouncementsPage() {
   const [groups, setGroups] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [selectedProject, setSelectedProject] = useState<string>("all");
+  const [showAdminOnly, setShowAdminOnly] = useState(false);
+  const [showMyAnnouncements, setShowMyAnnouncements] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [file, setFile] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [senderName, setSenderName] = useState("");
   const [content, setContent] = useState("");
   const [pinned, setPinned] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [selectedProjectForAnnouncement, setSelectedProjectForAnnouncement] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchAnnouncements = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch("/api/announcement", { cache: "no-store" });
-        const data = await res.json();
-        setGroups(data);
+        const [announcementsRes, projectsRes, userRes] = await Promise.all([
+          fetch("/api/announcement", { cache: "no-store" }),
+          fetch("/api/projects", { cache: "no-store" }),
+          fetch("/api/auth/session", { cache: "no-store" }),
+        ]);
+        const announcementsData = await announcementsRes.json();
+        const projectsData = await projectsRes.json();
+        const userData = await userRes.json();
+        setGroups(announcementsData);
+        setProjects(projectsData);
+        setCurrentUserId(userData?.user?._id || userData?.user?.id || "");
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchAnnouncements();
+    fetchData();
   }, []);
 
   if (loading)
@@ -50,6 +65,8 @@ export default function AnnouncementsPage() {
     setSenderName(ann.senderName);
     setContent(ann.content);
     setPinned(ann.pinned);
+    setIsAdmin(ann.isAdmin || false);
+    setSelectedProjectForAnnouncement(ann.projectId || "");
     setFile(null);
     setIsModalOpen(true);
   };
@@ -59,6 +76,8 @@ export default function AnnouncementsPage() {
     setSenderName("");
     setContent("");
     setPinned(false);
+    setIsAdmin(false);
+    setSelectedProjectForAnnouncement("");
     setFile(null);
     setEditingId(null);
   };
@@ -87,6 +106,9 @@ export default function AnnouncementsPage() {
         senderProfilePic: uploadedUrl || undefined,
         content,
         pinned,
+        isAdmin,
+        projectId: selectedProjectForAnnouncement || undefined,
+        createdBy: currentUserId,
       };
 
       let res;
@@ -161,13 +183,21 @@ export default function AnnouncementsPage() {
     }
   };
 
-  const pinnedAnnouncements = groups.filter((a) => a.pinned);
-  const otherAnnouncements = groups.filter((a) => !a.pinned);
+  // Filter announcements
+  const filteredAnnouncements = groups.filter((ann) => {
+    if (showAdminOnly && !ann.isAdmin) return false;
+    if (selectedProject !== "all" && ann.projectId !== selectedProject) return false;
+    if (showMyAnnouncements && ann.createdBy !== currentUserId) return false;
+    return true;
+  });
+
+  const pinnedAnnouncements = filteredAnnouncements.filter((a) => a.pinned);
+  const otherAnnouncements = filteredAnnouncements.filter((a) => !a.pinned);
 
   return (
     <div className="min-h-screen  py-6 px-4">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mt-5 mb-12">
+        <div className="flex items-center justify-between mt-5 mb-8">
           <div>
             <h1 className="font-mclaren text-4xl font-bold bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent mb-2">
               Announcements
@@ -183,6 +213,57 @@ export default function AnnouncementsPage() {
             <FaPlus className="group-hover:rotate-90 transition-transform duration-300" />
             Create announcement
           </button>
+        </div>
+
+        {/* Filter Section */}
+        <div className="mb-8 p-6 rounded-2xl bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-slate-700/50 shadow-xl">
+          <div className="flex items-center gap-3 mb-4">
+            <Filter className="text-emerald-400" size={20} />
+            <h3 className="font-mclaren font-semibold text-white text-lg">Filters</h3>
+          </div>
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-sm font-mclaren text-slate-400 mb-2">
+                Filter by Project
+              </label>
+              <select
+                value={selectedProject}
+                onChange={(e) => setSelectedProject(e.target.value)}
+                className="w-full bg-slate-800/50 border border-slate-600/50 rounded-xl px-4 py-3 text-white font-mclaren focus:border-emerald-400/50 focus:bg-slate-800/70 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              >
+                <option value="all">All Projects</option>
+                {projects.map((project) => (
+                  <option key={project._id} value={project._id}>
+                    {project.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-end gap-3">
+              <label className="flex items-center gap-3 px-5 py-3 rounded-xl bg-slate-800/30 border border-slate-700/30 cursor-pointer hover:bg-slate-800/50 transition-all duration-200">
+                <input
+                  type="checkbox"
+                  checked={showAdminOnly}
+                  onChange={(e) => setShowAdminOnly(e.target.checked)}
+                  className="w-5 h-5 text-emerald-500 bg-slate-800 border-slate-600 rounded focus:ring-emerald-500 focus:ring-2"
+                />
+                <span className="text-slate-300 font-mclaren font-medium whitespace-nowrap">
+                  Admin Only
+                </span>
+              </label>
+              <label className="flex items-center gap-3 px-5 py-3 rounded-xl bg-slate-800/30 border border-slate-700/30 cursor-pointer hover:bg-slate-800/50 transition-all duration-200">
+                <input
+                  type="checkbox"
+                  checked={showMyAnnouncements}
+                  onChange={(e) => setShowMyAnnouncements(e.target.checked)}
+                  className="w-5 h-5 text-emerald-500 bg-slate-800 border-slate-600 rounded focus:ring-emerald-500 focus:ring-2"
+                />
+                <span className="text-slate-300 font-mclaren font-medium whitespace-nowrap">
+                  My Announcements
+                </span>
+              </label>
+            </div>
+          </div>
         </div>
 
         {pinnedAnnouncements.length > 0 && (
@@ -214,16 +295,33 @@ export default function AnnouncementsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h3 className="font-mclaren font-bold text-white text-xl mb-1">
-                            {ann.senderName}
-                          </h3>
-                          <p className="text-sm text-slate-400 font-mclaren">
-                            {new Date(ann.createdAt).toLocaleDateString()} at{" "}
-                            {new Date(ann.createdAt).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-mclaren font-bold text-white text-xl">
+                              {ann.senderName}
+                            </h3>
+                            {ann.isAdmin && (
+                              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-400 text-xs font-mclaren font-semibold">
+                                ADMIN
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 text-sm text-slate-400 font-mclaren">
+                            <span>
+                              {new Date(ann.createdAt).toLocaleDateString()} at{" "}
+                              {new Date(ann.createdAt).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                            {ann.projectId && (
+                              <>
+                                <span className="text-slate-600">•</span>
+                                <span className="text-emerald-400">
+                                  {projects.find((p) => p._id === ann.projectId)?.name || "Unknown Project"}
+                                </span>
+                              </>
+                            )}
+                          </div>
                         </div>
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
                           <button
@@ -280,16 +378,33 @@ export default function AnnouncementsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h3 className="font-mclaren font-bold text-white text-xl mb-1">
-                            {ann.senderName}
-                          </h3>
-                          <p className="text-sm text-slate-400 font-mclaren">
-                            {new Date(ann.createdAt).toLocaleDateString()} at{" "}
-                            {new Date(ann.createdAt).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-mclaren font-bold text-white text-xl">
+                              {ann.senderName}
+                            </h3>
+                            {ann.isAdmin && (
+                              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-400 text-xs font-mclaren font-semibold">
+                                ADMIN
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 text-sm text-slate-400 font-mclaren">
+                            <span>
+                              {new Date(ann.createdAt).toLocaleDateString()} at{" "}
+                              {new Date(ann.createdAt).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                            {ann.projectId && (
+                              <>
+                                <span className="text-slate-600">•</span>
+                                <span className="text-emerald-400">
+                                  {projects.find((p) => p._id === ann.projectId)?.name || "Unknown Project"}
+                                </span>
+                              </>
+                            )}
+                          </div>
                         </div>
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
                           <button
@@ -388,6 +503,38 @@ export default function AnnouncementsPage() {
                     >
                       <Pin size={16} className="text-emerald-400" />
                       Pin this announcement
+                    </label>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-mclaren text-slate-400 mb-2">
+                      Project (Optional)
+                    </label>
+                    <select
+                      value={selectedProjectForAnnouncement}
+                      onChange={(e) => setSelectedProjectForAnnouncement(e.target.value)}
+                      className="w-full bg-slate-800/50 border border-slate-600/50 rounded-xl px-5 py-4 text-white font-mclaren focus:border-emerald-400/50 focus:bg-slate-800/70 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    >
+                      <option value="">All Projects</option>
+                      {projects.map((project) => (
+                        <option key={project._id} value={project._id}>
+                          {project.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-3 p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
+                    <input
+                      type="checkbox"
+                      id="isAdmin"
+                      checked={isAdmin}
+                      onChange={(e) => setIsAdmin(e.target.checked)}
+                      className="w-5 h-5 text-emerald-500 bg-slate-800 border-slate-600 rounded focus:ring-emerald-500 focus:ring-2"
+                    />
+                    <label
+                      htmlFor="isAdmin"
+                      className="text-slate-300 font-mclaren font-medium"
+                    >
+                      Mark as Admin Announcement
                     </label>
                   </div>
                   <div>
