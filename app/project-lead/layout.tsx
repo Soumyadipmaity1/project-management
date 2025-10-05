@@ -1,6 +1,14 @@
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
-import { Menu, User } from "lucide-react";
+import { Menu, User, LogOut, UserCircle } from "lucide-react";
 import { ProjectLeadSidebar } from "@/components/Essentials/projectLeadSidebar";
+import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 export default function LeadLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -33,9 +41,29 @@ export default function LeadLayout({ children }: { children: React.ReactNode }) 
 
                 {/* User info and actions */}
                 <div className="flex items-center gap-3 flex-shrink-0">
-                  <div className="h-9 w-9 bg-gradient-to-r from-fuchsia-500 to-fuchsia-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-fuchsia-500/25 transition-all duration-200 cursor-pointer group">
-                    <User className="w-4 h-4 text-white group-hover:scale-110 transition-transform duration-200" />
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="h-9 w-9 bg-gradient-to-r from-fuchsia-500 to-fuchsia-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-fuchsia-500/25 transition-all duration-200 cursor-pointer group focus:outline-none focus:ring-2 focus:ring-fuchsia-500 focus:ring-offset-2 focus:ring-offset-gray-900">
+                        <User className="w-4 h-4 text-white group-hover:scale-110 transition-transform duration-200" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent 
+                      align="end" 
+                      className="w-48 bg-gray-800 border-gray-700 text-white"
+                    >
+                      <DropdownMenuItem className="cursor-pointer hover:bg-gray-700 focus:bg-gray-700" asChild>
+                        <Link href="/profile" className="flex items-center">
+                          <UserCircle className="mr-2 h-4 w-4" />
+                          <span>View Profile</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="bg-gray-700" />
+                      <DropdownMenuItem className="cursor-pointer hover:bg-gray-700 focus:bg-gray-700 text-red-400 focus:text-red-400">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Logout</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </div>
