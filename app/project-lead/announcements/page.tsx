@@ -7,6 +7,7 @@ export default function AnnouncementsPage() {
   const [groups, setGroups] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState<"project" | "other">("project");
   const [loading, setLoading] = useState(true);
   const [file, setFile] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -174,7 +175,10 @@ export default function AnnouncementsPage() {
       : groups.filter((g) => g.projectId === selectedProject);
 
   const pinnedAnnouncements = filteredGroups.filter((a) => a.pinned);
-  const otherAnnouncements = filteredGroups.filter((a) => !a.pinned);
+  const projectAnnouncements = filteredGroups.filter((a) => !a.pinned && a.projectId);
+  const otherAnnouncements = filteredGroups.filter((a) => !a.pinned && !a.projectId);
+
+  const displayedAnnouncements = activeTab === "project" ? projectAnnouncements : otherAnnouncements;
 
   return (
     <div className="min-h-screen  py-6 px-4">
@@ -214,6 +218,32 @@ export default function AnnouncementsPage() {
                 </option>
               ))}
             </select>
+          </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="mb-8">
+          <div className="flex gap-2 p-1.5 bg-slate-800/50 rounded-xl border border-slate-700/50 inline-flex">
+            <button
+              onClick={() => setActiveTab("project")}
+              className={`px-6 py-3 rounded-lg font-mclaren font-semibold transition-all duration-300 ${
+                activeTab === "project"
+                  ? "bg-gradient-to-r from-fuchsia-600 to-fuchsia-500 text-white shadow-lg"
+                  : "text-slate-400 hover:text-white hover:bg-slate-700/50"
+              }`}
+            >
+              Project Announcements
+            </button>
+            <button
+              onClick={() => setActiveTab("other")}
+              className={`px-6 py-3 rounded-lg font-mclaren font-semibold transition-all duration-300 ${
+                activeTab === "other"
+                  ? "bg-gradient-to-r from-fuchsia-600 to-fuchsia-500 text-white shadow-lg"
+                  : "text-slate-400 hover:text-white hover:bg-slate-700/50"
+              }`}
+            >
+              Other Announcements
+            </button>
           </div>
         </div>
 
@@ -293,11 +323,11 @@ export default function AnnouncementsPage() {
 
         <div>
           <h2 className="font-mclaren text-2xl font-bold mb-6 bg-gradient-to-r from-white via-fuchsia-200 to-fuchsia-300 bg-clip-text text-transparent">
-            Recent Announcements
+            {activeTab === "project" ? "Project Announcements" : "Other Announcements"}
           </h2>
-          {otherAnnouncements.length > 0 ? (
+          {displayedAnnouncements.length > 0 ? (
             <div className="space-y-6">
-              {otherAnnouncements.map((ann: any) => (
+              {displayedAnnouncements.map((ann: any) => (
                 <div
                   key={ann._id}
                   className="group relative rounded-2xl bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-slate-700/50 p-8 shadow-2xl hover:border-fuchsia-400/50 transition-all duration-500 hover:shadow-fuchsia-500/20"
@@ -361,7 +391,7 @@ export default function AnnouncementsPage() {
                   <Pin className="text-slate-400" size={24} />
                 </div>
                 <p className="text-slate-400 font-mclaren text-lg">
-                  No announcements yet
+                  No {activeTab === "project" ? "project" : "other"} announcements yet
                 </p>
                 <p className="text-slate-500 font-mclaren text-sm mt-2">
                   Create your first announcement to get started
