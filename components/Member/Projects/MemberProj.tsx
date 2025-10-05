@@ -22,6 +22,7 @@ export default function ProjectGrid() {
   );
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDomain, setSelectedDomain] = useState<string>("all");
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -39,10 +40,19 @@ export default function ProjectGrid() {
     fetchProjects();
   }, []);
 
+  // Extract unique domains from projects
+  const uniqueDomains = ["all", ...Array.from(new Set(projects.map(p => p.domain)))];
+
   const filteredProjects = projects.filter((p) => {
-    if (activeTab === "enrolled") return p.enrolled;
-    if (activeTab === "available") return p.status === "available";
-    return true;
+    // Filter by tab
+    let tabMatch = true;
+    if (activeTab === "enrolled") tabMatch = p.enrolled;
+    if (activeTab === "available") tabMatch = p.status === "available";
+    
+    // Filter by domain
+    const domainMatch = selectedDomain === "all" || p.domain === selectedDomain;
+    
+    return tabMatch && domainMatch;
   });
 
   if (loading) return <p className="text-center text-gray-300">Loading projects...</p>;
@@ -56,20 +66,48 @@ export default function ProjectGrid() {
           View and manage projects across your domains
         </p>
 
-        <div className="flex gap-2 mb-6 bg-gray-800 rounded-lg p-1 w-fit">
-          {(["all", "enrolled", "available"] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition ${
-                activeTab === tab
-                  ? "bg-gray-700 text-indigo-400 shadow-lg"
-                  : "text-gray-400 hover:text-gray-200"
-              }`}
+        <div className="flex flex-wrap items-center gap-4 mb-6">
+          {/* Tab Buttons */}
+          <div className="flex gap-2 bg-gray-800 rounded-lg p-1 w-fit">
+            {(["all", "enrolled", "available"] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+                  activeTab === tab
+                    ? "bg-gray-700 text-indigo-400 shadow-lg"
+                    : "text-gray-400 hover:text-gray-200"
+                }`}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          {/* Domain Filter Dropdown */}
+          <div className="flex items-center gap-2">
+            <label htmlFor="domain-filter" className="text-sm text-gray-400 font-medium">
+              Domain:
+            </label>
+            <select
+              id="domain-filter"
+              value={selectedDomain}
+              onChange={(e) => setSelectedDomain(e.target.value)}
+              className="bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent hover:border-gray-600 transition cursor-pointer"
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
+              <option value="all">All Domains</option>
+              {uniqueDomains.slice(1).map((domain) => (
+                <option key={domain} value={domain}>
+                  {domain}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Results Count */}
+          <div className="ml-auto text-sm text-gray-400">
+            <span className="font-semibold text-indigo-400">{filteredProjects.length}</span> project{filteredProjects.length !== 1 ? 's' : ''}
+          </div>
         </div>
 
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
