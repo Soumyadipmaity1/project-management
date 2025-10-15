@@ -4,6 +4,9 @@ type ActionAnnouncement = "create" | "update" | "delete" | "view" |"pin" | "unpi
 type RoleProject = "Admin" | "Lead" | "Member";
 type ActionProject = "create" | "update" | "delete" | "view";
 
+type RoleRequest = "Admin" | "Lead" | "Member";
+type ActionRequest = "create" | "update" | "view";
+
 type RoleMember = "Admin" | "Lead" | "Member";
 type ActionMember = "create" | "update" | "delete" | "view";
 

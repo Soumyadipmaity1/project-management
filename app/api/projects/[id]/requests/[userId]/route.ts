@@ -17,7 +17,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string; us
   if (
     (action === "approve" && !canProject(role, "approverequest")) ||
     (action === "reject" && !canProject(role, "rejectrequest"))
-  ) {
+  ) { 
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
