@@ -6,7 +6,7 @@ export interface Project extends Document {
   liveDemo?: string;
   title: string;
   description: string;
-  domain: string;
+  domain: string; 
   badge: "active" | "completed" | "disabled";
   teamlead: string;
   colead?: string;
