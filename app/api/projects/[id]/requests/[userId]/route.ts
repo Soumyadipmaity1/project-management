@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { canProject } from "@/lib/permissions";
+import { canProject, canRequest } from "@/lib/permissions";
 import ProjectModel from "@/model/Projects";
 import mongoose from "mongoose";
 
@@ -15,8 +15,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string; us
   const { action } = await req.json();
 
   if (
-    (action === "approve" && !canProject(role, "approverequest")) ||
-    (action === "reject" && !canProject(role, "rejectrequest"))
+    (action === "approve" && !canRequest(role, "approverequest")) ||
+    (action === "reject" && !canRequest(role, "rejectrequest"))
   ) { 
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -41,8 +41,9 @@ export async function PATCH(req: Request, { params }: { params: { id: string; us
   request.status = action === "approve" ? "Approved" : "Rejected";
 
   if (action === "approve") {
-    if (!project.members.includes(userId)) {
-      project.members.push(userId);
+    const useridStr = userId.toString();
+    if (!project.members.includes(useridStr)) {
+      project.members.push(useridStr);
       project.membersCount = project.members.length; 
     }
   }

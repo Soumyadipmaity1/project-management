@@ -61,37 +61,40 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/signin",
   },
 
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        const u = user as User;
-        token._id = u._id?.toString();
-        token.name = u.name;
-        token.email = u.email;
-        token.rollNo = u.rollNo;
-        token.role = (u.role === "Admin" || u.role === "Lead" || u.role === "Member")
-        ? u.role : "Member";
-        token.domain = u.domain;
-        token.githubId = u.githubId;
-        token.linkedinId = u.linkedinId;
-      }
-      return token;   
-    },
+ 
 
-    async session({ session, token }) {
-      if (session.user) {
-        session.user._id = token._id as string;
-        session.user.name = token.name as string;
-        session.user.email = token.email as string;
-        (session.user as any).rollNo = token.rollNo;
-        (session.user as any).role = token.role;
-        (session.user as any).domain = token.domain;
-        (session.user as any).githubId = token.githubId;
-        (session.user as any).linkedinId = token.linkedinId;
-      }
-      return session;
-    },
+  callbacks: {
+  async jwt({ token, user }) {
+    if (user) {
+      const u = user as User;
+      token._id = u._id?.toString();
+      token.name = u.name;
+      token.email = u.email;
+      token.rollNo = u.rollNo;
+      token.role = (u.role === "Admin" || u.role === "Lead" || u.role === "Member")
+        ? u.role : "Member";
+      token.domain = u.domain;
+      token.githubId = u.githubId;
+      token.linkedinId = u.linkedinId;
+    }
+    return token;   
   },
+
+  async session({ session, token }) {
+    if (token && session.user) {
+      session.user._id = token._id as string;
+      session.user.name = token.name as string;
+      session.user.email = token.email as string;
+      session.user.rollNo = token.rollNo as string;
+      session.user.role = (token.role === "Admin" || token.role === "Lead" || token.role === "Member" || token.role === "ProjectLead")
+        ? token.role : "Member";
+      session.user.domain = token.domain as string;
+      session.user.githubId = token.githubId as string;
+      session.user.linkedinId = token.linkedinId as string;
+    }
+    return session;
+  },
+},
 
   session: {
     strategy: "jwt",

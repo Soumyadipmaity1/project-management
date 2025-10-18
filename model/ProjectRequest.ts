@@ -1,18 +1,20 @@
 import mongoose , {Schema, Model, Document} from 'mongoose';
 
 export interface Request extends Document {
-    user: mongoose.Types.ObjectId;
+    _id: mongoose.Types.ObjectId;
     title: string;
     domain: string;
     status: "Pending" | "Approved" | "Rejected";
     description: string;
     link: string;
+    teamlead?: mongoose.Types.ObjectId;
+    colead?: mongoose.Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }
 
 const RequestSchema: Schema<Request> = new Schema({
-    user: {
+    _id: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true, 
@@ -44,6 +46,14 @@ const RequestSchema: Schema<Request> = new Schema({
     minlength: [2, "Domain must be at least 2 characters long"],
     maxlength: [50, "Domain cannot exceed 50 characters"],
   },
+  teamlead: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+    colead: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
   status: {
     type: String,
     enum: ["Pending", "Approved", "Rejected"],

@@ -6,7 +6,6 @@ import ProjectModel from "@/model/Projects";
 import { authOptions } from "../../auth/[...nextauth]/option";
 import mongoose from "mongoose";
 
-// Add this to your app/api/projects/[id]/route.ts
 export async function DELETE(
   req: Request,
   { params }: { params: { id: string } }
