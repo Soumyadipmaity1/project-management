@@ -8,8 +8,8 @@ export interface Project extends Document {
   description: string;
   domain: string; 
   badge: "active" | "completed" | "disabled";
-  teamlead: string;
-  colead?: string;
+  teamlead:  mongoose.Types.ObjectId;
+  colead?:  mongoose.Types.ObjectId;
   members: string[];
   membersCount: number;
   approved: boolean;
@@ -85,12 +85,15 @@ const ProjectSchema: Schema<Project> = new Schema({
     default: "active",
   },
   teamlead: {
-    type: String,
-    required: [true, "Team lead is required"],
-  },
-  colead: {
-    type: String,
-  },
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      name: String,
+    },
+    colead: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      name: String,
+    },
   members: [{
     type: String,
   }],

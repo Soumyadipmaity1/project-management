@@ -1,5 +1,3 @@
-import { act } from "react";
-
 type RoleAnnouncement = "Admin" | "Lead" | "Member"| "ProjectLead";
 type ActionAnnouncement = "create" | "update" | "delete" | "view" |"pin" | "unpin";
 
@@ -9,8 +7,11 @@ type ActionProject = "create" | "update" | "delete" | "view";
 type RoleRequest = "Admin" | "Lead" | "Member" | "ProjectLead" ;
 type ActionRequest = "create" | "approverequest" | "rejectrequest" |"view";
 
-type RoleMember = "Admin" | "Lead" | "Member" | "ProjectLead";
-type ActionMember = "create" | "update" | "delete" | "view";
+type RoleDomainMember = "Admin" | "Lead" | "Member" | "ProjectLead";
+type ActionDomainMember = "update" | "delete" | "view";
+
+type RoleProjectMembers =  "Admin" | "Lead" | "Member" | "ProjectLead";
+type ActionProjectMembers = "approve" | "reject" | "view" | "remove";
 
 const announcementPermission: Record<RoleAnnouncement, ActionAnnouncement[]> = {
   Admin: ["create", "update", "delete", "view", "pin", "unpin"],
@@ -75,14 +76,14 @@ export function canProject(role: string | undefined, action: ActionProject): boo
   return projectPermission[normalizedRole as RoleProject].includes(action);
 }
 
- const memberPermission: Record<RoleMember, ActionMember[]> = {
-  Admin: ["create", "update", "delete", "view"],
-  Lead:  ["create", "update", "delete", "view"],
-  ProjectLead: ["create", "update", "delete", "view"],
-  Member: ["view"],
+ const DomainmemberPermission: Record<RoleDomainMember, ActionDomainMember[]> = {
+  Admin: ["update", "delete", "view"],
+  Lead:  ["update", "delete", "view"],
+  ProjectLead: [],
+  Member: [],
 };
 
-export function canMember(role: string | undefined, action: ActionMember): boolean {
+export function canDomainMember(role: string | undefined, action: ActionDomainMember): boolean {
   if (!role) return false;
 
   const normalizedRole =
@@ -93,6 +94,27 @@ export function canMember(role: string | undefined, action: ActionMember): boole
 
   if (!normalizedRole) return false;
 
-  return memberPermission[normalizedRole as RoleMember].includes(action);
+  return DomainmemberPermission[normalizedRole as RoleDomainMember].includes(action);
+}
+
+ const ProjectmemberPermission: Record<RoleProjectMembers, ActionProjectMembers[]> = {
+  Admin: ["approve" , "reject" , "view" , "remove"],
+  Lead:  ["approve" , "reject" , "view" , "remove"],
+  ProjectLead: ["approve" , "reject" , "view" , "remove"],
+  Member: [],
+};
+
+export function canProjectMember(role: string | undefined, action: ActionProjectMembers): boolean {
+  if (!role) return false;
+
+  const normalizedRole =
+    role.toLowerCase() === "admin" ? "Admin" :
+    role.toLowerCase() === "lead" ? "Lead" :
+    role.toLowerCase() === "member" ? "Member" :
+    null;
+
+  if (!normalizedRole) return false;
+
+  return ProjectmemberPermission[normalizedRole as RoleProjectMembers].includes(action);
 }
 

@@ -1,7 +1,17 @@
+
 "use client";
-import React, { useState, useEffect } from "react";
-import { FaGithub, FaLinkedin, FaUser, FaSearch, FaEye, FaTrash } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import {
+  FaGithub,
+  FaLinkedin,
+  FaUser,
+  FaSearch,
+  FaEye,
+  FaTrash,
+  FaArrowUp,
+} from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
 
 interface TeamMember {
   _id: string;
@@ -13,114 +23,53 @@ interface TeamMember {
   email?: string;
 }
 
-interface Project {
-  _id: string;
-  title: string;
-  domain: string;
-  leadId: string;
-}
-
-export default function TeamMembersSample() {
+export default function TeamMembers() {
   const router = useRouter();
+
   const [team, setTeam] = useState<TeamMember[]>([]);
-  const [project, setProject] = useState<Project | null>(null);
-  const [allProjects, setAllProjects] = useState<Project[]>([]);
   const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
-  const [selectedProjectId, setSelectedProjectId] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
-  const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null);
+  const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(
+    null
+  );
+  const [showPromoteDialog, setShowPromoteDialog] = useState(false);
+  const [memberToPromote, setMemberToPromote] = useState<TeamMember | null>(
+    null
+  );
+  const [promoteRole, setPromoteRole] = useState<"projectlead" | "colead">(
+    "projectlead"
+  );
+
+  const fetchMembers = async () => {
+    try {
+      const res = await fetch("/api/domain_members");
+      if (!res.ok) throw new Error("Failed to fetch members");
+      const data = await res.json();
+      setAllMembers(data);
+      setTeam(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch members");
+    }
+  };
 
   useEffect(() => {
-    const sampleProjects: Project[] = [
-      {
-        _id: "proj123",
-        title: "Web Development Project",
-        domain: "Web Development",
-        leadId: "lead001",
-      },
-      {
-        _id: "proj124",
-        title: "Mobile App Development",
-        domain: "Mobile Development",
-        leadId: "lead001",
-      },
-      {
-        _id: "proj125",
-        title: "Data Analytics Platform",
-        domain: "Data Science",
-        leadId: "lead001",
-      },
-    ];
-    setAllProjects(sampleProjects);
-    setProject(sampleProjects[0]);
-
-    const sampleTeam: TeamMember[] = [
-      {
-        _id: "m1",
-        name: "Alice",
-        domain: "Web Development",
-        githubId: "aliceweb",
-        linkedinId: "aliceweb",
-        email: "alice@example.com",
-      },
-      {
-        _id: "m2",
-        name: "Bob",
-        domain: "Mobile Development",
-        githubId: "bobmobile",
-        linkedinId: "bobmobile",
-        email: "bob@example.com",
-      },
-      {
-        _id: "m3",
-        name: "Charlie",
-        domain: "Web Development",
-        githubId: "charlieweb",
-        linkedinId: "charlieweb",
-        email: "charlie@example.com",
-      },
-      {
-        _id: "m4",
-        name: "David",
-        domain: "Data Science",
-        githubId: "davidsci",
-        linkedinId: "davidsci",
-        email: "david@example.com",
-      },
-    ];
-
-    setAllMembers(sampleTeam);
-    setTeam(sampleTeam);
+    fetchMembers();
   }, []);
 
   useEffect(() => {
-    let filteredTeam = [...allMembers];
-
-    // Filter by project domain
-    if (selectedProjectId !== "all") {
-      const selectedProject = allProjects.find(
-        (p) => p._id === selectedProjectId
-      );
-      if (selectedProject) {
-        filteredTeam = filteredTeam.filter(
-          (member) => member.domain === selectedProject.domain
-        );
-      }
-    }
-
-    // Filter by search query
+    let filtered = [...allMembers];
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filteredTeam = filteredTeam.filter(
-        (member) =>
-          member.name.toLowerCase().includes(query) ||
-          member.email?.toLowerCase().includes(query)
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (m) =>
+          m.name.toLowerCase().includes(q) ||
+          m.email?.toLowerCase().includes(q)
       );
     }
-
-    setTeam(filteredTeam);
-  }, [selectedProjectId, searchQuery, allMembers, allProjects]);
+    setTeam(filtered);
+  }, [searchQuery, allMembers]);
 
   const handleViewProfile = (memberId: string) => {
     router.push(`/lead/members/${memberId}`);
@@ -131,16 +80,51 @@ export default function TeamMembersSample() {
     setShowRemoveDialog(true);
   };
 
-  const confirmRemove = () => {
-    if (memberToRemove) {
-      // Remove from allMembers
-      setAllMembers((prev) => prev.filter((m) => m._id !== memberToRemove._id));
-      // Remove from team
-      setTeam((prev) => prev.filter((m) => m._id !== memberToRemove._id));
-      
-      // Close dialog
+  const confirmRemove = async () => {
+    if (!memberToRemove) return;
+    try {
+      const res = await fetch(`/api/domain_members/${memberToRemove._id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to remove member");
+      setAllMembers((prev) =>
+        prev.filter((m) => m._id !== memberToRemove._id)
+      );
+      toast.success(`${memberToRemove.name} removed successfully`);
       setShowRemoveDialog(false);
       setMemberToRemove(null);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to remove member");
+    }
+  };
+
+  const handlePromoteClick = (member: TeamMember) => {
+    setMemberToPromote(member);
+    setPromoteRole("projectlead");
+    setShowPromoteDialog(true);
+  };
+
+  const confirmPromote = async () => {
+    if (!memberToPromote) return;
+    try {
+      const res = await fetch(`/api/domain_members/${memberToPromote._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: promoteRole }),
+      });
+      if (!res.ok) throw new Error("Failed to promote member");
+      toast.success(
+        `${memberToPromote.name} promoted to ${
+          promoteRole === "projectlead" ? "Project Lead" : "Co-Lead"
+        }`
+      );
+      setShowPromoteDialog(false);
+      setMemberToPromote(null);
+      fetchMembers();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to promote member");
     }
   };
 
@@ -149,68 +133,39 @@ export default function TeamMembersSample() {
     setMemberToRemove(null);
   };
 
-  if (!project)
-    return (
-      <div className="min-h-screen flex items-center justify-center text-emerald-400">
-        Loading...
-      </div>
-    );
+  const cancelPromote = () => {
+    setShowPromoteDialog(false);
+    setMemberToPromote(null);
+  };
 
   return (
     <div className="min-h-screen py-6 px-4">
+      <Toaster position="top-right" reverseOrder={false} />
       <div className="flex items-start justify-between mb-8">
         <div>
           <h2 className="font-mclaren text-[36px] mb-3 font-bold bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent">
             Members
           </h2>
           <p className="text-slate-400 text-lg font-medium font-mclaren">
-            View and manage team members in your project
+            View and manage team members in your domain
           </p>
         </div>
       </div>
 
-      {/* Filter and Search Section */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
-        {/* Project Filter Dropdown */}
-        <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            Filter by Project
-          </label>
-          <select
-            value={selectedProjectId}
-            onChange={(e) => setSelectedProjectId(e.target.value)}
-            className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-          >
-            <option value="all">All Projects</option>
-            {allProjects.map((proj) => (
-              <option key={proj._id} value={proj._id}>
-                {proj.title}
-              </option>
-            ))}
-          </select>
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          Search Members
+        </label>
+        <div className="relative">
+          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search by name or email..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-gray-900 border border-gray-800 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+          />
         </div>
-
-        {/* Search Bar */}
-        <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            Search Members
-          </label>
-          <div className="relative">
-            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search by name or email..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-800 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Members Count */}
-      <div className="mb-4 text-gray-400 text-sm">
-        Showing {team.length} member{team.length !== 1 ? "s" : ""}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -248,18 +203,22 @@ export default function TeamMembersSample() {
                   <span>@{member.githubId}</span>
                 </div>
               )}
-              <div className="text-sm text-emerald-400 font-medium">
-                Project Management Tool
-              </div>
-              <div className="text-sm text-gray-300 mb-3">Web development</div>
 
-              <div className="flex flex-col gap-2 w-full">
+              <div className="flex flex-col gap-2 w-full mt-3">
                 <button
                   onClick={() => handleViewProfile(member._id)}
                   className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:transform hover:scale-105"
                 >
                   <FaEye className="text-xs" />
                   <span>View Profile</span>
+                </button>
+
+                <button
+                  onClick={() => handlePromoteClick(member)}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:transform hover:scale-105"
+                >
+                  <FaArrowUp className="text-xs" />
+                  <span>Promote</span>
                 </button>
 
                 <button
@@ -270,7 +229,7 @@ export default function TeamMembersSample() {
                   <span>Remove</span>
                 </button>
 
-                <div className="flex gap-2 justify-center">
+                <div className="flex gap-2 justify-center mt-2">
                   {member.githubId && (
                     <a
                       href={`https://github.com/${member.githubId}`}
@@ -300,7 +259,6 @@ export default function TeamMembersSample() {
         )}
       </div>
 
-      {/* Remove Confirmation Dialog */}
       {showRemoveDialog && memberToRemove && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
           <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 max-w-md w-full shadow-2xl">
@@ -326,6 +284,56 @@ export default function TeamMembersSample() {
                 className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-lg shadow-red-500/25"
               >
                 Remove Member
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPromoteDialog && memberToPromote && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-4">
+              Promote Member
+            </h3>
+            <p className="text-gray-300 mb-4">
+              Promote{" "}
+              <span className="font-semibold text-emerald-400">
+                {memberToPromote.name}
+              </span>{" "}
+              to:
+            </p>
+            <div className="mb-6 space-y-3">
+              {["projectlead", "colead"].map((role) => (
+                <label
+                  key={role}
+                  className="flex items-center gap-2 text-gray-200"
+                >
+                  <input
+                    type="radio"
+                    name="promoteRole"
+                    value={role}
+                    checked={promoteRole === role}
+                    onChange={() =>
+                      setPromoteRole(role as "projectlead" | "colead")
+                    }
+                  />
+                  {role === "projectlead" ? "Project Lead" : "Co-Lead"}
+                </label>
+              ))}
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={cancelPromote}
+                className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-semibold transition-all duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmPromote}
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-lg shadow-blue-500/25"
+              >
+                Promote
               </button>
             </div>
           </div>

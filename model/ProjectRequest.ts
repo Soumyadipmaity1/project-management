@@ -49,10 +49,12 @@ const RequestSchema: Schema<Request> = new Schema({
   teamlead: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      name: String,
     },
     colead: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      name: String,
     },
   status: {
     type: String,

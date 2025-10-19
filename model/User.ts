@@ -1,3 +1,4 @@
+import { Project } from './../components/Member/Projects/MemberProj';
 import mongoose, {Schema,Document, mongo} from "mongoose";
 export interface Message extends Document {
     content: string,
@@ -18,6 +19,7 @@ export interface User extends Document {
   emailVerified: boolean;
   otp: string;
   otpExpiry: Date;
+  projects: mongoose.Types.ObjectId[];
 }
 
 const UserSchema: Schema<User> = new Schema(
@@ -83,6 +85,13 @@ const UserSchema: Schema<User> = new Schema(
       type: Date,
       required: false,
     },
+   projects: [
+  {
+    projectId: { type: mongoose.Schema.Types.ObjectId, ref: "Project", required: true },
+    projectName: { type: String, required: true },
+  },
+],
+
   },
   { timestamps: true }
 );
