@@ -424,6 +424,7 @@ function RequestStatusBadge({ status }: { status: ProjectRequest["status"] }) {
   }
 }
 
+
 function ProjectCard({ project }: { project: Project }) {
   const disabled = project.badge === "disabled";
   const approved = project.approved;
@@ -619,7 +620,7 @@ export default function ProjectGrid() {
       setProjects(Array.isArray(projectsData) ? projectsData : []);
       
       // Fetch user's requests
-      const requestsRes = await fetch("/api/my-requests", { cache: "no-store" });
+      const requestsRes = await fetch("/api/request", { cache: "no-store" });
       if (requestsRes.ok) {
         const requestsData = await requestsRes.json();
         setRequests(Array.isArray(requestsData) ? requestsData : []);

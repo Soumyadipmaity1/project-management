@@ -1,7 +1,7 @@
 import mongoose , {Schema, Model, Document} from 'mongoose';
 
 export interface Request extends Document {
-    _id: mongoose.Types.ObjectId;
+    user: mongoose.Types.ObjectId;
     title: string;
     domain: string;
     status: "Pending" | "Approved" | "Rejected";
@@ -14,7 +14,7 @@ export interface Request extends Document {
 }
 
 const RequestSchema: Schema<Request> = new Schema({
-    _id: {
+    user: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true, 
@@ -61,7 +61,8 @@ const RequestSchema: Schema<Request> = new Schema({
   },
 },{timestamps: true})
 
-const RequestModel = (mongoose.models.Request as Model<Request>) || 
-             (mongoose.model<Request>("Request",RequestSchema));
+const RequestModel: Model<Request> =
+  mongoose.models.Request || mongoose.model<Request>("Request", RequestSchema);
+
 
 export default RequestModel;

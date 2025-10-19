@@ -35,7 +35,9 @@ export async function GET(req: Request){
         else if (user.role === "ProjectLead" || user.role === "CoLead"){
             filter = {
                 $or: [
-                    
+                    { projectLead: user._id },
+                    { coLead: user._id },
+                    { user: user._id }, 
                 ]
             }
         }
@@ -44,8 +46,12 @@ export async function GET(req: Request){
             filter = {};
         }
 
-        const request = await RequestModel.find().sort({ createdAt: -1});
-        return NextResponse.json(request.map(r => ({...r.toObject(), _id: r._id.toString()}))) 
+        const request = await RequestModel.find(filter)
+                        .populate("user","name email role")
+                        .populate("projectlead","name email role")
+                        .populate("colead","name email role")
+                        .sort({ createdAt: -1});
+        return NextResponse.json(request.map(r => ({...r.toObject(), _id: r.user.toString()}))) 
     }
     catch(error){
         console.log("Error fetcing request", error);

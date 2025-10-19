@@ -64,7 +64,6 @@ export async function PUT(
 
     const body = await req.json();
     
-    // Validate required fields
     if (!body.title || !body.domain || !body.description || !body.teamlead) {
       return NextResponse.json({ 
         error: "Missing required fields",
@@ -72,7 +71,6 @@ export async function PUT(
       }, { status: 400 });
     }
 
-    // Trim and validate field lengths
     const title = body.title.trim();
     const domain = body.domain.trim();
     const description = body.description.trim();
@@ -106,7 +104,6 @@ export async function PUT(
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // Update the project
     const updatedProject = await ProjectModel.findByIdAndUpdate(
       params.id,
       {
@@ -126,7 +123,6 @@ export async function PUT(
   } catch (error: any) {
     console.error("Error updating project:", error);
     
-    // Handle Mongoose validation errors
     if (error.name === 'ValidationError') {
       const errors = Object.values(error.errors).map((err: any) => err.message);
       return NextResponse.json(

@@ -235,6 +235,137 @@ const initialRequests: Request[] = [
   },
 ];
 
+
+function PromoteModal({
+  member,
+  isOpen,
+  onClose,
+  onConfirm,
+}: {
+  member: null;
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (role: string) => void;
+}) {
+  const [selectedRole, setSelectedRole] = useState("");
+
+  if (!isOpen || !member) return null;
+
+  const handleConfirm = () => {
+    if (selectedRole) {
+      onConfirm(selectedRole);
+      setSelectedRole("");
+      onClose();
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-neutral-800 rounded-lg p-6 w-full max-w-md">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-neutral-100">
+            Promote Member
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-neutral-400 hover:text-neutral-300"
+          >
+            <FaTimes size={20} />
+          </button>
+        </div>
+
+        <p className="text-neutral-300 mb-4">
+          Promote <strong>{member.name}</strong> to:
+        </p>
+
+        <div className="space-y-3 mb-6">
+          {["Domain Lead", "Project Lead"].map((role) => (
+            <label key={role} className="flex items-center">
+              <input
+                type="radio"
+                name="role"
+                value={role}
+                checked={selectedRole === role}
+                onChange={(e) => setSelectedRole(e.target.value)}
+                className="mr-3"
+              />
+              <span className="text-neutral-200">{role}</span>
+            </label>
+          ))}
+        </div>
+
+        <div className="flex space-x-3">
+          <button
+            onClick={onClose}
+            className="flex-1 bg-neutral-600 text-neutral-200 px-4 py-2 rounded-md hover:bg-neutral-500 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleConfirm}
+            disabled={!selectedRole}
+            className="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 disabled:bg-neutral-600 disabled:cursor-not-allowed transition-colors"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
+function DeleteModal({
+  member,
+  isOpen,
+  onClose,
+  onConfirm,
+}: {
+  member: typeof member | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  if (!isOpen || !member) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-neutral-800 rounded-lg p-6 w-full max-w-md">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-neutral-100">Delete Member</h3>
+          <button
+            onClick={onClose}
+            className="text-neutral-400 hover:text-neutral-300"
+          >
+            <FaTimes size={20} />
+          </button>
+        </div>
+
+        <p className="text-neutral-300 mb-6">
+          Are you sure you want to remove{" "}
+          <strong>{member.name}</strong> from the team?
+        </p>
+
+        <div className="flex space-x-3">
+          <button
+            onClick={onClose}
+            className="flex-1 bg-neutral-600 text-neutral-200 px-4 py-2 rounded-md hover:bg-neutral-500 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 bg-rose-600 text-white px-4 py-2 rounded-md hover:bg-rose-700 transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function PendingRequests() {
   const [requests, setRequests] = useState<Request[]>(initialRequests);
   const [projectFilter, setProjectFilter] = useState<string>("all");
