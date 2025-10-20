@@ -6,6 +6,48 @@ import ProjectModel from "@/model/Projects";
 import { authOptions } from "../../auth/[...nextauth]/option";
 import mongoose from "mongoose";
 
+
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  await dbConnect();
+
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!canProject(session.user.role, "view")) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  try {
+    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+      return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
+    }
+
+    const project = await ProjectModel.findById(params.id)
+      .populate("teamlead", "name email role")
+      .populate("colead", "name email role")
+      .populate("members", "name email role")
+      .lean();
+
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(project, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching project:", error);
+    return NextResponse.json(
+      { error: "Server Error", details: "Failed to fetch project" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(
   req: Request,
   { params }: { params: { id: string } }
@@ -98,7 +140,6 @@ export async function PUT(
       }, { status: 400 });
     }
 
-    // Check if project exists
     const existingProject = await ProjectModel.findById(params.id);
     if (!existingProject) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });

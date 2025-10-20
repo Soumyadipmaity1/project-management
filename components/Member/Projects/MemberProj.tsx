@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { FaUsers, FaArrowRight, FaCheckCircle } from "react-icons/fa";
 import toast, { Toaster } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export type Project = {
   id: string;
@@ -152,9 +153,18 @@ function StatusBadge({ status }: { status: Project["status"] }) {
 }
 
 function ProjectCard({ project }: { project: Project }) {
+    const router = useRouter();
+
   const disabled = project.status === "disabled";
   const available = project.status === "available";
   const enrolled = project.enrolled;
+
+
+  const handleOpenProject = () => {
+    if (!disabled) {
+      router.push(`/member/projects/${project.id}`);
+    }
+  };
 
   const handleSendRequest = () => {
     toast.success(`Request sent successfully for "${project.title}"`, {
@@ -259,7 +269,9 @@ function ProjectCard({ project }: { project: Project }) {
             {!disabled && (
               <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-700" />
             )}
-            <span className="relative flex items-center justify-center gap-2">
+            <span 
+                          onClick={handleOpenProject}
+                          className="relative flex items-center justify-center gap-2">
               Open Project
               {!disabled && <FaArrowRight className="text-xs group-hover/btn:translate-x-1 transition-transform" />}
             </span>
