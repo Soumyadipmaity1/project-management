@@ -8,7 +8,7 @@ export interface Project extends Document {
   description: string;
   domain: string; 
   badge: "active" | "completed" | "disabled";
-  teamlead:  mongoose.Types.ObjectId;
+  projectlead:  mongoose.Types.ObjectId;
   colead?:  mongoose.Types.ObjectId;
   members: string[];
   membersCount: number;
@@ -84,7 +84,7 @@ const ProjectSchema: Schema<Project> = new Schema({
     },
     default: "active",
   },
-  teamlead: {
+  projectlead: {
       type: Schema.Types.ObjectId,
       ref: "User",
       name: String,
@@ -138,16 +138,16 @@ const ProjectSchema: Schema<Project> = new Schema({
   toObject: { virtuals: true }
 });
 
-// Add indexes for better performance
 ProjectSchema.index({ createdAt: -1 });
 ProjectSchema.index({ teamlead: 1 });
 ProjectSchema.index({ badge: 1 });
 ProjectSchema.index({ approved: 1 });
 
-// Add virtual for actual members count
-ProjectSchema.virtual('actualMembersCount').get(function() {
-  return this.members ? this.members.length : 0;
+ProjectSchema.pre("save", function (next) {
+  this.membersCount = this.members ? this.members.length : 0;
+  next();
 });
+
 
 const ProjectModel = (mongoose.models.Project as Model<Project>) ||
                      mongoose.model<Project>("Project", ProjectSchema);

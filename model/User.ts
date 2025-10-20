@@ -20,6 +20,7 @@ export interface User extends Document {
   otp: string;
   otpExpiry: Date;
   projects: mongoose.Types.ObjectId[];
+  ProjectCount: number;
 }
 
 const UserSchema: Schema<User> = new Schema(
@@ -91,10 +92,29 @@ const UserSchema: Schema<User> = new Schema(
     projectName: { type: String, required: true },
   },
 ],
-
+  ProjectCount: {
+    type: Number,
+    default: 0,
+    min: [0, "Project count must be at least 0"],
+    max: [1000, "Project count cannot exceed 1000"],
   },
-  { timestamps: true }
+  },
+  { timestamps: true ,
+   toJSON: { 
+    virtuals: true,
+    transform: function(doc, ret) {
+      const { __v, ...rest } = ret;
+      return rest;
+    }
+  },
+  toObject: { virtuals: true }
+  }
 );
+
+UserSchema.pre("save", function (next) {
+  this.ProjectCount = this.projects ? this.projects.length : 0;
+  next();
+});
 
 const UserModel =
   (mongoose.models.User as mongoose.Model<User>) ||
