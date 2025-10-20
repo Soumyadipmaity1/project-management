@@ -104,13 +104,6 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!domain || domain.trim().length < 2 || domain.trim().length > 50) {
-      return NextResponse.json(
-        { error: "Domain must be between 2 and 50 characters." },
-        { status: 400 }
-      );
-    }
-
     if (!description || description.trim().length < 10 || description.trim().length > 1000) {
       return NextResponse.json(
         { error: "Description must be between 10 and 1000 characters." },
@@ -128,7 +121,7 @@ export async function POST(req: Request) {
     const newRequest = await RequestModel.create({
       user: user._id,
       title: title.trim(),
-      domain: domain.trim(),
+      domain: domain.map((d: string) => d.trim()),
       description: description.trim(),
       link: link.trim(),
     });
@@ -149,142 +142,3 @@ export async function POST(req: Request) {
   }
 }
 
-
-
-// export async function PATCH(req: Request){
-//    try{
-//     await dbConnect();
-//     const session = await getServerSession(authOptions);
-
-//     if(!session?.user){
-//         return NextResponse.json({ error: "Unauthorized"}, {status: 401});
-//     }
-
-//     const user = await UserModel.findOne({ email: session.user.email });
-
-//     if(!user){
-//         return NextResponse.json({ error: "User not found"}, {status: 404})
-//     }
-//     const userRole = user.role;
-
-//     const allowedToApprove = canRequest(userRole, "approverequest");
-//     const allowedToReject = canRequest(userRole, "rejectrequest");
-//     if (!allowedToApprove && !allowedToReject) {
-//       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-//     }
-
-//     const body = await req.json();
-//     const {requestId, action} = req.body;
-
-
-
-
-//    }
-//    catch(err){
-//     console.log("Error updating request:", err);
-//     return NextResponse.json({
-//         message: "Failed to update request",
-//         error: err instanceof Error ? err.message : "Server error",
-//     },{ status: 500})
-//    }
-// }
-export async function PATCH(req: Request) {
-  try {
-    await dbConnect();
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const user = await UserModel.findOne({ email: session.user.email });
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    const userRole = user.role;
-    const allowedToApprove = canRequest(userRole, "approverequest");
-    const allowedToReject = canRequest(userRole, "rejectrequest");
-
-    if (!allowedToApprove && !allowedToReject) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const { requestId, action, projectLeadName, coLeadName } = await req.json();
-
-    if (!requestId || !action) {
-      return NextResponse.json(
-        { error: "Both requestId and action are required" },
-        { status: 400 }
-      );
-    }
-
-    const request = await RequestModel.findById(requestId);
-    if (!request) {
-      return NextResponse.json({ error: "Request not found" }, { status: 404 });
-    }
-
-    // Optional: domain restriction for leads
-    if (user.role === "Lead" && request.domain !== user.domain) {
-      return NextResponse.json(
-        { error: "You can only manage requests in your domain" },
-        { status: 403 }
-      );
-    }
-
-    // ✅ APPROVE
-    if (action === "approve") {
-      if (!projectLeadName || !coLeadName) {
-        return NextResponse.json(
-          { error: "Project Lead and Co-Lead names are required for approval" },
-          { status: 400 }
-        );
-      }
-
-      const updatedRequest = await RequestModel.findByIdAndUpdate(
-        requestId,
-        {
-          status: "Approved",
-          projectLead: { name: projectLeadName },
-          coLead: { name: coLeadName },
-        },
-        { new: true }
-      );
-
-      return NextResponse.json({
-        message: "Request approved successfully",
-        updatedRequest,
-      });
-    }
-
-    // ❌ REJECT
-    if (action === "reject") {
-      const updatedRequest = await RequestModel.findByIdAndUpdate(
-        requestId,
-        { status: "Rejected" },
-        { new: true }
-      );
-
-      return NextResponse.json({
-        message: "Request rejected successfully",
-        updatedRequest,
-      });
-    }
-
-    // ⚠️ Invalid action
-    return NextResponse.json(
-      { error: "Invalid action. Use 'approve' or 'reject'." },
-      { status: 400 }
-    );
-  } catch (err) {
-    console.error("Error updating request:", err);
-    return NextResponse.json(
-      {
-        message: "Failed to update request",
-        error: err instanceof Error ? err.message : "Server error",
-      },
-      { status: 500 }
-    );
-  }
-}

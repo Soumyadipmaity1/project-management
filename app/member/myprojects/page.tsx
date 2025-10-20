@@ -12,9 +12,7 @@ import { toast, Toaster } from "react-hot-toast";
 type ProjectRequest = {
   _id: string;
   title: string;
-  domain: string;
-  domain2?: string;
-  domain3?: string;
+  domain: string[];
   description: string;
   link: string;
   status: "Pending" | "Approved" | "Rejected";
@@ -59,16 +57,14 @@ function RequestCard({ request }: { request: ProjectRequest }) {
       </div>
 
       <div className="flex flex-wrap gap-2 mb-3">
-        {[request.domain, request.domain2, request.domain3]
-          .filter(Boolean)
-          .map((d, i) => (
-            <span
-              key={i}
-              className="px-2 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
-            >
-              {d}
-            </span>
-          ))}
+        {request.domain?.slice(0, 3).map((d, i) => (
+          <span
+            key={i}
+            className="px-2 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+          >
+            {d}
+          </span>
+        ))}
       </div>
 
       <p className="text-gray-300 text-sm mb-4 line-clamp-3">
@@ -144,11 +140,27 @@ export default function ProjectGrid() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+
     try {
+      const selectedDomains = [
+        formData.domain,
+        formData.domain2,
+        formData.domain3,
+      ].filter(Boolean);
+
+      if (selectedDomains.length === 0) {
+        toast.error("Please select at least one domain");
+        setSubmitting(false);
+        return;
+      }
+
       const res = await fetch("/api/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          domain: selectedDomains, 
+        }),
       });
 
       const result = await res.json();
@@ -201,7 +213,9 @@ export default function ProjectGrid() {
       <div className="max-w-6xl mx-auto">
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Project Requests</h1>
+            <h1 className="text-4xl font-bold text-white mb-2">
+              Project Requests
+            </h1>
             <p className="text-gray-400 mb-4">
               Browse and manage your project requests
             </p>
@@ -259,6 +273,7 @@ export default function ProjectGrid() {
         )}
       </div>
 
+      {/* Modal for New Request */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-6 rounded-xl shadow-xl w-full max-w-md relative border border-gray-700">

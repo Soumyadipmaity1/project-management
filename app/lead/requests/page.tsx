@@ -668,7 +668,6 @@ export default function PendingRequests() {
   const [showModal, setShowModal] = useState(false);
   const [domainMembers, setDomainMembers] = useState<TeamMember[]>([]);
 
-  // Fetch requests
   useEffect(() => {
     const fetchRequests = async () => {
       try {
@@ -692,7 +691,6 @@ export default function PendingRequests() {
       const requestDetails: Request = await res.json();
       setSelectedRequest(requestDetails);
 
-      // Fetch domain members
       const membersRes = await fetch(`/api/domain_members?domain=${req.domain}`);
       const members: TeamMember[] = await membersRes.json();
       setDomainMembers(members);
@@ -745,7 +743,6 @@ export default function PendingRequests() {
       <h2 className="text-3xl font-bold text-white mb-2">Pending Requests</h2>
       <p className="text-gray-400 mb-6">Approve or reject new project requests.</p>
 
-      {/* Search */}
       <div className="mb-6 relative w-full md:w-1/2">
         <FaSearch className="absolute left-3 top-3 text-gray-400" />
         <input
@@ -783,9 +780,20 @@ export default function PendingRequests() {
               <p className="text-gray-300 text-sm mb-2">
                 <strong>Project:</strong> {req.title}
               </p>
-              <p className="text-gray-300 text-sm mb-2">
-                <strong>Domain:</strong> {req.domain}
-              </p>
+
+             <p className="text-gray-300 text-sm mb-2">
+  <strong>Domains:</strong>{" "}
+  {req.domain && req.domain.length > 0 ? (
+    req.domain.map((d, i) => (
+      <span key={i} className="inline-block bg-gray-800 px-2 py-1 rounded text-xs text-indigo-400 mr-1">
+        {d}
+      </span>
+    ))
+  ) : (
+    <span className="text-gray-400">No domains</span>
+  )}
+</p>
+
               <p className="text-gray-400 text-sm mb-4 line-clamp-3">
                 {req.description}
               </p>
