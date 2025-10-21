@@ -109,7 +109,7 @@ export default function Projectleadcontent({ params }: Props) {
   const [isTeamEditModalOpen, setIsTeamEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState(project || {});
+  const [editForm, setEditForm] = useState<Record<string, any>>(project || {});
   const [editTechnologies, setEditTechnologies] = useState(project?.technologies || []);
   const [newTechName, setNewTechName] = useState('');
   const [projectImage, setProjectImage] = useState<string | null>(null);

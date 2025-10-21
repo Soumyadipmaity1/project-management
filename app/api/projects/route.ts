@@ -45,16 +45,16 @@ export async function POST(req: Request) {
       }
     }
     
-    if (body.liveDemo) {
-      try {
-        new URL(body.liveDemo);
-      } catch (e) {
-        return NextResponse.json({ 
-          error: "Validation Error",
-          details: "Live Demo must be a valid URL" 
-        }, { status: 400 });
-      }
-    }
+    // if (body.liveDemo) {
+    //   try {
+    //     new URL(body.liveDemo);
+    //   } catch (e) {
+    //     return NextResponse.json({ 
+    //       error: "Validation Error",
+    //       details: "Live Demo must be a valid URL" 
+    //     }, { status: 400 });
+    //   }
+    // }
 
     const newProject = await ProjectModel.create({
       title: body.title.trim(),
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
       teamlead: body.teamlead.trim(),
       colead: body.colead?.trim() || undefined,
       github: body.github?.trim() || undefined,
-      liveDemo: body.liveDemo?.trim() || undefined,
+      // liveDemo: body.liveDemo?.trim() || undefined,
       members: [],
       membersCount: body.membersCount || 1,
       badge: "active",

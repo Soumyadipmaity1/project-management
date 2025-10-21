@@ -38,6 +38,8 @@ import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/context/AuthProvider";
+import { Toaster } from "react-hot-toast";
+
 
 const inter = Inter({
   variable: "--font-sans",
@@ -63,9 +65,11 @@ export default function RootLayout({
     <html lang="en" className="dark h-full">
       <AuthProvider>
       <body className={`${inter.variable} ${robotoMono.variable} antialiased bg-slate-950 text-white w-full`}>
-        {children}
-      </body>
+  {children}
+        <Toaster position="top-right" />
+              </body>
       </AuthProvider>
     </html>
   );
 }
+

@@ -15,12 +15,14 @@
 //   )
 // }
 
-import Project from '@/components/Member/Projects/BothContent';
+import Project from '@/components/Member/Projects/BothContent.tsx';
 
 type Props = {
   params: { projectId: string };
 };
 
+const ProjectComponent = Project as any;
+
 export default function ProjectPage({ params }: Props) {
-  return <Project params={params} />;
+  return <ProjectComponent params={params} />;
 }

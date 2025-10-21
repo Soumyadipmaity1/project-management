@@ -19,20 +19,21 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!canProject(session.user.role, "view")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  // if (!canProject(session.user.role, "view")) {
+  //   return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  // }
 
   try {
     if (!mongoose.Types.ObjectId.isValid(params.id)) {
       return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
     }
 
-    const project = await ProjectModel.findById(params.id)
-      .populate("teamlead", "name email role")
-      .populate("colead", "name email role")
-      .populate("members", "name email role")
-      .lean();
+    console.log("Fetching project with ID:", params.id);
+const project = await ProjectModel.findById(params.id)
+  .populate("teamlead", "name email role") 
+  .populate("colead", "name email role")
+  .populate("members", "name email role")
+  .lean();
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
