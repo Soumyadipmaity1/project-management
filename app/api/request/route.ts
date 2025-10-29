@@ -29,28 +29,37 @@ export async function GET(req: Request) {
     let filter: Record<string, any> = {};
 
     switch (user.role) {
-      case "Member":
-        filter = { user: user._id };
-        break;
-      case "Lead":
-        filter = { domain: user.domain };
-        break;
-      case "ProjectLead":
-      case "CoLead":
-        filter = {
-          $or: [
-            { teamlead: user._id },
-            { colead: user._id },
-            { user: user._id },
-          ],
-        };
-        break;
-      case "Admin":
-        filter = {}; 
-        break;
-      default:
-        return NextResponse.json({ error: "Invalid role" }, { status: 400 });
-    }
+  case "Member":
+  case "member":
+    filter = { user: user._id };
+    break;
+
+  case "Lead":
+  case "lead":
+    filter = { domain: user.domain };
+    break;
+
+  case "ProjectLead":
+  case "projectlead":
+  case "CoLead":
+  case "colead":
+    filter = {
+      $or: [
+        { teamlead: user._id },
+        { colead: user._id },
+        { user: user._id },
+      ],
+    };
+    break;
+
+  case "Admin":
+  case "admin":
+    filter = {}; // Admin can view all
+    break;
+
+  default:
+    return NextResponse.json({ error: "Invalid role" }, { status: 400 });
+}
 
     let requests;
 

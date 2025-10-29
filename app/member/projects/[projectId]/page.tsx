@@ -15,7 +15,7 @@
 //   )
 // }
 
-import Project from '@/components/Member/Projects/BothContent.tsx';
+import Project from '@/components/Member/Projects/BothContent';
 
 type Props = {
   params: { projectId: string };

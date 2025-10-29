@@ -98,6 +98,9 @@ export default function ProjectGrid() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
   const [formData, setFormData] = useState({
     title: "",
     domain: "",
@@ -105,6 +108,8 @@ export default function ProjectGrid() {
     domain3: "",
     description: "",
     link: "",
+    startDate: "",
+    completionDate: "",
   });
 
   useEffect(() => {
@@ -137,11 +142,30 @@ export default function ProjectGrid() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    setImageFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setPreviewImage(reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewImage(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
 
     try {
+      // Basic validation
+      if (!imageFile) {
+        toast.error("Image is required for the request.");
+        setSubmitting(false);
+        return;
+      }
+
       const selectedDomains = [
         formData.domain,
         formData.domain2,
@@ -154,21 +178,80 @@ export default function ProjectGrid() {
         return;
       }
 
-      const res = await fetch("/api/request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          domain: selectedDomains, 
-        }),
-      });
+      // If you provided client-side Cloudinary creds as NEXT_PUBLIC_..., upload the image first
+      const cloudinaryUrl = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_URL || "";
+      const cloudinaryPreset =
+        process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "";
 
-      const result = await res.json();
-      if (!res.ok)
-        throw new Error(result.error || result.message || "Failed to send request");
+      let imageUrl: string | null = null;
+
+      if (cloudinaryUrl) {
+        const cdnForm = new FormData();
+        cdnForm.append("file", imageFile as File);
+        if (cloudinaryPreset) cdnForm.append("upload_preset", cloudinaryPreset);
+
+        const cdnRes = await fetch(cloudinaryUrl, {
+          method: "POST",
+          body: cdnForm,
+        });
+
+        const cdnData = await cdnRes.json();
+        if (!cdnRes.ok) {
+          throw new Error(
+            cdnData?.error?.message ||
+              cdnData?.message ||
+              "Failed to upload image to Cloudinary"
+          );
+        }
+        imageUrl = cdnData.secure_url || cdnData.url || null;
+      }
+
+      // Prepare payload
+      // If Cloudinary uploaded, send JSON with image url.
+      // Otherwise, send multipart/form-data and include the file so backend can handle it.
+      if (imageUrl) {
+        const payload = {
+          title: formData.title,
+          domain: selectedDomains,
+          description: formData.description,
+          link: formData.link,
+          startDate: formData.startDate,
+          completionDate: formData.completionDate,
+          image: imageUrl,
+        };
+
+        const res = await fetch("/api/request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || result.message || "Failed to send request");
+
+      } else {
+        // send multipart to /api/request so backend handles the file (Cloudinary or save)
+        const form = new FormData();
+        form.append("title", formData.title);
+        form.append("description", formData.description);
+        form.append("link", formData.link);
+        form.append("startDate", formData.startDate);
+        form.append("completionDate", formData.completionDate);
+        form.append("domain", JSON.stringify(selectedDomains));
+        form.append("image", imageFile as Blob);
+
+        const res = await fetch("/api/request", {
+          method: "POST",
+          body: form,
+        });
+
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || result.message || "Failed to send request");
+      }
 
       toast.success("Request sent successfully!");
       setIsModalOpen(false);
+      // reset
       setFormData({
         title: "",
         domain: "",
@@ -176,10 +259,14 @@ export default function ProjectGrid() {
         domain3: "",
         description: "",
         link: "",
+        startDate: "",
+        completionDate: "",
       });
+      setImageFile(null);
+      setPreviewImage(null);
       fetchUserData();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error sending request");
+    } catch (err: any) {
+      toast.error(err?.message || "Error sending request");
     } finally {
       setSubmitting(false);
     }
@@ -273,7 +360,6 @@ export default function ProjectGrid() {
         )}
       </div>
 
-      {/* Modal for New Request */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-6 rounded-xl shadow-xl w-full max-w-md relative border border-gray-700">
@@ -300,28 +386,52 @@ export default function ProjectGrid() {
                 className="border border-gray-600 bg-gray-700 text-white placeholder-gray-400 p-2 rounded w-full focus:border-indigo-500"
               />
 
-              {[1, 2, 3].map((n) => (
-                <select
-                  key={n}
-                  name={`domain${n === 1 ? "" : n}`}
-                  value={(formData as any)[`domain${n === 1 ? "" : n}`]}
-                  onChange={handleInputChange}
-                  required={n === 1}
-                  disabled={submitting}
-                  className="border border-gray-600 bg-gray-700 text-white p-2 rounded w-full focus:border-indigo-500"
-                >
-                  <option value="">
-                    {n === 1
-                      ? "Select Primary Domain *"
-                      : `Select Optional Domain ${n}`}
+              {/* Domain selects (kept identical to your create form pattern) */}
+              <select
+                name="domain"
+                value={formData.domain}
+                onChange={handleInputChange}
+                required
+                disabled={submitting}
+                className="border border-gray-600 bg-gray-700 text-white p-2 rounded w-full focus:border-indigo-500"
+              >
+                <option value="">Select Primary Domain *</option>
+                {domains.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
                   </option>
-                  {domains.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </select>
-              ))}
+                ))}
+              </select>
+
+              <select
+                name="domain2"
+                value={formData.domain2}
+                onChange={handleInputChange}
+                disabled={submitting}
+                className="border border-gray-600 bg-gray-700 text-white p-2 rounded w-full focus:border-indigo-500"
+              >
+                <option value="">Select Secondary Domain</option>
+                {domains.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                name="domain3"
+                value={formData.domain3}
+                onChange={handleInputChange}
+                disabled={submitting}
+                className="border border-gray-600 bg-gray-700 text-white p-2 rounded w-full focus:border-indigo-500"
+              >
+                <option value="">Select Additional Domain</option>
+                {domains.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
 
               <textarea
                 name="description"
@@ -344,6 +454,45 @@ export default function ProjectGrid() {
                 disabled={submitting}
                 className="border border-gray-600 bg-gray-700 text-white placeholder-gray-400 p-2 rounded w-full focus:border-indigo-500"
               />
+
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  name="startDate"
+                  value={formData.startDate}
+                  onChange={handleInputChange}
+                  required
+                  disabled={submitting}
+                  className="border border-gray-600 bg-gray-700 text-white placeholder-gray-400 p-2 rounded w-full focus:border-indigo-500"
+                />
+                <input
+                  type="date"
+                  name="completionDate"
+                  value={formData.completionDate}
+                  onChange={handleInputChange}
+                  disabled={submitting}
+                  className="border border-gray-600 bg-gray-700 text-white placeholder-gray-400 p-2 rounded w-full focus:border-indigo-500"
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label className="text-sm text-gray-300 mb-2">Project Image * (required)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  required
+                  disabled={submitting}
+                  className="text-sm text-gray-400"
+                />
+                {previewImage && (
+                  <img
+                    src={previewImage}
+                    alt="Preview"
+                    className="w-full h-40 object-cover mt-2 rounded"
+                  />
+                )}
+              </div>
 
               <button
                 type="submit"

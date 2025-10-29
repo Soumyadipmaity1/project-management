@@ -165,16 +165,54 @@ async function handleUpdate(req: Request, id: string) {
   }
 }
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
   return handleUpdate(req, params.id);
 }
 
-export async function PATCH(
+export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  return handleUpdate(req, params.id);
+}
+
+/* =========================
+   DELETE PROJECT HANDLER
+========================= */
+export async function DELETE(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  return handleUpdate(req, params.id);
+  await dbConnect();
+
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!canProject(session.user.role, "delete")) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { id } = params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
+  }
+
+  try {
+    const deleted = await ProjectModel.findByIdAndDelete(id).lean();
+
+    if (!deleted) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(
+      { message: "Project deleted successfully", project: deleted },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    return NextResponse.json(
+      { error: "Server Error", details: "Failed to delete project" },
+      { status: 500 }
+    );
+  }
 }

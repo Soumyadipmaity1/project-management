@@ -21,7 +21,6 @@ export default function AnnouncementsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // ------------------- LOAD DATA -------------------
   useEffect(() => {
     const fetchData = async () => {
       try {

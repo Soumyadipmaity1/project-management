@@ -6,11 +6,12 @@ export interface Message extends Document {
 }
 
 export interface User extends Document {
+    _id: mongoose.Types.ObjectId; 
   name: string;
   email: string;
   password: string;
   rollNo: string;
-  role: "Admin" | "Lead" | "Member" | "ProjectLead" | "CoLead";
+  role: "Admin" | "Lead" | "Member" | "ProjectLead" | "CoLead" | "member" | "lead" | "admin" | "projectlead" | "colead";
   domain: string;
   githubId: string;
   linkedinId: string;

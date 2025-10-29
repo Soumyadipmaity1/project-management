@@ -1,10 +1,6 @@
 "use client";
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/option";
-import dbConnect from "@/lib/db";
-import ProjectModel from "@/model/Projects";
-import mongoose from "mongoose";
+import React, { useEffect, useState } from "react";
 import { FaUsers, FaImage, FaCircle, FaGithub, FaGlobe } from "react-icons/fa";
 
 type Project = {
@@ -32,93 +28,50 @@ type Props = {
   };
 };
 
-async function getProjectById(projectId: string): Promise<Project | null> {
-  try {
-    await dbConnect();
+export default function ProjectPage({ params }: Props) {
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
 
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      console.warn("Invalid project ID:", projectId);
-      return null;
-    }
+  const projectId = params.projectId ?? params.Id;
 
-    const projectDoc = await ProjectModel.findById(projectId)
-      .populate("projectlead", "name email role")
-      .populate("colead", "name email role")
-      .lean();
-
-    if (!projectDoc) return null;
-
-    const normalize = (doc: any): Project => {
-      const out: any = { ...doc };
-      out._id = String(doc._id);
-      out.title = doc.title ?? "";
-      out.description = doc.description ?? "";
-      out.badge = doc.badge ?? "";
-      out.domain = Array.isArray(doc.domain)
-        ? doc.domain.join(", ")
-        : doc.domain ?? "";
-      out.startDate = doc.startDate ? new Date(doc.startDate) : null;
-      out.image = doc.image
-        ? doc.image.startsWith("http")
-          ? doc.image
-          : `${process.env.NEXTAUTH_URL || "http://localhost:3000"}${doc.image}`
-        : "";
-      out.completionDate = doc.completionDate ? new Date(doc.completionDate) : null;
-      out.members = doc.members ?? [];
-      out.membersCount = doc.membersCount ?? doc.members?.length ?? 0;
-      out.githubLink = doc.githubLink ?? "";
-      out.liveDemo = doc.liveDemo ?? "";
-
-      if (Array.isArray(doc.technologies)) {
-        out.technologies = doc.technologies.map((t: any) => ({
-          id: String(t._id || t.id || t.name),
-          name: t.name ?? "",
-        }));
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const res = await fetch(`/api/projects/${projectId}`, {
+          cache: "no-store",
+        });
+        if (!res.ok) {
+          throw new Error("Failed to fetch project");
+        }
+        const data = await res.json();
+        setProject(data);
+      } catch (err) {
+        console.error("Error fetching project:", err);
+      } finally {
+        setLoading(false);
       }
-
-      if (doc.projectlead) {
-        out.projectlead =
-          typeof doc.projectlead === "string"
-            ? doc.projectlead
-            : { name: doc.projectlead?.name ?? "Not assigned" };
-      }
-
-      if (doc.colead) {
-        out.colead =
-          typeof doc.colead === "string"
-            ? doc.colead
-            : { name: doc.colead?.name ?? "Not assigned" };
-      }
-
-      return out as Project;
     };
 
-    return normalize(projectDoc);
-  } catch (error) {
-    console.error("Error fetching project:", error);
-    return null;
-  }
-}
+    if (projectId) fetchProject();
+  }, [projectId]);
 
-export default async function ProjectPage({ params }: Props) {
-  const projectId = params.projectId ?? params.Id;
-  if (!projectId) {
+  if (loading) {
     return (
-      <div className="w-screen min-h-screen bg-gray-900 flex items-center justify-center text-3xl text-red-400">
-        Project ID not provided!
+      <div className="w-screen min-h-screen bg-gray-900 flex items-center justify-center text-xl text-gray-400">
+        Loading project details...
       </div>
     );
   }
 
-  const project = await getProjectById(projectId);
   if (!project) {
     return (
-      <div className="w-screen min-h-screen bg-gray-900 flex items-center justify-center text-3xl text-red-400">
+      <div className="w-screen min-h-screen bg-gray-900 flex items-center justify-center text-2xl text-red-400">
         Project not found!
       </div>
     );
   }
 
+  // ✅ Safe destructuring after project is loaded
   const startDate = project.startDate ? new Date(project.startDate) : new Date();
   const targetDate = project.completionDate
     ? new Date(project.completionDate)
@@ -146,11 +99,11 @@ export default async function ProjectPage({ params }: Props) {
       : project.colead?.name || "Not assigned";
 
   return (
-    <div className="w-full min-h-screen py-6 overflow-x-hidden">
+    <div className="w-full min-h-screen py-6 overflow-x-hidden bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-6">
         {/* HEADER */}
         <div className="flex items-center justify-between mb-12">
-          <div className="text-white flex items-center group">
+          <div className="flex items-center group">
             <span className="font-['Maven_Pro',sans-serif] font-bold text-[32px] tracking-[-0.5px]">
               {project.title}
             </span>
@@ -191,61 +144,53 @@ export default async function ProjectPage({ params }: Props) {
 
             {/* DETAILS */}
             <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800">
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
                 <div className="w-1 h-8 bg-indigo-700 rounded-full"></div>
                 Project Details
               </h2>
 
-              <div className="space-y-6">
-                <div>
-                  <h3 className="font-semibold mb-3 text-gray-200 text-lg">
-                    Description
-                  </h3>
-                  <p className="text-gray-300 leading-relaxed text-sm bg-gray-800/30 p-4 rounded-xl border border-gray-700">
-                    {project.description}
-                  </p>
-                </div>
+              <p className="text-gray-300 leading-relaxed text-sm bg-gray-800/30 p-4 rounded-xl border border-gray-700">
+                {project.description}
+              </p>
 
-                {/* 🔹 GitHub & Live Demo Links */}
-                <div className="flex flex-wrap gap-4 mt-6">
-                  <a
-                    href={project.githubLink || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                      project.githubLink
-                        ? "bg-gray-800 hover:bg-gray-700 text-indigo-400"
-                        : "bg-gray-800 text-gray-500 cursor-not-allowed"
-                    }`}
-                  >
-                    <FaGithub className="text-lg" />
-                    {project.githubLink ? "GitHub Repository" : "GitHub Not Available"}
-                  </a>
+              <div className="flex flex-wrap gap-4 mt-6">
+                <a
+                  href={project.githubLink || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                    project.githubLink
+                      ? "bg-gray-800 hover:bg-gray-700 text-indigo-400"
+                      : "bg-gray-800 text-gray-500 cursor-not-allowed"
+                  }`}
+                >
+                  <FaGithub className="text-lg" />
+                  {project.githubLink ? "GitHub Repository" : "GitHub Not Available"}
+                </a>
 
-                  <a
-                    href={project.liveDemo || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                      project.liveDemo
-                        ? "bg-gray-800 hover:bg-gray-700 text-indigo-400"
-                        : "bg-gray-800 text-gray-500 cursor-not-allowed"
-                    }`}
-                  >
-                    <FaGlobe className="text-lg" />
-                    {project.liveDemo ? "Live Demo" : "Live Demo Not Available"}
-                  </a>
-                </div>
+                <a
+                  href={project.liveDemo || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                    project.liveDemo
+                      ? "bg-gray-800 hover:bg-gray-700 text-indigo-400"
+                      : "bg-gray-800 text-gray-500 cursor-not-allowed"
+                  }`}
+                >
+                  <FaGlobe className="text-lg" />
+                  {project.liveDemo ? "Live Demo" : "Live Demo Not Available"}
+                </a>
               </div>
             </div>
 
             {/* TIMELINE */}
             <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800">
-              <h2 className="font-semibold text-xl mb-4 text-white flex items-center gap-3">
+              <h2 className="font-semibold text-xl mb-4 flex items-center gap-3">
                 <div className="w-1 h-6 bg-indigo-700 rounded-full"></div>
                 Timeline
               </h2>
-              {/* Progress & timeline kept same */}
+
               <div className="space-y-4 bg-gray-800/30 p-4 rounded-xl border border-gray-700">
                 <div className="flex items-center gap-3">
                   <FaCircle className="text-indigo-400 text-xs" />
@@ -258,6 +203,7 @@ export default async function ProjectPage({ params }: Props) {
                     </span>
                   </span>
                 </div>
+
                 <div className="flex items-center gap-3">
                   <FaCircle className="text-indigo-400 text-xs" />
                   <span className="text-gray-300 text-sm">
@@ -299,10 +245,10 @@ export default async function ProjectPage({ params }: Props) {
             </div>
           </div>
 
-          {/* RIGHT SIDEBAR (unchanged) */}
+          {/* RIGHT SIDEBAR */}
           <div className="xl:flex-[1_1_0%] w-full space-y-8">
             <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 sticky top-8">
-              <h3 className="text-xl font-bold mb-6 text-white flex items-center gap-3">
+              <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
                 <div className="w-1 h-8 bg-indigo-700 rounded-full"></div>
                 Project Info
               </h3>
@@ -332,7 +278,7 @@ export default async function ProjectPage({ params }: Props) {
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <FaCircle className="text-indigo-400  text-xs" />
+                      <FaCircle className="text-indigo-400 text-xs" />
                       <span className="text-gray-400 text-sm">Co-Lead:</span>
                       <span className="text-gray-200 font-medium">
                         {getCoLeadName()}
@@ -346,11 +292,34 @@ export default async function ProjectPage({ params }: Props) {
                     Team Size
                   </span>
                   <div className="flex items-center gap-2">
-                    <FaUsers className="text-indigo-400 " />
+                    <FaUsers className="text-indigo-400" />
                     <span className="text-gray-400 font-medium">
                       {project.membersCount || project.members?.length || 1} members
                     </span>
                   </div>
+                </div>
+
+                <div className="pt-4">
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/projects/${project._id}/apply`, {
+                          method: "POST",
+                        });
+                        if (res.ok) {
+                          alert("Application sent successfully!");
+                        } else {
+                          alert("Failed to send application. Please try again.");
+                        }
+                      } catch (err) {
+                        console.error("Error applying:", err);
+                        alert("Something went wrong!");
+                      }
+                    }}
+                    className="w-full bg-indigo-700 hover:bg-indigo-600 text-white font-semibold py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-indigo-500/25"
+                  >
+                    Apply to Join
+                  </button>
                 </div>
               </div>
             </div>

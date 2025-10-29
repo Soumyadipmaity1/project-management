@@ -4,11 +4,14 @@ export interface Request extends Document {
   user: mongoose.Types.ObjectId;
   title: string;
   domain: string[];
-  status: "Pending" | "Approved" | "Rejected";
   description: string;
-  link?: string;
-  projectlead?: mongoose.Types.ObjectId; // renamed from projectlead
+  startDate: Date;
+  endDate: Date;
+  image: string;
+  projectlead?: mongoose.Types.ObjectId;
   colead?: mongoose.Types.ObjectId;
+  link?: string;
+  status: "Pending" | "Approved" | "Rejected";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,18 +30,6 @@ const RequestSchema: Schema<Request> = new Schema(
       minlength: [3, "Title must be at least 3 characters long"],
       maxlength: [100, "Title cannot exceed 100 characters"],
     },
-    link: {
-      type: String,
-      required: false,
-      trim: true,
-      validate: {
-        validator: function (v: string) {
-          if (!v) return true; // optional
-          return String(v).trim().length >= 7;
-        },
-        message: "Link must be at least 7 characters long",
-      },
-    },
     description: {
       type: String,
       required: [true, "Project description is required"],
@@ -56,13 +47,32 @@ const RequestSchema: Schema<Request> = new Schema(
         },
       ],
     },
+    startDate: {
+      type: Date,
+      required: [true, "Project start date is required"],
+    },
+    endDate: {
+      type: Date,
+      required: [true, "Project completion date is required"],
+    },
+    image: {
+      type: String,
+      required: [true, "Project image is required"],
+      trim: true,
+    },
     projectlead: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: false,
     },
     colead: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: false,
+    },
+    link: {
+      type: String,
+      trim: true,
     },
     status: {
       type: String,
@@ -73,25 +83,6 @@ const RequestSchema: Schema<Request> = new Schema(
   { timestamps: true }
 );
 
-// keep teamlead and projectlead in sync for backward compatibility
-RequestSchema.pre("save", function (next) {
-  // @ts-ignore
-  if (this.teamlead && !this.projectlead) {
-    // @ts-ignore
-    this.projectlead = this.teamlead;
-  }
-  // @ts-ignore
-  if (this.projectlead && !this.teamlead) {
-    // @ts-ignore
-    this.teamlead = this.projectlead;
-  }
-  next();
-});
-
-// avoid model overwrite issues in dev/hot-reload
-if (mongoose.models && mongoose.models.Request) {
-  delete mongoose.models.Request;
-}
 const RequestModel: Model<Request> =
   mongoose.models.Request || mongoose.model<Request>("Request", RequestSchema);
 
