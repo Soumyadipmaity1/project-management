@@ -52,11 +52,58 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: "Invalid role" }, { status: 400 });
     }
 
-    const requests = await RequestModel.find(filter)
-      .populate("user", "name email role")
-      .populate("teamlead", "name email role")
-      .populate("colead", "name email role")
-      .sort({ createdAt: -1 });
+    let requests;
+
+    try {
+      requests = await RequestModel.find(filter)
+        .populate("user", "name email role")
+        .populate("teamlead", "name email role")
+        .populate("colead", "name email role")
+        .sort({ createdAt: -1 });
+    } catch (populateErr: any) {
+      console.warn("Populate error when fetching requests:", populateErr?.message || populateErr);
+      // If populate path not in schema (teamlead vs projectlead), try projectlead
+      if (
+        populateErr &&
+        (populateErr.name === "StrictPopulateError" || String(populateErr.message).includes("Cannot populate path"))
+      ) {
+        try {
+          requests = await RequestModel.find(filter)
+            .populate("user", "name email role")
+            .populate("projectlead", "name email role")
+            .populate("colead", "name email role")
+            .sort({ createdAt: -1 });
+        } catch (secondErr) {
+          console.warn("Second populate attempt failed, falling back to manual populate:", (secondErr as any)?.message || secondErr);
+          // Fallback: fetch raw docs and manually populate with UserModel
+          const docs = await RequestModel.find(filter).sort({ createdAt: -1 }).lean();
+          const populated = await Promise.all(
+            docs.map(async (doc: any) => {
+              const out: any = { ...doc };
+              try {
+                out.user = doc.user ? await UserModel.findById(doc.user).select("name email role").lean() : null;
+              } catch (e) {
+                out.user = null;
+              }
+              try {
+                out.teamlead = doc.teamlead ? await UserModel.findById(doc.teamlead).select("name email role").lean() : doc.projectlead ? await UserModel.findById(doc.projectlead).select("name email role").lean() : null;
+              } catch (e) {
+                out.teamlead = null;
+              }
+              try {
+                out.colead = doc.colead ? await UserModel.findById(doc.colead).select("name email role").lean() : null;
+              } catch (e) {
+                out.colead = null;
+              }
+              return out;
+            })
+          );
+          requests = populated;
+        }
+      } else {
+        throw populateErr;
+      }
+    }
 
     return NextResponse.json(requests, { status: 200 });
   } catch (error) {
@@ -111,19 +158,35 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!link || link.trim().length < 7) {
-      return NextResponse.json(
-        { error: "Link must be at least 7 characters long." },
-        { status: 400 }
-      );
+    // domain can be sent as a string or an array of strings; coerce to array
+    let domainsArray: string[] = [];
+    if (Array.isArray(domain)) {
+      domainsArray = domain.map((d: any) => String(d).trim()).filter(Boolean);
+    } else if (typeof domain === "string") {
+      const trimmed = domain.trim();
+      if (trimmed.length) domainsArray = [trimmed];
+    }
+
+    if (domainsArray.length === 0) {
+      return NextResponse.json({ error: "Domain is required" }, { status: 400 });
+    }
+
+    // link is optional — validate only if provided
+    if (link && String(link).trim().length > 0) {
+      if (String(link).trim().length < 7) {
+        return NextResponse.json(
+          { error: "Link must be at least 7 characters long if provided." },
+          { status: 400 }
+        );
+      }
     }
 
     const newRequest = await RequestModel.create({
       user: user._id,
       title: title.trim(),
-      domain: domain.map((d: string) => d.trim()),
+      domain: domainsArray,
       description: description.trim(),
-      link: link.trim(),
+      link: link ? String(link).trim() : undefined,
     });
 
     return NextResponse.json(

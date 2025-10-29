@@ -1,19 +1,26 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { FaGithub } from "react-icons/fa";
+import toast, { Toaster } from "react-hot-toast";
+import { FaGithub, FaEye, FaCalendarAlt } from "react-icons/fa";
+import { useRouter , usePathname} from "next/navigation";
 
 type Project = {
-  id: string;
+  _id?: string;
   title: string;
-  domain: string;
+  domain: string | string[];
   description: string;
-  teamLead: string;
-  assistantLead: string;
+  projectlead: string | { name: string };
+  assistantlead?: string | { name: string };
   github?: string;
-  live?: string;
-  badge?: "active" | "completed" | "disabled";
-  enrolled: boolean;
+  liveDemo?: string;
+  badge?: "active" | "completed" | "disabled" | "available";
+  approved?: boolean;
+  members?: string[];
+  membersCount?: number;
+  enrolled?: boolean;
   image?: string;
+  startDate?: string;
+  completionDate?: string;
 };
 
 type StatusBadgeProps = {
@@ -31,15 +38,45 @@ function StatusBadge({ status, color }: StatusBadgeProps) {
 
 type ProjectCardProps = {
   project: Project;
+  onView: (projectId: string) => void;
+  onDelete: (projectId: string) => void;
+  isOwner: boolean;
 };
 
-function ProjectCard({ project }: ProjectCardProps) {
+// ⚡ Card Section (unchanged)
+function ProjectCard({ project, onView, onDelete, isOwner }: ProjectCardProps) {
   const statusColor =
     project.badge === "active"
       ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30"
       : project.badge === "completed"
       ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/30"
+      : project.badge === "available"
+      ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/30"
       : "bg-gradient-to-r from-slate-500 to-slate-600 text-white shadow-lg shadow-slate-500/30";
+
+  const projectLeadName =
+    typeof project.projectlead === "object"
+      ? project.projectlead.name
+      : project.projectlead || "Unknown";
+
+  const assistantLeadName =
+    typeof project.assistantlead === "object"
+      ? project.assistantlead.name
+      : project.assistantlead || "-";
+
+  const formattedStart = project.startDate
+    ? new Date(project.startDate).toLocaleDateString()
+    : "-";
+  const formattedEnd = project.completionDate
+    ? new Date(project.completionDate).toLocaleDateString()
+    : "-";
+      const router = useRouter();
+    const pathname = usePathname();
+
+      const handleView = () => {
+    router.push(`${pathname}/${project._id}`);
+  };
+
 
   return (
     <div className="group relative">
@@ -58,14 +95,18 @@ function ProjectCard({ project }: ProjectCardProps) {
 
         <div className="p-6 flex flex-col gap-4 flex-grow">
           <div className="flex items-start justify-between gap-3">
-            <h3 className="font-bold text-xl bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent font-mclaren leading-tight">{project.title}</h3>
+            <h3 className="font-bold text-xl bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent font-mclaren leading-tight">
+              {project.title}
+            </h3>
             <StatusBadge status={project.badge || "active"} color={statusColor} />
           </div>
 
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-400"></div>
             <span className="text-sm font-semibold text-emerald-300 font-mclaren">
-              {project.domain}
+              {Array.isArray(project.domain)
+                ? project.domain.join(", ")
+                : project.domain}
             </span>
           </div>
 
@@ -75,12 +116,28 @@ function ProjectCard({ project }: ProjectCardProps) {
 
           <div className="space-y-2 bg-slate-800/30 rounded-lg p-3 border border-slate-700/30">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-emerald-300 text-xs font-mclaren">Team Lead:</span>
-              <span className="text-slate-300 text-xs font-mclaren">{project.teamLead}</span>
+              <span className="font-semibold text-emerald-300 text-xs font-mclaren">
+                Project Lead:
+              </span>
+              <span className="text-slate-300 text-xs font-mclaren">{projectLeadName}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-emerald-300 text-xs font-mclaren">Assistant Lead:</span>
-              <span className="text-slate-300 text-xs font-mclaren">{project.assistantLead || "-"}</span>
+              <span className="font-semibold text-emerald-300 text-xs font-mclaren">
+                Assistant Lead:
+              </span>
+              <span className="text-slate-300 text-xs font-mclaren">{assistantLeadName}</span>
+            </div>
+
+            <div className="flex items-center justify-between border-t border-slate-700/40 pt-2 mt-2">
+              <div className="flex items-center gap-2 text-xs text-slate-400 font-mclaren">
+                <FaCalendarAlt className="text-emerald-400" />
+                <span>{formattedStart}</span>
+              </div>
+              <span className="text-slate-500 text-xs">→</span>
+              <div className="flex items-center gap-2 text-xs text-slate-400 font-mclaren">
+                <FaCalendarAlt className="text-teal-400" />
+                <span>{formattedEnd}</span>
+              </div>
             </div>
           </div>
 
@@ -91,25 +148,34 @@ function ProjectCard({ project }: ProjectCardProps) {
               rel="noopener noreferrer"
               className="group/link flex items-center gap-2 text-emerald-400 text-sm font-medium hover:text-emerald-300 transition-all duration-200 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-lg p-3 border border-emerald-500/20 hover:border-emerald-400/40"
             >
-              <FaGithub className="group-hover/link:rotate-12 transition-transform duration-200" /> 
+              <FaGithub className="group-hover/link:rotate-12 transition-transform duration-200" />
               <span className="font-mclaren">GitHub Repository</span>
             </a>
           )}
 
-          <div className="flex gap-3 mt-4">
-            <button className="flex-1 bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-600 hover:from-emerald-700 hover:via-emerald-700 hover:to-teal-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:transform hover:scale-105 border border-emerald-500/20 font-mclaren">
-              View Project
-            </button>
-          </div>
+          {isOwner && (
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={handleView}
+                className="flex-1 bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-600 hover:from-emerald-700 hover:via-emerald-700 hover:to-teal-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:transform hover:scale-105 border border-emerald-500/20"
+              >
+                <FaEye className="text-xs" />
+                <span className="font-mclaren">View Project</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-export default function LeadProjects() {
-  const [activeTab, setActiveTab] = useState("all");
+// ⚡ Main Page
+export default function MyProjectsPage() {
+  const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [filtered, setFiltered] = useState<Project[]>([]);
+  const [filter, setFilter] = useState<"all" | "enrolled" | "available">("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -127,84 +193,83 @@ export default function LeadProjects() {
       setLoading(false);
     }
   };
+  const handleViewProject = (projectId: string) => router.push(`/lead/projects/${projectId}`);
 
   useEffect(() => {
     fetchProjects();
   }, []);
 
-  const filteredProjects = projects.filter((project) => {
-    if (activeTab === "all") return true;
-    if (activeTab === "enrolled") return project.enrolled;
-    if (activeTab === "available") return !project.enrolled;
-    return true;
-  });
+useEffect(() => {
+  if (filter === "all") setFiltered(projects);
+  else if (filter === "enrolled")
+    setFiltered(projects.filter((p) => p.enrolled));
+  else if (filter === "available")
+    setFiltered(projects.filter((p) => p.badge === "available" || p.badge === "active"));
+}, [filter, projects]);
+
+
+
+  const handleDelete = async (projectId: string) => {
+    if (!confirm("Are you sure you want to delete this project?")) return;
+    try {
+      const res = await fetch(`/api/projects/${projectId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete project");
+      toast.success("Project deleted successfully!");
+      await fetchProjects();
+    } catch {
+      toast.error("Failed to delete project!");
+    }
+  };
 
   return (
     <div className="p-4 py-6 min-h-screen">
-      <div className="mb-8">
-        <h2 className="font-mclaren text-[36px] mb-3 font-bold bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent">
-          Projects
-        </h2>
-        <p className="text-slate-400 text-lg font-medium font-mclaren">
-          View and manage projects across your domains
-        </p>
-      </div>
+      <Toaster position="top-right" />
 
-      <div className="flex gap-1 mb-8 bg-slate-800/60 rounded-xl w-fit border border-slate-700/50 p-1.5 backdrop-blur-sm">
-        {["all", "enrolled", "available"].map((tab) => (
+       <div className="mb-8">
+     <h2 className="text-[36px] mb-3 font-bold bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent">
+          Projects
+         </h2>
+         <p className="text-slate-400 text-lg font-medium">
+          View and manage projects across your domains
+         </p>
+       </div>
+
+      <div className="flex gap-3 mb-8">
+        {["all", "enrolled", "available"].map((f) => (
           <button
-            key={tab}
-            className={`px-5 py-2.5 rounded-lg font-semibold transition-all duration-300 font-mclaren ${
-              activeTab === tab
-                ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/30 transform scale-105"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-700/50"
+            key={f}
+            onClick={() => setFilter(f as any)}
+            className={`px-5 py-2.5 rounded-lg text-sm font-semibold border transition-all duration-300 font-mclaren ${
+              filter === f
+                ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-emerald-500 shadow-lg shadow-emerald-500/30"
+                : "bg-slate-800/50 text-slate-300 border-slate-700 hover:border-emerald-400/50 hover:text-emerald-300"
             }`}
-            onClick={() => setActiveTab(tab)}
           >
-            {tab === "all"
+            {f === "all"
               ? "All Projects"
-              : tab === "enrolled"
+              : f === "enrolled"
               ? "Enrolled"
               : "Available"}
           </button>
         ))}
       </div>
 
-      {error && (
-        <div className="bg-red-900/50 border border-red-500/50 rounded-xl p-4 mb-6 text-red-200 font-mclaren shadow-lg">
-          <p className="mb-2">{error}</p>
-          <button
-            onClick={fetchProjects}
-            className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300"
-          >
-            Retry
-          </button>
-        </div>
-      )}
+      {error && <div className="text-red-400 mb-4">{error}</div>}
 
       {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-400 mx-auto mb-4"></div>
-            <p className="text-slate-300 text-lg font-mclaren">Loading projects...</p>
-          </div>
-        </div>
-      ) : filteredProjects.length === 0 ? (
-        <div className="flex items-center justify-center py-16">
-          <div className="text-center bg-slate-800/30 backdrop-blur-sm rounded-2xl p-8 border border-slate-700/50">
-            <div className="text-6xl mb-4 text-slate-600">📋</div>
-            <p className="text-slate-300 text-lg font-mclaren">
-              {activeTab === "all"
-                ? "No projects found"
-                : `No ${activeTab} projects found`}
-            </p>
-            <p className="text-slate-500 text-sm mt-2 font-mclaren">Projects will appear here once they're available</p>
-          </div>
-        </div>
+        <div className="text-slate-400 text-center py-10">Loading projects...</div>
+      ) : filtered.length === 0 ? (
+        <div className="text-slate-400 text-center py-10">No projects found.</div>
       ) : (
         <div className="flex flex-wrap gap-8 justify-start">
-          {filteredProjects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+          {filtered.map((project) => (
+            <ProjectCard
+              key={project._id}
+              project={project}
+              onView={handleViewProject}
+              onDelete={handleDelete}
+              isOwner={true}
+            />
           ))}
         </div>
       )}

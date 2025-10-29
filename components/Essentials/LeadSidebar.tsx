@@ -151,19 +151,19 @@ export function LeadSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Domains Section */}
+        {/* Domains Section
         <SidebarGroup className="px-2">
           {!isCollapsed && (
-            <SidebarGroupLabel className="font-madimi
+            // <SidebarGroupLabel className="font-madimi
                           
-                          text-bold
-                          text-[16px]
+            //               text-bold
+            //               text-[16px]
                           
                           
-                          text-[#2A2A4A] 
-                          font-large
+            //               text-[#2A2A4A] 
+            //               font-large
                           
-                          ">Domains</SidebarGroupLabel>
+            //               ">Domains</SidebarGroupLabel>
           )}
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
@@ -189,7 +189,7 @@ export function LeadSidebar() {
                     >
                       <Link href={item.url} className="flex items-center gap-3 px-3">
                         {/* Active indicator */}
-                        {isActive && !isCollapsed && (
+                        {/* {isActive && !isCollapsed && (
                           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-r-full"></div>
                         )}
                         
@@ -229,8 +229,8 @@ export function LeadSidebar() {
                 );
               })}
             </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+          </SidebarGroupContent> */}
+        {/* </SidebarGroup> */} 
       </SidebarContent>
     </Sidebar>
   );

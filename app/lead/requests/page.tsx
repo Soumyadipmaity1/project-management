@@ -6,7 +6,7 @@ import toast, { Toaster } from "react-hot-toast";
 interface Request {
   _id: string;
   title: string;
-  domain: string;
+  domain: string[];
   description: string;
   link: string;
   status: "Pending" | "Approved" | "Rejected";
@@ -144,10 +144,29 @@ export default function PendingRequests() {
       try {
         const res = await fetch("/api/request");
         const data = await res.json();
-        setRequests(data);
+
+        if (!res.ok) {
+          // API returned an error object; surface message and keep requests as an array
+          console.error('Failed to load requests:', data);
+          toast.error(data?.error || data?.message || "Failed to load requests.");
+          setRequests([]);
+        } else {
+          // Ensure we always set an array
+          if (Array.isArray(data)) {
+            setRequests(data);
+          } else if (Array.isArray(data.requests)) {
+            setRequests(data.requests);
+          } else if (Array.isArray(data.data)) {
+            setRequests(data.data);
+          } else {
+            console.warn('Unexpected requests payload, normalizing to empty array', data);
+            setRequests([]);
+          }
+        }
       } catch (err) {
         toast.error("Failed to load requests.");
         console.error(err);
+        setRequests([]);
       } finally {
         setLoading(false);
       }
@@ -157,14 +176,14 @@ export default function PendingRequests() {
 
   const handleApproveClick = async (req: Request) => {
     try {
-      // Fetch latest request details
-      const res = await fetch(`/api/request`);
-      const requestDetails: Request = await res.json();
-      setSelectedRequest(requestDetails);
+      // Use the request object we already have from the UI instead of re-fetching the list
+      setSelectedRequest(req);
 
-      const membersRes = await fetch(`/api/domain_members?domain=${req.domain}`);
-      const members: TeamMember[] = await membersRes.json();
-      setDomainMembers(members);
+      // domain_members endpoint expects a single domain string; use the first domain if available
+      const domainParam = Array.isArray(req.domain) && req.domain.length > 0 ? req.domain[0] : "";
+      const membersRes = await fetch(`/api/domain_members?domain=${encodeURIComponent(domainParam)}`);
+      const members: TeamMember[] = membersRes.ok ? await membersRes.json() : [];
+      setDomainMembers(Array.isArray(members) ? members : []);
 
       setShowModal(true);
     } catch (err) {
@@ -252,18 +271,18 @@ export default function PendingRequests() {
                 <strong>Project:</strong> {req.title}
               </p>
 
-             <p className="text-gray-300 text-sm mb-2">
-  <strong>Domains:</strong>{" "}
-  {req.domain && req.domain.length > 0 ? (
-    req.domain.map((d, i) => (
-      <span key={i} className="inline-block bg-gray-800 px-2 py-1 rounded text-xs text-indigo-400 mr-1">
-        {d}
-      </span>
-    ))
-  ) : (
-    <span className="text-gray-400">No domains</span>
-  )}
-</p>
+              <p className="text-gray-300 text-sm mb-2">
+                <strong>Domains:</strong>{" "}
+                {req.domain && req.domain.length > 0 ? (
+                  req.domain.map((d: string, i: number) => (
+                    <span key={i} className="inline-block bg-gray-800 px-2 py-1 rounded text-xs text-indigo-400 mr-1">
+                      {d}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-gray-400">No domains</span>
+                )}
+              </p>
 
               <p className="text-gray-400 text-sm mb-4 line-clamp-3">
                 {req.description}

@@ -1,7 +1,9 @@
 // app/admin/page.tsx
 "use client";
 
+import React, { useEffect, useState } from "react";
 import { FolderOpen, CheckCircle2, Clock, AlertCircle, Code2, ArrowRight } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
 
 interface Stat {
   title: string;
@@ -10,14 +12,13 @@ interface Stat {
 }
 
 interface Domain {
+  _id?: string;
   name: string;
   description: string;
 }
 
 interface LeadPanelProps {
-  role?: "Team Lead";
-  stats?: Stat[];
-  domains?: Domain[];
+  role?: string;
 }
 
 const StatCard = ({ stat, icon: Icon }: { stat: Stat; icon: any }) => (
@@ -69,21 +70,65 @@ const DomainCard = ({ domain }: { domain: Domain }) => (
 );
 
 export default function LeadPanel({ role = "Team Lead" }: LeadPanelProps) {
-  const stats: Stat[] = [
-    { title: "Total Projects", value: 12, description: "Across All Domains" },
-    { title: "Domain Members", value: 8, description: "Active Contributors" },
-    { title: "Completed Projects", value: 5, description: "This Quarter" },
-    { title: "Pending Reviews", value: 3, description: "Awaiting Approval" },
-  ];
+  const [stats, setStats] = useState<Stat[] | null>(null);
+  const [domains, setDomains] = useState<Domain[] | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const statIcons = [FolderOpen, CheckCircle2, Clock, AlertCircle];
 
-  const domains: Domain[] = [
-    { name: "Web Development", description: "Access Projects and Resources in Web Development" },
-  ];
+  useEffect(() => {
+    let mounted = true;
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [statsRes] = await Promise.all([
+          fetch("/api/stats"),
+          // fetch("/api/admin/domains"),
+        ]);
+
+        if (!statsRes.ok) throw new Error("Failed to load stats");
+        // if (!domainsRes.ok) throw new Error("Failed to load domains");
+
+        const statsJson = await statsRes.json();
+        // const domainsJson = await domainsRes.json();
+
+        if (!mounted) return;
+
+        // Normalize stats into our Stat[] shape if API returns a different structure
+        const normalizedStats: Stat[] = [
+          { title: "Total Projects", value: statsJson.totalProjects ?? 0, description: "Across All Domains" },
+          { title: "Domain Members", value: statsJson.domainMembers ?? 0, description: "Active Contributors" },
+          { title: "Completed Projects", value: statsJson.completedProjects ?? 0, description: "This Quarter" },
+          { title: "Pending Reviews", value: statsJson.pendingReviews ?? 0, description: "Awaiting Approval" },
+        ];
+
+        setStats(normalizedStats);
+        // setDomains(Array.isArray(domainsJson) ? domainsJson : []);
+      } catch (err: any) {
+        console.error("Dashboard fetch error:", err);
+        toast.error(err?.message || "Failed to load dashboard data");
+        // Fallback: show zeros and empty domains
+        setStats([
+          { title: "Total Projects", value: 0, description: "Across All Domains" },
+          { title: "Domain Members", value: 0, description: "Active Contributors" },
+          { title: "Completed Projects", value: 0, description: "This Quarter" },
+          { title: "Pending Reviews", value: 0, description: "Awaiting Approval" },
+        ]);
+        setDomains([]);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchData();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <div className="py-8 w-full min-h-screen">
+      <Toaster position="top-center" />
       <div className="max-w-7xl mx-auto px-4">
         <div className="mb-10">
           <h2 className="font-mclaren text-4xl mb-3 font-bold bg-gradient-to-r from-white via-emerald-200 via-teal-200 to-green-200 bg-clip-text text-transparent">
@@ -94,22 +139,32 @@ export default function LeadPanel({ role = "Team Lead" }: LeadPanelProps) {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 w-full">
-          {stats.map((stat, idx) => (
-            <StatCard key={idx} stat={stat} icon={statIcons[idx]} />
-          ))}
-        </div>
+        {loading ? (
+          <p className="text-slate-400 text-center py-10">Loading dashboard...</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 w-full">
+              {(stats || []).map((stat, idx) => (
+                <StatCard key={idx} stat={stat} icon={statIcons[idx]} />
+              ))}
+            </div>
 
-        <div className="mb-8">
-          <h2 className="font-mclaren text-3xl mb-8 bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent font-bold">
-            Your Domains
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {domains.map((domain, idx) => (
-            <DomainCard key={idx} domain={domain} />
-          ))}
-        </div>
+            {/* <div className="mb-8">
+              <h2 className="font-mclaren text-3xl mb-8 bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent font-bold">
+                Your Domains
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {(domains || []).length === 0 ? (
+                <div className="col-span-full text-slate-400">No domains available</div>
+              ) : (
+                (domains || []).map((domain, idx) => (
+                  <DomainCard key={domain._id || idx} domain={domain} />
+                ))
+              )}
+            </div> */}
+          </>
+        )}
       </div>
     </div>
   );

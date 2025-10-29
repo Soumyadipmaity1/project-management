@@ -19,7 +19,7 @@ export interface User extends Document {
   emailVerified: boolean;
   otp: string;
   otpExpiry: Date;
-  projects: mongoose.Types.ObjectId[];
+  projects: { projectId: mongoose.Types.ObjectId; projectName: string }[];
   ProjectCount: number;
 }
 

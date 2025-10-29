@@ -6,8 +6,8 @@ export interface Request extends Document {
   domain: string[];
   status: "Pending" | "Approved" | "Rejected";
   description: string;
-  link: string;
-  teamlead?: mongoose.Types.ObjectId;
+  link?: string;
+  projectlead?: mongoose.Types.ObjectId; // renamed from projectlead
   colead?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -29,9 +29,15 @@ const RequestSchema: Schema<Request> = new Schema(
     },
     link: {
       type: String,
-      required: [true, "Link is required"],
-      minlength: [7, "Link must be at least 7 characters long"],
+      required: false,
       trim: true,
+      validate: {
+        validator: function (v: string) {
+          if (!v) return true; // optional
+          return String(v).trim().length >= 7;
+        },
+        message: "Link must be at least 7 characters long",
+      },
     },
     description: {
       type: String,
@@ -41,7 +47,7 @@ const RequestSchema: Schema<Request> = new Schema(
       maxlength: [1000, "Description cannot exceed 1000 characters"],
     },
     domain: {
-      type: [String], 
+      type: [String],
       required: true,
       validate: [
         {
@@ -50,7 +56,7 @@ const RequestSchema: Schema<Request> = new Schema(
         },
       ],
     },
-    teamlead: {
+    projectlead: {
       type: Schema.Types.ObjectId,
       ref: "User",
     },
@@ -67,6 +73,25 @@ const RequestSchema: Schema<Request> = new Schema(
   { timestamps: true }
 );
 
+// keep teamlead and projectlead in sync for backward compatibility
+RequestSchema.pre("save", function (next) {
+  // @ts-ignore
+  if (this.teamlead && !this.projectlead) {
+    // @ts-ignore
+    this.projectlead = this.teamlead;
+  }
+  // @ts-ignore
+  if (this.projectlead && !this.teamlead) {
+    // @ts-ignore
+    this.teamlead = this.projectlead;
+  }
+  next();
+});
+
+// avoid model overwrite issues in dev/hot-reload
+if (mongoose.models && mongoose.models.Request) {
+  delete mongoose.models.Request;
+}
 const RequestModel: Model<Request> =
   mongoose.models.Request || mongoose.model<Request>("Request", RequestSchema);
 

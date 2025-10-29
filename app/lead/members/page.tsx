@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useEffect, useState } from "react";
 import {
@@ -25,21 +24,14 @@ interface TeamMember {
 
 export default function TeamMembers() {
   const router = useRouter();
-
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
-  const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(
-    null
-  );
+  const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null);
   const [showPromoteDialog, setShowPromoteDialog] = useState(false);
-  const [memberToPromote, setMemberToPromote] = useState<TeamMember | null>(
-    null
-  );
-  const [promoteRole, setPromoteRole] = useState<"projectlead" | "colead">(
-    "projectlead"
-  );
+  const [memberToPromote, setMemberToPromote] = useState<TeamMember | null>(null);
+  const [promoteRole, setPromoteRole] = useState<"ProjectLead" | "CoLead" | "Member">("Member");
 
   const fetchMembers = async () => {
     try {
@@ -101,7 +93,7 @@ export default function TeamMembers() {
 
   const handlePromoteClick = (member: TeamMember) => {
     setMemberToPromote(member);
-    setPromoteRole("projectlead");
+    setPromoteRole("Member");
     setShowPromoteDialog(true);
   };
 
@@ -115,8 +107,12 @@ export default function TeamMembers() {
       });
       if (!res.ok) throw new Error("Failed to promote member");
       toast.success(
-        `${memberToPromote.name} promoted to ${
-          promoteRole === "projectlead" ? "Project Lead" : "Co-Lead"
+        `${memberToPromote.name} ${
+          promoteRole === "ProjectLead"
+            ? "promoted to Project Lead"
+            : promoteRole === "CoLead"
+            ? "promoted to Co-Lead"
+            : "assigned as Member"
         }`
       );
       setShowPromoteDialog(false);
@@ -124,7 +120,7 @@ export default function TeamMembers() {
       fetchMembers();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to promote member");
+      toast.error("Failed to update role");
     }
   };
 
@@ -141,6 +137,7 @@ export default function TeamMembers() {
   return (
     <div className="min-h-screen py-6 px-4">
       <Toaster position="top-right" reverseOrder={false} />
+
       <div className="flex items-start justify-between mb-8">
         <div>
           <h2 className="font-mclaren text-[36px] mb-3 font-bold bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent">
@@ -152,6 +149,7 @@ export default function TeamMembers() {
         </div>
       </div>
 
+      {/* Search Bar */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-300 mb-2">
           Search Members
@@ -168,6 +166,7 @@ export default function TeamMembers() {
         </div>
       </div>
 
+      {/* Members Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {team.length === 0 ? (
           <div className="w-full text-center py-12 text-gray-400">
@@ -191,9 +190,7 @@ export default function TeamMembers() {
                 </div>
               )}
 
-              <div className="text-lg font-semibold text-white">
-                {member.name}
-              </div>
+              <div className="text-lg font-semibold text-white">{member.name}</div>
               {member.email && (
                 <div className="text-sm text-gray-400 mb-1">{member.email}</div>
               )}
@@ -218,7 +215,7 @@ export default function TeamMembers() {
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:transform hover:scale-105"
                 >
                   <FaArrowUp className="text-xs" />
-                  <span>Promote</span>
+                  <span>Change Role</span>
                 </button>
 
                 <button
@@ -259,12 +256,11 @@ export default function TeamMembers() {
         )}
       </div>
 
+      {/* Remove Dialog */}
       {showRemoveDialog && memberToRemove && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
           <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-xl font-bold text-white mb-4">
-              Confirm Remove Member
-            </h3>
+            <h3 className="text-xl font-bold text-white mb-4">Confirm Remove Member</h3>
             <p className="text-gray-300 mb-6">
               Are you sure you want to remove{" "}
               <span className="font-semibold text-emerald-400">
@@ -290,38 +286,39 @@ export default function TeamMembers() {
         </div>
       )}
 
+      {/* Promote Dialog */}
       {showPromoteDialog && memberToPromote && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
           <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-xl font-bold text-white mb-4">
-              Promote Member
-            </h3>
+            <h3 className="text-xl font-bold text-white mb-4">Change Member Role</h3>
             <p className="text-gray-300 mb-4">
-              Promote{" "}
+              Select new role for{" "}
               <span className="font-semibold text-emerald-400">
                 {memberToPromote.name}
-              </span>{" "}
-              to:
+              </span>
             </p>
+
             <div className="mb-6 space-y-3">
-              {["projectlead", "colead"].map((role) => (
-                <label
-                  key={role}
-                  className="flex items-center gap-2 text-gray-200"
-                >
+              {["projectlead", "colead", "member"].map((role) => (
+                <label key={role} className="flex items-center gap-2 text-gray-200">
                   <input
                     type="radio"
                     name="promoteRole"
                     value={role}
                     checked={promoteRole === role}
                     onChange={() =>
-                      setPromoteRole(role as "projectlead" | "colead")
+                      setPromoteRole(role as "ProjectLead" | "CoLead" | "Member")
                     }
                   />
-                  {role === "projectlead" ? "Project Lead" : "Co-Lead"}
+                  {role === "projectlead"
+                    ? "Project Lead"
+                    : role === "colead"
+                    ? "Co-Lead"
+                    : "Member"}
                 </label>
               ))}
             </div>
+
             <div className="flex gap-3 justify-end">
               <button
                 onClick={cancelPromote}
@@ -333,7 +330,7 @@ export default function TeamMembers() {
                 onClick={confirmPromote}
                 className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-lg shadow-blue-500/25"
               >
-                Promote
+                Update Role
               </button>
             </div>
           </div>

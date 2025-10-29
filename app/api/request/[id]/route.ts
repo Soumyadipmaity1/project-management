@@ -1,11 +1,10 @@
-import { SessionProvider } from 'next-auth/react';
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import mongoose from "mongoose";
 import dbConnect from "@/lib/db";
 import { authOptions } from "../../auth/[...nextauth]/option";
 import UserModel from "@/model/User";
 import RequestModel from "@/model/ProjectRequest";
+import ProjectModel from "@/model/Projects";
 import { canRequest } from "@/lib/permissions";
 
 
@@ -19,88 +18,132 @@ export async function PATCH(req: Request) {
     }
 
     const user = await UserModel.findOne({ email: session.user.email });
-
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const userRole = user.role;
-    const allowedToApprove = canRequest(userRole, "approverequest");
-    const allowedToReject = canRequest(userRole, "rejectrequest");
+    const allowedToApprove = canRequest(user.role, "approverequest");
+    const allowedToReject = canRequest(user.role, "rejectrequest");
 
-    if (!allowedToApprove && !allowedToReject) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // extract id from URL: /api/request/:id
+    const url = new URL(req.url);
+    const parts = url.pathname.split("/").filter(Boolean);
+    const reqId = parts[parts.length - 1];
+
+    if (!reqId) {
+      return NextResponse.json({ error: "Request id not provided in URL" }, { status: 400 });
     }
 
-    const { requestId, action, projectLeadName, coLeadName } = await req.json();
-
-    if (!requestId || !action) {
-      return NextResponse.json(
-        { error: "Both requestId and action are required" },
-        { status: 400 }
-      );
+    // parse body safely (may be empty)
+    let body: any = {};
+    try {
+      body = await req.json();
+    } catch (e) {
+      body = {};
     }
 
-    const request = await RequestModel.findById(requestId);
+    const request = await RequestModel.findById(reqId);
     if (!request) {
       return NextResponse.json({ error: "Request not found" }, { status: 404 });
     }
 
-    if (user.role === "Lead" && request.domain !== user.domain) {
-      return NextResponse.json(
-        { error: "You can only manage requests in your domain" },
-        { status: 403 }
-      );
+    // If user is Lead, ensure the request belongs to their domain
+    if (user.role === "Lead") {
+      const reqDomains = Array.isArray(request.domain) ? request.domain : [String(request.domain || "")];
+      if (!reqDomains.includes(user.domain)) {
+        return NextResponse.json({ error: "You can only manage requests in your domain" }, { status: 403 });
+      }
     }
 
-    if (action === "approve") {
-      if (!projectLeadName || !coLeadName) {
-        return NextResponse.json(
-          { error: "Project Lead and Co-Lead names are required for approval" },
-          { status: 400 }
-        );
+    // Determine action: approve (when teamlead provided or action==='approve') or reject
+    const leadId = body.teamlead || body.projectlead || body.projectLeadName || null;
+    const coLeadId = body.colead || body.coLead || body.coLeadName || null;
+    const action = body.action ? String(body.action).toLowerCase() : null;
+
+    if (leadId || action === "approve") {
+      // Approve flow
+      if (!allowedToApprove) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
 
-      const updatedRequest = await RequestModel.findByIdAndUpdate(
-        requestId,
-        {
-          status: "Approved",
-          projectLead: { name: projectLeadName },
-          coLead: { name: coLeadName },
-        },
-        { new: true }
-      );
+      if (!leadId || typeof leadId !== "string" || leadId.trim() === "") {
+        return NextResponse.json({ error: "teamlead id is required for approval" }, { status: 400 });
+      }
 
-      return NextResponse.json({
-        message: "Request approved successfully",
-        updatedRequest,
-      });
+      // validate lead and colead users
+      const leadUser = await UserModel.findById(String(leadId).trim());
+      if (!leadUser) {
+        return NextResponse.json({ error: "Assigned project lead user not found" }, { status: 400 });
+      }
+
+      let coLeadUser = null;
+      if (coLeadId && typeof coLeadId === "string" && coLeadId.trim() !== "") {
+        coLeadUser = await UserModel.findById(String(coLeadId).trim());
+        if (!coLeadUser) {
+          return NextResponse.json({ error: "Assigned co-lead user not found" }, { status: 400 });
+        }
+      }
+
+      // Create project using request details
+      const projectPayload: any = {
+        title: request.title,
+        description: request.description,
+        domain: Array.isArray(request.domain) ? request.domain : [String(request.domain || "")],
+        projectlead: leadUser._id,
+        colead: coLeadUser ? coLeadUser._id : undefined,
+        members: [leadUser._id].concat(coLeadUser ? [coLeadUser._id] : []),
+        approved: true,
+      };
+
+      const newProject = await ProjectModel.create(projectPayload);
+
+      // Update lead user's role and add project to their projects list
+      try {
+        leadUser.role = "ProjectLead";
+        leadUser.projects = leadUser.projects || [];
+        leadUser.projects.push({ projectId: newProject._id, projectName: newProject.title });
+        await leadUser.save();
+      } catch (e) {
+        console.warn("Failed to update lead user after project creation:", (e as any)?.message || e);
+      }
+
+      // Update co-lead user role and projects if present
+      if (coLeadUser) {
+        try {
+          coLeadUser.role = "CoLead";
+          coLeadUser.projects = coLeadUser.projects || [];
+          coLeadUser.projects.push({ projectId: newProject._id, projectName: newProject.title });
+          await coLeadUser.save();
+        } catch (e) {
+          console.warn("Failed to update co-lead user after project creation:", (e as any)?.message || e);
+        }
+      }
+
+      // Remove the request (so it disappears from request section)
+      try {
+        await RequestModel.findByIdAndDelete(reqId);
+      } catch (e) {
+        console.warn("Failed to delete request after approval:", (e as any)?.message || e);
+      }
+
+      return NextResponse.json({ message: "Request approved and project created", project: newProject }, { status: 200 });
     }
 
-    if (action === "reject") {
-      const updatedRequest = await RequestModel.findByIdAndUpdate(
-        requestId,
-        { status: "Rejected" },
-        { new: true }
-      );
+    // Reject flow
+    if (action === "reject" || (!leadId && !action)) {
+      if (!allowedToReject) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
 
-      return NextResponse.json({
-        message: "Request rejected successfully",
-        updatedRequest,
-      });
+      const updatedRequest = await RequestModel.findByIdAndUpdate(reqId, { status: "Rejected" }, { new: true });
+      return NextResponse.json({ message: "Request rejected successfully", updatedRequest }, { status: 200 });
     }
 
-    return NextResponse.json(
-      { error: "Invalid action. Use 'approve' or 'reject'." },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
   } catch (err) {
     console.error("Error updating request:", err);
     return NextResponse.json(
-      {
-        message: "Failed to update request",
-        error: err instanceof Error ? err.message : "Server error",
-      },
+      { message: "Failed to update request", error: err instanceof Error ? err.message : String(err) },
       { status: 500 }
     );
   }
