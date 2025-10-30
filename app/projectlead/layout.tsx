@@ -52,7 +52,7 @@ export default function LeadLayout({ children }: { children: React.ReactNode }) 
                       className="w-48 bg-gray-800 border-gray-700 text-white"
                     >
                       <DropdownMenuItem className="cursor-pointer hover:bg-gray-700 focus:bg-gray-700" asChild>
-                        <Link href="/profile" className="flex items-center">
+                        <Link href="/projectlead/profile" className="flex items-center">
                           <UserCircle className="mr-2 h-4 w-4" />
                           <span>View Profile</span>
                         </Link>
