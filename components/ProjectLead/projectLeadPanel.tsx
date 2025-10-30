@@ -46,27 +46,27 @@ const StatCard = ({ stat, icon: Icon }: { stat: Stat; icon: any }) => (
   </div>
 );
 
-const DomainCard = ({ domain }: { domain: Domain }) => (
-  <div className="group">
-    <div className="rounded-lg border border-slate-700 bg-slate-900 hover:border-fuchsia-500 transition-all duration-300 overflow-hidden hover:shadow-lg hover:shadow-fuchsia-500/20">
-      <div className="bg-fuchsia-600 p-4 flex items-center gap-3">
-        <div className="p-2 rounded-md bg-fuchsia-700">
-          <Code2 className="w-5 h-5 text-white" />
-        </div>
-        <span className="font-madimiOne text-lg text-white font-semibold">{domain.name}</span>
-      </div>
-      <div className="p-4">
-        <p className="text-slate-300 font-mclaren text-sm mb-4 leading-relaxed">
-          {domain.description}
-        </p>
-        <button className="w-full bg-fuchsia-600 hover:bg-fuchsia-700 text-white py-2.5 px-4 rounded-md flex items-center gap-2 justify-center font-medium transition-colors duration-200">
-          <span>View Domain</span>
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-200" />
-        </button>
-      </div>
-    </div>
-  </div>
-);
+// const DomainCard = ({ domain }: { domain: Domain }) => (
+//   <div className="group">
+//     <div className="rounded-lg border border-slate-700 bg-slate-900 hover:border-fuchsia-500 transition-all duration-300 overflow-hidden hover:shadow-lg hover:shadow-fuchsia-500/20">
+//       <div className="bg-fuchsia-600 p-4 flex items-center gap-3">
+//         <div className="p-2 rounded-md bg-fuchsia-700">
+//           <Code2 className="w-5 h-5 text-white" />
+//         </div>
+//         <span className="font-madimiOne text-lg text-white font-semibold">{domain.name}</span>
+//       </div>
+//       <div className="p-4">
+//         <p className="text-slate-300 font-mclaren text-sm mb-4 leading-relaxed">
+//           {domain.description}
+//         </p>
+//         <button className="w-full bg-fuchsia-600 hover:bg-fuchsia-700 text-white py-2.5 px-4 rounded-md flex items-center gap-2 justify-center font-medium transition-colors duration-200">
+//           <span>View Domain</span>
+//           <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-200" />
+//         </button>
+//       </div>
+//     </div>
+//   </div>
+// );
 
 export default function ProjectLeadPanel({ role = "Team Lead" }: LeadPanelProps) {
   const stats: Stat[] = [
@@ -100,7 +100,7 @@ export default function ProjectLeadPanel({ role = "Team Lead" }: LeadPanelProps)
           ))}
         </div>
 
-        <div className="mb-8">
+        {/* <div className="mb-8">
           <h2 className="font-mclaren text-3xl mb-8 text-fuchsia-300 font-bold">
             Your Domains
           </h2>
@@ -109,7 +109,7 @@ export default function ProjectLeadPanel({ role = "Team Lead" }: LeadPanelProps)
           {domains.map((domain, idx) => (
             <DomainCard key={idx} domain={domain} />
           ))}
-        </div>
+        </div> */}
       </div>
     </div>
   );

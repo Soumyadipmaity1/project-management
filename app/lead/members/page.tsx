@@ -299,24 +299,22 @@ export default function TeamMembers() {
             </p>
 
             <div className="mb-6 space-y-3">
-              {["projectlead", "colead", "member"].map((role) => (
-                <label key={role} className="flex items-center gap-2 text-gray-200">
-                  <input
-                    type="radio"
-                    name="promoteRole"
-                    value={role}
-                    checked={promoteRole === role}
-                    onChange={() =>
-                      setPromoteRole(role as "ProjectLead" | "CoLead" | "Member")
-                    }
-                  />
-                  {role === "projectlead"
-                    ? "Project Lead"
-                    : role === "colead"
-                    ? "Co-Lead"
-                    : "Member"}
-                </label>
-              ))}
+              {["ProjectLead", "CoLead", "Member"].map((role) => (
+  <label key={role} className="flex items-center gap-2 text-gray-200">
+    <input
+      type="radio"
+      name="promoteRole"
+      value={role}
+      checked={promoteRole === role}
+      onChange={() => setPromoteRole(role as "ProjectLead" | "CoLead" | "Member")}
+    />
+    {role === "ProjectLead"
+      ? "Project Lead"
+      : role === "CoLead"
+      ? "Co-Lead"
+      : "Member"}
+  </label>
+))}
             </div>
 
             <div className="flex gap-3 justify-end">

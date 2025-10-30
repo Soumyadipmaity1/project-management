@@ -17,7 +17,6 @@ type Project = {
   approved?: boolean;
   members?: string[];
   membersCount?: number;
-  enrolled?: boolean;
   image?: string;
   startDate?: string;
   completionDate?: string;
@@ -175,7 +174,7 @@ export default function MyProjectsPage() {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [filtered, setFiltered] = useState<Project[]>([]);
-  const [filter, setFilter] = useState<"all" | "enrolled" | "available">("all");
+  const [filter, setFilter] = useState<"all"  | "available">("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -201,8 +200,6 @@ export default function MyProjectsPage() {
 
 useEffect(() => {
   if (filter === "all") setFiltered(projects);
-  else if (filter === "enrolled")
-    setFiltered(projects.filter((p) => p.enrolled));
   else if (filter === "available")
     setFiltered(projects.filter((p) => p.badge === "available" || p.badge === "active"));
 }, [filter, projects]);
@@ -235,7 +232,7 @@ useEffect(() => {
        </div>
 
       <div className="flex gap-3 mb-8">
-        {["all", "enrolled", "available"].map((f) => (
+        {["all", "available"].map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f as any)}
@@ -247,8 +244,6 @@ useEffect(() => {
           >
             {f === "all"
               ? "All Projects"
-              : f === "enrolled"
-              ? "Enrolled"
               : "Available"}
           </button>
         ))}

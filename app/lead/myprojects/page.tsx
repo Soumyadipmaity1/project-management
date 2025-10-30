@@ -345,47 +345,55 @@ export default function MemProjects() {
     }
   };
 
+
   const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingProjectId) return;
-    setSubmitting(true);
-    try {
-      const selectedDomains = [editFormData.domain1, editFormData.domain2, editFormData.domain3].filter(Boolean);
-      const payload: any = {
-        title: editFormData.title,
-        description: editFormData.description,
-        domain: selectedDomains,
-        projectlead: editFormData.projectlead,
-        colead: editFormData.colead,
-        github: editFormData.github,
-        liveDemo: editFormData.liveDemo,
-        badge: editFormData.badge,
-        approved: editFormData.approved,
-        startDate: editFormData.startDate,
-        completionDate: editFormData.completionDate,
-      };
+  e.preventDefault();
+  if (!editingProjectId) return;
+  setSubmitting(true);
 
-      const res = await fetch(`/api/projects/${editingProjectId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+  try {
+    const selectedDomains = [
+      editFormData.domain1,
+      editFormData.domain2,
+      editFormData.domain3,
+    ].filter(Boolean);
 
-      const data = await res.json();
-      if (!res.ok) {
-        const errorMessage = data?.error || data?.message || "Failed to update project";
-        toast.error(errorMessage);
-      } else {
-        toast.success("Project updated successfully");
-        await fetchProjects();
-        setIsEditOpen(false);
-      }
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to update project");
-    } finally {
-      setSubmitting(false);
+    // use FormData instead of JSON
+    const form = new FormData();
+    form.append("title", editFormData.title);
+    form.append("description", editFormData.description);
+    form.append("domain", JSON.stringify(selectedDomains));
+    form.append("projectlead", editFormData.projectlead);
+    form.append("colead", editFormData.colead);
+    form.append("github", editFormData.github);
+    form.append("liveDemo", editFormData.liveDemo);
+    form.append("badge", editFormData.badge);
+    form.append("approved", String(editFormData.approved));
+    form.append("startDate", editFormData.startDate);
+    form.append("completionDate", editFormData.completionDate);
+
+    if (imageFile) form.append("image", imageFile); // 👈 only append if changed
+
+    const res = await fetch(`/api/projects/${editingProjectId}`, {
+      method: "PATCH",
+      body: form, 
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      const errorMessage = data?.error || data?.message || "Failed to update project";
+      toast.error(errorMessage);
+    } else {
+      toast.success("Project updated successfully");
+      await fetchProjects();
+      setIsEditOpen(false);
     }
-  };
+  } catch (err: any) {
+    toast.error(err?.message || "Failed to update project");
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   const domains = [
     "Web Development",
@@ -477,8 +485,6 @@ export default function MemProjects() {
               <h2 className="text-2xl font-bold mb-6 text-center">Edit Project</h2>
 
               <form onSubmit={handleEditSubmit} className="flex flex-col gap-4">
-                <input type="file" accept="image/*" onChange={handleEditFileChange} disabled={submitting} />
-                {previewImage && <img src={previewImage} alt="Preview" className="w-full h-40 object-cover" />}
                 <input name="title" value={editFormData.title} onChange={handleEditInputChange} placeholder="Title *" required />
                 <select name="domain1" value={editFormData.domain1} onChange={handleEditInputChange} required><option value="">Select Primary Domain *</option>{domains.map((d) => (<option key={d} value={d}>{d}</option>))}</select>
                 <select name="domain2" value={editFormData.domain2} onChange={handleEditInputChange}><option value="">Select Secondary Domain</option>{domains.map((d) => (<option key={d} value={d}>{d}</option>))}</select>

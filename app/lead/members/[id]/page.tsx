@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useSession } from 'next-auth/react';
+import { useParams } from 'next/navigation';
 import { Github, Linkedin, Mail, Code, FolderKanban } from 'lucide-react';
 
 interface UserProfile {
@@ -23,45 +23,42 @@ interface UserProfile {
   }[];
 }
 
-export default function ProfilePage() {
-  const { data: session, status } = useSession();
+export default function MemberProfilePage() {
+  const { id } = useParams(); // <-- get user ID from URL
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status === 'authenticated' && session?.user?._id) {
-      (async () => {
-        try {
-          const res = await fetch(`/api/users/${session.user._id}`);
-          const data = await res.json();
-          setUser(data);
-        } catch (err) {
-          console.error('Error fetching user:', err);
-        } finally {
-          setLoading(false);
-        }
-      })();
-    }
-  }, [session, status]);
+    if (!id) return;
 
-  if (status === 'loading' || loading) {
-    return <p className="text-center text-slate-400 mt-20">Loading user profile...</p>;
-  }
+    (async () => {
+      try {
+        const res = await fetch(`/api/users/${id}`);
+        const data = await res.json();
+        setUser(data);
+      } catch (err) {
+        console.error('Error fetching user:', err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [id]);
 
-  if (!session || !user) {
-    return <p className="text-center text-red-400 mt-20">No user found or not logged in.</p>;
-  }
+  if (loading)
+    return <p className="text-center text-slate-400 mt-20">Loading member profile...</p>;
+
+  if (!user)
+    return <p className="text-center text-red-400 mt-20">User not found.</p>;
 
   const getGithubUsername = (url?: string) =>
     url ? url.split('github.com/')[1]?.replace('/', '') || 'GitHub' : 'GitHub';
-
   const getLinkedinUsername = (url?: string) =>
     url ? url.split('linkedin.com/in/')[1]?.replace('/', '') || 'LinkedIn' : 'LinkedIn';
 
   return (
     <div className="min-h-screen py-10 px-6 md:px-10 text-slate-200">
       <div className="max-w-4xl mx-auto bg-slate-900/90 border border-emerald-500/20 rounded-3xl shadow-xl shadow-emerald-500/10 p-8">
-        
+
         <div className="flex flex-col md:flex-row items-center gap-8">
           <div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-emerald-500">
             <Image
@@ -75,7 +72,7 @@ export default function ProfilePage() {
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-4xl font-bold text-emerald-400">{user.name}</h1>
             {user.domain && (
-              <p className="text-lg text-emerald-300 font-semibold">{user.domain}</p>
+              <p className="text-lg text-emerald-300 font-semibold mt-1">{user.domain}</p>
             )}
             {user.role && (
               <p className="text-sm text-slate-400 mt-1 capitalize">{user.role}</p>
@@ -135,6 +132,7 @@ export default function ProfilePage() {
           </div>
         )}
 
+        {/* --- Projects Section --- */}
         {user.projects && user.projects.length > 0 && (
           <div className="mt-10">
             <div className="flex items-center gap-6 mb-6">

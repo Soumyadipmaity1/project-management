@@ -128,7 +128,7 @@
 //   return ProjectmemberPermission[normalizedRole as RoleProjectMembers].includes(action);
 // }
 
-// ✅ Role & Action Types
+// ✅ Role & Action Type
 type RoleAnnouncement = "Admin" | "Lead" | "Member" | "ProjectLead";
 type ActionAnnouncement = "create" | "update" | "delete" | "view" | "pin" | "unpin";
 

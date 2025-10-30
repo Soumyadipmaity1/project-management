@@ -21,32 +21,32 @@ import { cn } from "@/lib/utils";
 const elements = [
   {
     title: "Dashboard",
-    url: "/project-lead",
+    url: "/projectlead",
     icon: LayoutDashboard,
   },
   {
     title: "Projects",
-    url: "/project-lead/projects",
+    url: "/projectlead/projects",
     icon: Paperclip,
   },
   {
     title: "My Projects",
-    url: "/project-lead/myprojects",
+    url: "/projectlead/myprojects",
     icon: ClipboardList,
   },
   {
     title: "Announcements",
-    url: "/project-lead/announcements",
+    url: "/projectlead/announcements",
     icon: Bell,
   },
   {
     title: "Members",
-    url: "/project-lead/members",
+    url: "/projectlead/members",
     icon: User,
   },
   {
     title: "Pending Requests",
-    url: "/project-lead/requests",
+    url: "/projectlead/requests",
     icon: File,
   },
 ];
@@ -65,7 +65,7 @@ export function ProjectLeadSidebar() {
   const isCollapsed = state === "collapsed";
 
   const isActiveLink = (url: string) => {
-    if (url === "/project-lead") {
+    if (url === "/projectlead") {
       return pathname === url;
     }
     return pathname?.startsWith(url);

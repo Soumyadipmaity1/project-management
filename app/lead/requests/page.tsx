@@ -191,26 +191,24 @@ export default function PendingRequests() {
       console.error(err);
     }
   };
+const handleApprove = async (leadId: string, assistantId?: string) => {
+  if (!selectedRequest) return;
+  try {
+    await fetch(`/api/request/${selectedRequest._id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ teamlead: leadId, colead: assistantId }),
+    });
 
-  const handleApprove = async (leadId: string, assistantId?: string) => {
-    if (!selectedRequest) return;
-    try {
-      await fetch(`/api/request/${selectedRequest._id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ teamlead: leadId, colead: assistantId }),
-      });
-      setRequests((prev) =>
-        prev.map((r) =>
-          r._id === selectedRequest._id ? { ...r, status: "Approved" } : r
-        )
-      );
-      toast.success("Request approved successfully!");
-    } catch (err) {
-      toast.error("Failed to approve request.");
-      console.error(err);
-    }
-  };
+    setRequests((prev) => prev.filter((r) => r._id !== selectedRequest._id));
+
+    toast.success("Request approved successfully!");
+  } catch (err) {
+    toast.error("Failed to approve request.");
+    console.error(err);
+  }
+};
+
 
   const handleReject = async (id: string) => {
     try {
