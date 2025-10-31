@@ -20,7 +20,7 @@ export default function PendingRequests() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/request");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/request`);
       const data = await res.json();
 
       if (!res.ok) throw new Error(data.error || "Failed to fetch requests");
@@ -54,7 +54,7 @@ export default function PendingRequests() {
   // ✅ Handle Approve / Reject
   const handleAction = async (id: string, status: "approved" | "rejected") => {
     try {
-      const res = await fetch(`/api/request/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/request/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),

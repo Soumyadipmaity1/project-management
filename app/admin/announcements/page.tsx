@@ -26,9 +26,9 @@ export default function AnnouncementsPage() {
     const fetchData = async () => {
       try {
         const [announcementsRes, projectsRes, userRes] = await Promise.all([
-          fetch("/api/announcement", { cache: "no-store" }),
-          fetch("/api/projects", { cache: "no-store" }),
-          fetch("/api/auth/session", { cache: "no-store" }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/announcement`, { cache: "no-store" }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`, { cache: "no-store" }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/session`, { cache: "no-store" }),
         ]);
 
         const announcementsData = await announcementsRes.json();
@@ -89,8 +89,8 @@ export default function AnnouncementsPage() {
       };
 
       const url = editingId
-        ? `/api/announcement/${editingId}`
-        : "/api/announcement";
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/announcement/${editingId}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/announcement`;
       const method = editingId ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -121,7 +121,7 @@ export default function AnnouncementsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this announcement?")) return;
     try {
-      const res = await fetch(`/api/announcement/${id}`, { method: "DELETE" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/announcement/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error(await res.text());
       setGroups((prev) => prev.filter((a) => a._id !== id));
     } catch (err) {
@@ -132,7 +132,7 @@ export default function AnnouncementsPage() {
 
   const handlePin = async (id: string) => {
     try {
-      const res = await fetch("/api/announcement/pin", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/announcement/pin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
@@ -150,7 +150,7 @@ export default function AnnouncementsPage() {
 
   const handleUnpin = async (id: string) => {
     try {
-      const res = await fetch("/api/announcement/unpin", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/announcement/unpin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),

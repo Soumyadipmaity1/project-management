@@ -10,7 +10,7 @@ export default function ProjectLeadPanel() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch("/api/projectlead-stats");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projectlead-stats`);
         const data = await res.json();
 
         if (!res.ok) throw new Error(data.error || "Failed to fetch stats");

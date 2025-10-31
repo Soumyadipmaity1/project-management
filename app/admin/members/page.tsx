@@ -184,7 +184,7 @@ export default function AllMembers() {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const res = await fetch("/api/allmembers", { cache: "no-store" });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/allmembers`, { cache: "no-store" });
         const data = await res.json();
         setMembers(data);
       } catch {
@@ -199,7 +199,7 @@ export default function AllMembers() {
   const handlePromote = async (role: string) => {
     if (!promoteMember) return;
     try {
-      const res = await fetch(`/api/allmembers/${promoteMember._id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/allmembers/${promoteMember._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role }),
@@ -220,7 +220,7 @@ export default function AllMembers() {
   const handleDelete = async () => {
     if (!deleteMember) return;
     try {
-      const res = await fetch(`/api/allmembers/${deleteMember._id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/allmembers/${deleteMember._id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error();

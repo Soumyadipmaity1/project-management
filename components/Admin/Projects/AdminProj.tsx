@@ -119,7 +119,7 @@ function ProjectCard({ project }: { project: Project }) {
 
         {/* New View Project Button */}
         <button
-          onClick={() => router.push(`/admin/projects/${project._id}`)}
+          onClick={() => router.push(`${process.env.NEXT_PUBLIC_API_URL}/admin/projects/${project._id}`)}
           className="flex-1 bg-neutral-700 hover:bg-neutral-600 text-white font-medium px-4 py-3 rounded-lg text-sm text-center"
         >
           <FaEye className="inline mr-2" /> View Project
@@ -139,7 +139,7 @@ export default function LeadProjects() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await fetch("/api/projects");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`);
         if (!res.ok) throw new Error("Failed to fetch projects");
         const data = await res.json();
         setProjects(data.projects || data);

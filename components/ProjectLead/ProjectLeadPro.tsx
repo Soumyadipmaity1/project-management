@@ -146,7 +146,7 @@ export default function ProjectLeadProjects() {
     try {
       setLoading(true);
       const endpoint =
-        activeTab === "enrolled" ? "/api/projects/enrolled" : "/api/projects";
+        activeTab === "enrolled" ? `${process.env.NEXT_PUBLIC_API_URL}/api/projects/enrolled` : `${process.env.NEXT_PUBLIC_API_URL}/api/projects`;
       const res = await fetch(endpoint, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed to fetch projects");
       const data = await res.json();
@@ -172,7 +172,7 @@ export default function ProjectLeadProjects() {
   });
 
   const handleViewProject = (id: string) => {
-    router.push(`/projectlead/projects/${id}`);
+    router.push(`${process.env.NEXT_PUBLIC_API_URL}/projectlead/projects/${id}`);
   };
 
   return (

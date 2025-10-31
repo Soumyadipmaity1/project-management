@@ -41,12 +41,11 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  // 🔹 Fetch user profile on mount
   useEffect(() => {
     if (status === 'authenticated' && session?.user?._id) {
       (async () => {
         try {
-          const res = await fetch(`/api/users/${session.user._id}`);
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${session.user._id}`);
           const data = await res.json();
           setUser(data);
         } catch (err) {
@@ -58,12 +57,11 @@ export default function ProfilePage() {
     }
   }, [session, status]);
 
-  // 🔹 Save updated profile info
   const handleSave = async () => {
     if (!user || !session?.user?._id) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/users/${session.user._id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${session.user._id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -90,7 +88,6 @@ export default function ProfilePage() {
     }
   };
 
-  // 🔹 Handle Cloudinary image upload
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return;
     const file = e.target.files[0];

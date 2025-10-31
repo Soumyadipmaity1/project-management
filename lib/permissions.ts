@@ -7,7 +7,6 @@ type ActionDomainMember = "update" | "delete" | "view";
 type ActionProjectMembers = "approve" | "reject" | "view" | "remove";
 type ApplyProject = "view" | "apply";
 
-// ✅ Apply Project Permissions
 const applyprojectPermission: Record<Extract<BaseRole, "Member">, ApplyProject[]> = {
   Member: ["view", "apply"],
 };
