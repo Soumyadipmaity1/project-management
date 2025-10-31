@@ -207,7 +207,7 @@ export default function MemProjects() {
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/projects", { cache: "no-store" });
+      const res = await fetch("/api/myproject", { cache: "no-store" });
       if (!res.ok) throw new Error("Failed to fetch projects");
       const data = await res.json();
       setProjects(Array.isArray(data) ? data : []);
@@ -346,7 +346,55 @@ export default function MemProjects() {
   };
 
 
-  const handleEditSubmit = async (e: React.FormEvent) => {
+//   const handleEditSubmit = async (e: React.FormEvent) => {
+//   e.preventDefault();
+//   if (!editingProjectId) return;
+//   setSubmitting(true);
+
+//   try {
+//     const selectedDomains = [
+//       editFormData.domain1,
+//       editFormData.domain2,
+//       editFormData.domain3,
+//     ].filter(Boolean);
+
+//     // use FormData instead of JSON
+//     const form = new FormData();
+//     form.append("title", editFormData.title);
+//     form.append("description", editFormData.description);
+//     form.append("domain", JSON.stringify(selectedDomains));
+//     form.append("projectlead", editFormData.projectlead);
+//     form.append("colead", editFormData.colead);
+//     form.append("github", editFormData.github);
+//     form.append("liveDemo", editFormData.liveDemo);
+//     form.append("badge", editFormData.badge);
+//     form.append("approved", String(editFormData.approved));
+//     form.append("startDate", editFormData.startDate);
+//     form.append("completionDate", editFormData.completionDate);
+
+//     if (imageFile) form.append("image", imageFile); // 👈 only append if changed
+
+//     const res = await fetch(`/api/projects/${editingProjectId}`, {
+//       method: "PATCH",
+//       body: form, 
+//     });
+
+//     const data = await res.json();
+//     if (!res.ok) {
+//       const errorMessage = data?.error || data?.message || "Failed to update project";
+//       toast.error(errorMessage);
+//     } else {
+//       toast.success("Project updated successfully");
+//       await fetchProjects();
+//       setIsEditOpen(false);
+//     }
+//   } catch (err: any) {
+//     toast.error(err?.message || "Failed to update project");
+//   } finally {
+//     setSubmitting(false);
+//   }
+// };
+const handleEditSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   if (!editingProjectId) return;
   setSubmitting(true);
@@ -358,31 +406,31 @@ export default function MemProjects() {
       editFormData.domain3,
     ].filter(Boolean);
 
-    // use FormData instead of JSON
-    const form = new FormData();
-    form.append("title", editFormData.title);
-    form.append("description", editFormData.description);
-    form.append("domain", JSON.stringify(selectedDomains));
-    form.append("projectlead", editFormData.projectlead);
-    form.append("colead", editFormData.colead);
-    form.append("github", editFormData.github);
-    form.append("liveDemo", editFormData.liveDemo);
-    form.append("badge", editFormData.badge);
-    form.append("approved", String(editFormData.approved));
-    form.append("startDate", editFormData.startDate);
-    form.append("completionDate", editFormData.completionDate);
-
-    if (imageFile) form.append("image", imageFile); // 👈 only append if changed
+    const payload = {
+      title: editFormData.title,
+      description: editFormData.description,
+      domain: selectedDomains,
+      projectlead: editFormData.projectlead,
+      colead: editFormData.colead,
+      github: editFormData.github,
+      liveDemo: editFormData.liveDemo,
+      badge: editFormData.badge,
+      approved: editFormData.approved,
+      startDate: editFormData.startDate,
+      completionDate: editFormData.completionDate,
+      image: previewImage || editFormData.image, // optional
+    };
 
     const res = await fetch(`/api/projects/${editingProjectId}`, {
       method: "PATCH",
-      body: form, 
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();
+
     if (!res.ok) {
-      const errorMessage = data?.error || data?.message || "Failed to update project";
-      toast.error(errorMessage);
+      toast.error(data?.error || "Failed to update project");
     } else {
       toast.success("Project updated successfully");
       await fetchProjects();

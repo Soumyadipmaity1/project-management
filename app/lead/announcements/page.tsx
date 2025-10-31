@@ -57,7 +57,6 @@ export default function AnnouncementsPage() {
       </div>
     );
 
-  // ------------------ HANDLERS ------------------
   const openModalForEdit = (ann: any) => {
     setEditingId(ann._id);
     setTitle(ann.title || "");
@@ -191,37 +190,6 @@ export default function AnnouncementsPage() {
           </h1>
 
           <div className="flex flex-wrap gap-3 items-center">
-            <select
-              value={selectedProject}
-              onChange={(e) => setSelectedProject(e.target.value)}
-              className="bg-slate-800 text-white px-3 py-2 rounded-lg border border-slate-700"
-            >
-              <option value="all">All Projects</option>
-              {projects.map((p) => (
-                <option key={p._id} value={p._id}>
-                  {p.title}
-                </option>
-              ))}
-            </select>
-
-            <label className="flex items-center gap-2 text-sm text-gray-300">
-              <input
-                type="checkbox"
-                checked={showAdminOnly}
-                onChange={() => setShowAdminOnly(!showAdminOnly)}
-              />
-              Admin Only
-            </label>
-
-            <label className="flex items-center gap-2 text-sm text-gray-300">
-              <input
-                type="checkbox"
-                checked={showMyAnnouncements}
-                onChange={() => setShowMyAnnouncements(!showMyAnnouncements)}
-              />
-              My Announcements
-            </label>
-
             <button
               onClick={() => setIsModalOpen(true)}
               className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-5 py-2 rounded-xl"
@@ -253,9 +221,9 @@ export default function AnnouncementsPage() {
 
         {/* ---------------- OTHERS ---------------- */}
         <div>
-          <h2 className="text-xl font-semibold mb-3 text-emerald-300">
-            Other Announcements
-          </h2>
+          {/* <h2 className="text-xl font-semibold mb-3 text-emerald-300">
+            Announcements
+          </h2> */}
           {otherAnnouncements.length > 0 ? (
             <div className="space-y-4">
               {otherAnnouncements.map((ann) => (

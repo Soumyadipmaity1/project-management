@@ -137,7 +137,7 @@ interface Domain {
 }
 
 interface MemberPanelProps {
-  role: "Member User" | "Admin" | "Team Lead";
+  role: "Member" | "Admin" | "Lead";
 }
 
 const StatCard = ({ stat, icon: Icon }: { stat: Stat; icon: any }) => (
@@ -190,7 +190,7 @@ const DomainCard = ({ domain }: { domain: Domain }) => (
   </div>
 );
 
-export default function MemberPanel({ role = "Member User" }: MemberPanelProps) {
+export default function MemberPanel({ role = "Member" }: MemberPanelProps) {
   const [stats, setStats] = useState<Stat[]>([]);
   const [domains, setDomains] = useState<Domain[]>([]);
   const [loading, setLoading] = useState(true);
@@ -221,7 +221,7 @@ export default function MemberPanel({ role = "Member User" }: MemberPanelProps) 
             description: "Successfully finished projects",
           },
         ]);
-
+  
         setDomains([
           {
             name: data.domain,
@@ -265,18 +265,6 @@ export default function MemberPanel({ role = "Member User" }: MemberPanelProps) 
             <StatCard key={idx} stat={stat} icon={statIcons[idx]} />
           ))}
         </div>
-
-        {/* Domains Section */}
-        {/* <div className="mb-8">
-          <h2 className="font-mclaren text-3xl mb-8 bg-gradient-to-r from-white via-indigo-200 to-purple-300 bg-clip-text text-transparent font-bold">
-            Your Domains
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {domains.map((domain, idx) => (
-            <DomainCard key={idx} domain={domain} />
-          ))}
-        </div> */}
       </div>
     </div>
   );

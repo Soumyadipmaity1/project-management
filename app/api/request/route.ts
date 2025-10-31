@@ -25,20 +25,16 @@ export async function GET(req: Request) {
 
     let filter: Record<string, any> = {};
 
-    switch (user.role) {
-      case "Member":
+    switch (user.role?.toLowerCase()) {
       case "member":
         filter = { user: user._id };
         break;
 
-      case "Lead":
       case "lead":
         filter = { domain: user.domain };
         break;
 
-      case "ProjectLead":
       case "projectlead":
-      case "CoLead":
       case "colead":
         filter = {
           $or: [
@@ -49,16 +45,16 @@ export async function GET(req: Request) {
         };
         break;
 
-      case "Admin":
       case "admin":
-        filter = {}; // Admin can view all
+        filter = {}; 
         break;
 
       default:
         return NextResponse.json({ error: "Invalid role" }, { status: 400 });
     }
 
-    // ✅ Fetch and populate only existing fields
+    filter.status = "Pending";
+
     const requests = await RequestModel.find(filter)
       .populate("user", "name email role")
       .populate("projectlead", "name email role")
@@ -74,6 +70,7 @@ export async function GET(req: Request) {
     );
   }
 }
+
 
 export async function POST(req: Request) {
   try {

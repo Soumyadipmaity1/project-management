@@ -7,13 +7,13 @@ declare module "next-auth" {
     name?: string;
     email?: string;
     rollNo?: string;
-    role?: "Admin" | "Lead" | "Member";
+    role?:  "Admin" | "Lead" | "Member" | "ProjectLead" | "CoLead" | "member" | "lead" | "admin" | "projectlead" | "colead"| string;
     domain?: string;
     githubId?: string;
     linkedinId?: string;
     isVerified?: boolean;
     isAcceptingMessages?: boolean;
-    username?: string;
+    username?: string; 
   }
 
   interface Session {
@@ -22,7 +22,7 @@ declare module "next-auth" {
       name?: string;
       email?: string;
       rollNo?: string;
-      role?: "Admin" | "Lead" | "Member";
+      role?:  "Admin" | "Lead" | "Member" | "ProjectLead" | "CoLead" | "member" | "lead" | "admin" | "projectlead" | "colead" | string;
       domain?: string;
       githubId?: string;
       linkedinId?: string;
@@ -39,7 +39,7 @@ declare module "next-auth/jwt" {
     name?: string;
     email?: string;
     rollNo?: string;
-    role?: "Admin" | "Lead" | "Member";
+    role?:  "Admin" | "Lead" | "Member" | "ProjectLead" | "CoLead" | "member" | "lead" | "admin" | "projectlead" | "colead"| string;
     domain?: string;
     githubId?: string;
     linkedinId?: string;

@@ -70,7 +70,7 @@ function ProjectCard({ project, onView, onDelete, isOwner }: ProjectCardProps) {
 
         <div className="p-6 flex flex-col gap-4 flex-grow">
           <div className="flex items-start justify-between gap-3">
-            <h3 className="font-bold text-xl bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent font-mclaren leading-tight">
+            <h3 className="font-bold text-xl bg-gradient-to-r from-white via-fuchsia-100 to-fuchsia-200 bg-clip-text text-transparent font-mclaren leading-tight">
               {project.title}
             </h3>
             <div className="flex items-center gap-2">
@@ -88,8 +88,8 @@ function ProjectCard({ project, onView, onDelete, isOwner }: ProjectCardProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-400" />
-            <span className="text-sm font-semibold text-emerald-300 font-mclaren">
+            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-fuchsia-400 to-fuchsia-400" />
+            <span className="text-sm font-semibold text-fuchsia-300 font-mclaren">
               {Array.isArray(project.domain) ? project.domain.join(", ") : project.domain}
             </span>
           </div>
@@ -98,21 +98,21 @@ function ProjectCard({ project, onView, onDelete, isOwner }: ProjectCardProps) {
 
           <div className="space-y-2 bg-slate-800/30 rounded-lg p-3 border border-slate-700/30">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-emerald-300 text-xs font-mclaren">Project Lead:</span>
+              <span className="font-semibold text-fuchsia-300 text-xs font-mclaren">Project Lead:</span>
               <span className="text-slate-300 text-xs font-mclaren">{typeof project.projectlead === "object" ? project.projectlead.name : project.projectlead}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-emerald-300 text-xs font-mclaren">Assistant Lead:</span>
+              <span className="font-semibold text-fuchsia-300 text-xs font-mclaren">Assistant Lead:</span>
               <span className="text-slate-300 text-xs font-mclaren">{typeof project.colead === "object" ? project.colead.name : project.colead || "-"}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-emerald-300 text-xs font-mclaren">Members:</span>
+              <span className="font-semibold text-fuchsia-300 text-xs font-mclaren">Members:</span>
               <span className="text-slate-300 text-xs font-mclaren">{project.membersCount ?? 1}</span>
             </div>
           </div>
 
           {project.github && (
-            <a href={project.github} target="_blank" rel="noopener noreferrer" className="group/link flex items-center gap-2 text-emerald-400 text-sm font-medium hover:text-emerald-300 transition-all duration-200 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-lg p-3 border border-emerald-500/20 hover:border-emerald-400/40">
+            <a href={project.github} target="_blank" rel="noopener noreferrer" className="group/link flex items-center gap-2 text-fuchsia-400 text-sm font-medium hover:text-fuchsia-300 transition-all duration-200 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-lg p-3 border border-emerald-500/20 hover:border-emerald-400/40">
               <FaGithub className="group-hover/link:rotate-12 transition-transform duration-200" />
               <span className="font-mclaren">GitHub Repository</span>
             </a>
@@ -127,7 +127,7 @@ function ProjectCard({ project, onView, onDelete, isOwner }: ProjectCardProps) {
 
           {isOwner && (
             <div className="flex gap-3 mt-4">
-              <button onClick={() => project._id && onView(project._id)} className="flex-1 bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2">
+              <button onClick={() => project._id && onView(project._id)} className="flex-1 bg-gradient-to-r from-fuchsia-600 via-fuchsia-600 to-fuchsia-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2">
                 <FaEye className="text-xs" /> <span className="font-mclaren">View Project</span>
               </button>
               <button onClick={() => project._id && onDelete(project._id)} className="flex-1 bg-gradient-to-r from-red-600 via-red-600 to-red-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2">
@@ -291,7 +291,7 @@ export default function MemProjects() {
     }
   };
 
-  const handleViewProject = (projectId: string) => router.push(`/lead/myprojects/${projectId}`);
+  const handleViewProject = (projectId: string) => router.push(`/projectlead/myprojects/${projectId}`);
 
   const handleDelete = async (projectId: string) => {
     if (!confirm("Are you sure you want to delete this project?")) return;
@@ -345,50 +345,159 @@ export default function MemProjects() {
   };
 
 
-  const handleEditSubmit = async (e: React.FormEvent) => {
+//   const handleEditSubmit = async (e: React.FormEvent) => {
+//   e.preventDefault();
+//   if (!editingProjectId) return;
+//   setSubmitting(true);
+
+//   try {
+//     const selectedDomains = [
+//       editFormData.domain1,
+//       editFormData.domain2,
+//       editFormData.domain3,
+//     ].filter(Boolean);
+
+//     // use FormData instead of JSON
+//     const form = new FormData();
+//     form.append("title", editFormData.title);
+//     form.append("description", editFormData.description);
+//     form.append("domain", JSON.stringify(selectedDomains));
+//     form.append("projectlead", editFormData.projectlead);
+//     form.append("colead", editFormData.colead);
+//     form.append("github", editFormData.github);
+//     form.append("liveDemo", editFormData.liveDemo);
+//     form.append("badge", editFormData.badge);
+//     form.append("approved", String(editFormData.approved));
+//     form.append("startDate", editFormData.startDate);
+//     form.append("completionDate", editFormData.completionDate);
+
+//     if (imageFile) form.append("image", imageFile); // 👈 only append if changed
+
+//     const res = await fetch(`/api/projects/${editingProjectId}`, {
+//       method: "PUT",
+//       body: form, 
+//     });
+
+//     const data = await res.json();
+//     if (!res.ok) {
+//       const errorMessage = data?.error || data?.message || "Failed to update project";
+//       toast.error(errorMessage);
+//     } else {
+//       toast.success("Project updated successfully");
+//       await fetchProjects();
+//       setIsEditOpen(false);
+//     }
+//   } catch (err: any) {
+//     toast.error(err?.message || "Failed to update project");
+//   } finally {
+//     setSubmitting(false);
+//   }
+// };
+
+// const handleEditSubmit = async (e: React.FormEvent) => {
+//   e.preventDefault();
+//   if (!editingProjectId) return;
+//   setSubmitting(true);
+
+//   try {
+//     const selectedDomains = [
+//       editFormData.domain1,
+//       editFormData.domain2,
+//       editFormData.domain3,
+//     ].filter(Boolean);
+
+//     // ✅ prepare FormData
+//     const form = new FormData();
+//     form.append("title", editFormData.title);
+//     form.append("description", editFormData.description);
+//     form.append("domain", JSON.stringify(selectedDomains));
+//     form.append("projectlead", editFormData.projectlead);
+//     form.append("colead", editFormData.colead);
+//     form.append("github", editFormData.github);
+//     form.append("liveDemo", editFormData.liveDemo);
+//     form.append("badge", editFormData.badge);
+//     form.append("approved", String(editFormData.approved));
+//     form.append("startDate", editFormData.startDate);
+//     form.append("completionDate", editFormData.completionDate);
+
+//     // ✅ include image file only if changed
+//     if (imageFile) {
+//       form.append("image", imageFile);
+//     } else if (editFormData.image) {
+//       form.append("image", editFormData.image);
+//     }
+
+//     // ✅ send PUT request as multipart/form-data
+//     const res = await fetch(`/api/projects/${editingProjectId}`, {
+//       method: "PUT",
+//       body: form,
+//     });
+
+//     if (!res.ok) {
+//       const data = await res.json();
+//       const errorMessage =
+//         data?.error || data?.message || "Failed to update project";
+//       toast.error(errorMessage);
+//       return;
+//     }
+
+//     toast.success("Project updated successfully!");
+//     await fetchProjects();
+//     setIsEditOpen(false);
+//   } catch (err: any) {
+//     console.error(err);
+//     toast.error(err?.message || "Failed to update project.");
+//   } finally {
+//     setSubmitting(false);
+//   }
+// };
+const handleEditSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   if (!editingProjectId) return;
+
   setSubmitting(true);
 
   try {
-    const selectedDomains = [
+    const domains = [
       editFormData.domain1,
       editFormData.domain2,
       editFormData.domain3,
     ].filter(Boolean);
 
-    // use FormData instead of JSON
-    const form = new FormData();
-    form.append("title", editFormData.title);
-    form.append("description", editFormData.description);
-    form.append("domain", JSON.stringify(selectedDomains));
-    form.append("projectlead", editFormData.projectlead);
-    form.append("colead", editFormData.colead);
-    form.append("github", editFormData.github);
-    form.append("liveDemo", editFormData.liveDemo);
-    form.append("badge", editFormData.badge);
-    form.append("approved", String(editFormData.approved));
-    form.append("startDate", editFormData.startDate);
-    form.append("completionDate", editFormData.completionDate);
-
-    if (imageFile) form.append("image", imageFile); // 👈 only append if changed
+    const payload = {
+      title: editFormData.title,
+      description: editFormData.description,
+      domain: domains,
+      projectlead: editFormData.projectlead,
+      colead: editFormData.colead,
+      github: editFormData.github,
+      liveDemo: editFormData.liveDemo,
+      badge: editFormData.badge,
+      approved: editFormData.approved,
+      startDate: editFormData.startDate,
+      completionDate: editFormData.completionDate,
+      image: editFormData.image, // must be a URL (not File)
+    };
 
     const res = await fetch(`/api/projects/${editingProjectId}`, {
-      method: "PATCH",
-      body: form, 
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();
+
     if (!res.ok) {
-      const errorMessage = data?.error || data?.message || "Failed to update project";
-      toast.error(errorMessage);
-    } else {
-      toast.success("Project updated successfully");
-      await fetchProjects();
-      setIsEditOpen(false);
+      toast.error(data.error || data.details || "Failed to update project");
+      return;
     }
-  } catch (err: any) {
-    toast.error(err?.message || "Failed to update project");
+
+    toast.success("Project updated successfully!");
+    await fetchProjects();
+    setIsEditOpen(false);
+  } catch (err) {
+    console.error(err);
+    toast.error("Something went wrong");
   } finally {
     setSubmitting(false);
   }
@@ -412,13 +521,10 @@ export default function MemProjects() {
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h2 className="font-mclaren text-[36px] mb-3 font-bold bg-gradient-to-r from-white via-emerald-200 to-teal-300 bg-clip-text text-transparent">My Projects</h2>
+          <h2 className="font-mclaren text-[36px] mb-3 font-bold bg-gradient-to-r from-white via-fuchsia-200 to-fuchsia-300 bg-clip-text text-transparent">My Projects</h2>
           <p className="text-slate-400 text-lg font-medium font-mclaren">View and manage projects across your domains</p>
         </div>
-        <button className="relative bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-600 text-white rounded-lg px-6 py-3 mt-6 font-semibold flex items-center gap-3" onClick={openCreateModal}>
-          <FaPlus className="text-sm" />
-          <span>Create Project</span>
-        </button>
+
       </div>
 
       {error && !loading && (

@@ -26,10 +26,10 @@ export default function SignInModal({ isOpen, onClose, onSwitchToSignUp }: SignI
   useEffect(() => {
     if (session?.user?.role) {
       const role = String(session.user.role);
-      if (role === "Lead") router.push("/lead");
-      else if (role === "ProjectLead" || role === "CoLead") router.push("/project-lead");
-      else if (role === "Admin") router.push("/admin");
-      else if (role === "Member") router.push("/member");
+      if (role === "Lead" || role === "lead") router.push("/lead");
+      else if (role === "ProjectLead" || role === "CoLead" || role === "projectlead" || role === "colead") router.push("/projectlead");
+      else if (role === "Admin" || role === "admin") router.push("/admin");
+      else if (role === "Member" || role === "member") router.push("/member");
     }
   }, [session, router]);
 

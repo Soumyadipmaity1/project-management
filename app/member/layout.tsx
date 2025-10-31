@@ -77,7 +77,7 @@ export default function MemberLayout({ children }: { children: React.ReactNode }
                        <span onClick={() => signOut({ callbackUrl: "/" })}>
                           Logout
                         </span>                      </DropdownMenuItem>
-                    </DropdownMenuContent>
+                    </DropdownMenuContent> 
                   </DropdownMenu>
                 </div>
               </div>

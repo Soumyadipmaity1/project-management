@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/db";
 import UserModel, { User } from "@/model/User";
 
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GithubProvider({
@@ -61,24 +62,23 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/signin",
   },
 
- 
 
   callbacks: {
   async jwt({ token, user }) {
+      const validroles = ["Admin", "Lead", "Member", "ProjectLead" , "CoLead" , "member" , "lead" , "admin" , "projectlead" , "colead"];
     if (user) {
-      const u = user as User;
+      const u = user as unknown as User;
       token._id = u._id?.toString();
       token.name = u.name;
       token.email = u.email;
       token.rollNo = u.rollNo;
-      token.role = (u.role === "Admin" || u.role === "Lead" || u.role === "Member")
-        ? u.role : "Member";
+      token.role = validroles.includes(u.role) ? u.role : "Member";
       token.domain = u.domain;
       token.githubId = u.githubId;
       token.linkedinId = u.linkedinId;
     }
     return token;   
-  },
+  }, 
 
   async session({ session, token }) {
     if (token && session.user) {
@@ -86,8 +86,7 @@ export const authOptions: NextAuthOptions = {
       session.user.name = token.name as string;
       session.user.email = token.email as string;
       session.user.rollNo = token.rollNo as string;
-      session.user.role = (token.role === "Admin" || token.role === "Lead" || token.role === "Member" || token.role === "ProjectLead")
-        ? token.role : "Member";
+      session.user.role =  token.role as string;
       session.user.domain = token.domain as string;
       session.user.githubId = token.githubId as string;
       session.user.linkedinId = token.linkedinId as string;

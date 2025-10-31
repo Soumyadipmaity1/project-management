@@ -186,7 +186,7 @@ export default function AnnouncementsPage() {
           <h1 className="text-4xl font-bold text-white">Announcements</h1>
 
           <div className="flex flex-wrap gap-3 items-center">
-            <select
+            {/* <select
               value={selectedProject}
               onChange={(e) => setSelectedProject(e.target.value)}
               className="bg-white text-black border border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-gray-400"
@@ -197,7 +197,7 @@ export default function AnnouncementsPage() {
                   {p.title}
                 </option>
               ))}
-            </select>
+            </select> */}
 
             <button
               onClick={() => setIsModalOpen(true)}
@@ -229,9 +229,9 @@ export default function AnnouncementsPage() {
 
         {/* ---------------- OTHERS ---------------- */}
         <div>
-          <h2 className="text-xl font-semibold mb-3 text-gray-200">
+          {/* <h2 className="text-xl font-semibold mb-3 text-gray-200">
             Other Announcements
-          </h2>
+          </h2> */}
           {otherAnnouncements.length > 0 ? (
             <div className="space-y-4">
               {otherAnnouncements.map((ann) => (

@@ -302,7 +302,7 @@ const otherAnnouncements: Announcement[] =  announcements;
         {/* Tab Navigation */}
         <div className="mb-8 border-b border-gray-700">
           <div className="flex space-x-8">
-            <button
+            {/* <button
               onClick={() => setActiveTab("project")}
               className={`pb-4 px-2 font-medium transition-colors relative ${
                 activeTab === "project"
@@ -319,7 +319,7 @@ const otherAnnouncements: Announcement[] =  announcements;
               {activeTab === "project" && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-400"></div>
               )}
-            </button>
+            </button> */}
             <button
               onClick={() => setActiveTab("other")}
               className={`pb-4 px-2 font-medium transition-colors relative ${

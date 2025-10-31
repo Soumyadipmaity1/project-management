@@ -26,52 +26,43 @@ export default function ProjectGrid() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await fetch("/api/projects", { method: "GET" });
-        if (!res.ok) throw new Error("Failed to fetch projects");
+        let data = [];
 
-        const data = await res.json();
+        if (activeTab === "enrolled") {
+          // Fetch only enrolled projects
+          const res = await fetch("/api/projects/enrolled");
+          if (!res.ok) throw new Error("Failed to fetch enrolled projects");
+          data = await res.json();
+        } else {
+          // Fetch all other projects
+          const res = await fetch("/api/projects");
+          if (!res.ok) throw new Error("Failed to fetch projects");
+          data = await res.json();
+        }
 
-        // const mapped = (data || []).map((proj: any): Project => ({
-        //   _id: proj._id,
-        //   title: proj.title || "Untitled Project",
-        //   domain: proj.domain || "Unknown",
-        //   description: proj.description || "No description provided.",
-        //   projectlead: proj.projectlead || proj.projectlead || "Not assigned",
-        //   colead: proj.colead || proj.assistantLead || "Not assigned",
-        //   members: proj.members?.length || proj.memberCount || 0,
-        //   status:
-        //     proj.status ||
-        //     (proj.badge === "completed"
-        //       ? "completed"
-        //       : proj.available
-        //       ? "available"
-        //       : "active"),
-        //   enrolled: proj.enrolled ?? false,
-        // }));
         const mapped = (data || []).map((proj: any): Project => ({
-  _id: proj._id,
-  title: proj.title || "Untitled Project",
-  domain: proj.domain || "Unknown",
-  description: proj.description || "No description provided.",
-  projectlead:
-    typeof proj.projectlead === "object"
-      ? proj.projectlead.name
-      : proj.projectlead || "Not assigned",
-  colead:
-    typeof proj.colead === "object"
-      ? proj.colead.name
-      : proj.colead || "Not assigned",
-  members: proj.members?.length || proj.memberCount || 0,
-  status:
-    proj.status ||
-    (proj.badge === "completed"
-      ? "completed"
-      : proj.available
-      ? "available"
-      : "active"),
-  enrolled: proj.enrolled ?? false,
-}));
-
+          _id: proj._id,
+          title: proj.title || "Untitled Project",
+          domain: proj.domain || "Unknown",
+          description: proj.description || "No description provided.",
+          projectlead:
+            typeof proj.projectlead === "object"
+              ? proj.projectlead.name
+              : proj.projectlead || "Not assigned",
+          colead:
+            typeof proj.colead === "object"
+              ? proj.colead.name
+              : proj.colead || "Not assigned",
+          members: proj.members?.length || proj.memberCount || 0,
+          status:
+            proj.status ||
+            (proj.badge === "completed"
+              ? "completed"
+              : proj.available
+              ? "available"
+              : "active"),
+          enrolled: proj.enrolled ?? false,
+        }));
 
         setProjects(mapped);
       } catch (err) {
@@ -83,9 +74,9 @@ export default function ProjectGrid() {
     };
 
     fetchProjects();
-  }, []);
+  }, [activeTab]);
 
-  // ✅ Filter out invalid domains and ensure uniqueness
+  // Extract unique domains
   const uniqueDomains = [
     "all",
     ...Array.from(
@@ -97,10 +88,11 @@ export default function ProjectGrid() {
     ),
   ];
 
+  // Apply filtering logic
   const filteredProjects = projects.filter((p) => {
     let tabMatch = true;
     if (activeTab === "enrolled") tabMatch = p.enrolled;
-    if (activeTab === "available") tabMatch = p.status === "available";
+    if (activeTab === "available") tabMatch = p.status === "active"; // ✅ FIXED
     const domainMatch =
       selectedDomain === "all" || p.domain === selectedDomain;
     return tabMatch && domainMatch;
@@ -142,13 +134,13 @@ export default function ProjectGrid() {
 
           {/* Domain Filter */}
           <div className="flex items-center gap-2">
-            <label
+            {/* <label
               htmlFor="domain-filter"
               className="text-sm text-gray-400 font-medium"
             >
               Domain:
-            </label>
-            <select
+            </label> */}
+            {/* <select
               id="domain-filter"
               value={selectedDomain}
               onChange={(e) => setSelectedDomain(e.target.value)}
@@ -163,7 +155,7 @@ export default function ProjectGrid() {
                     : "Unknown"}
                 </option>
               ))}
-            </select>
+            </select> */}
           </div>
 
           {/* Count */}
@@ -186,26 +178,35 @@ export default function ProjectGrid() {
   );
 }
 
-// ✅ Status badge
 function StatusBadge({ status }: { status: Project["status"] }) {
-  const base = "inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold";
+  const base =
+    "inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold";
   switch (status) {
     case "active":
       return <span className={`${base} bg-blue-900 text-blue-300`}>Active</span>;
     case "in-progress":
-      return <span className={`${base} bg-indigo-900 text-indigo-300`}>In Progress</span>;
+      return (
+        <span className={`${base} bg-indigo-900 text-indigo-300`}>
+          In Progress
+        </span>
+      );
     case "completed":
-      return <span className={`${base} bg-green-900 text-green-300`}>Completed</span>;
+      return (
+        <span className={`${base} bg-green-900 text-green-300`}>Completed</span>
+      );
     case "disabled":
-      return <span className={`${base} bg-gray-700 text-gray-400`}>Disabled</span>;
+      return (
+        <span className={`${base} bg-gray-700 text-gray-400`}>Disabled</span>
+      );
     case "available":
-      return <span className={`${base} bg-yellow-900 text-yellow-300`}>Available</span>;
+      return (
+        <span className={`${base} bg-yellow-900 text-yellow-300`}>Available</span>
+      );
     default:
       return null;
   }
 }
 
-// ✅ Individual project card
 function ProjectCard({ project }: { project: Project }) {
   const router = useRouter();
   const disabled = project.status === "disabled";
@@ -227,7 +228,11 @@ function ProjectCard({ project }: { project: Project }) {
       if (!res.ok) throw new Error("Request failed");
 
       toast.success(`Request sent for "${project.title}"`, {
-        style: { background: "#1f2937", color: "#fff", border: "1px solid #4f46e5" },
+        style: {
+          background: "#1f2937",
+          color: "#fff",
+          border: "1px solid #4f46e5",
+        },
         iconTheme: { primary: "#6366f1", secondary: "#fff" },
       });
     } catch (err) {

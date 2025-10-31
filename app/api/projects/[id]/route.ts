@@ -177,9 +177,6 @@ async function handleUpdate(req: Request, id: string) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
-  }
 
   let body: any = {};
   try {

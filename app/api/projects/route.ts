@@ -47,7 +47,7 @@ export async function GET() {
 
     const formatted = projects.map((p: any) => {
       const out: any = { ...p };
-      out._id = String(p._id);
+      out.id = String(p._id); // ✅ Add this line
       out.startDate = p.startDate || null;
       out.completionDate = p.completionDate || null;
 
