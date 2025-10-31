@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { FaGithub } from "react-icons/fa";
 
 type Project = {
@@ -7,14 +8,22 @@ type Project = {
   title: string;
   domain: string;
   description: string;
-  teamLead: string;
-  assistantLead: string;
+  projectlead: string | UserRef;
+  colead: string | UserRef;
   github?: string;
   live?: string;
   badge?: "active" | "completed" | "disabled";
   enrolled: boolean;
   image?: string;
 };
+
+type UserRef = {
+  _id: string;
+  name: string;
+  email: string;
+  role?: string;
+};
+
 
 type StatusBadgeProps = {
   status: string;
@@ -31,14 +40,15 @@ function StatusBadge({ status, color }: StatusBadgeProps) {
 
 type ProjectCardProps = {
   project: Project;
+  onView: (id: string) => void;
 };
 
-function ProjectCard({ project }: ProjectCardProps) {
+function ProjectCard({ project, onView }: ProjectCardProps) {
   const statusColor =
     project.badge === "active"
       ? "bg-fuchsia-500 text-white shadow-lg shadow-fuchsia-500/30"
       : project.badge === "completed"
-      ? "bg-fuchsia-600 text-white shadow-lg shadow-fuchsia-600/30"
+      ? "bg-green-600 text-white shadow-lg shadow-green-500/30"
       : "bg-slate-500 text-white shadow-lg shadow-slate-500/30";
 
   return (
@@ -58,7 +68,9 @@ function ProjectCard({ project }: ProjectCardProps) {
 
         <div className="p-6 flex flex-col gap-4 flex-grow">
           <div className="flex items-start justify-between gap-3">
-            <h3 className="font-bold text-xl text-white font-mclaren leading-tight">{project.title}</h3>
+            <h3 className="font-bold text-xl text-white font-mclaren leading-tight">
+              {project.title}
+            </h3>
             <StatusBadge status={project.badge || "active"} color={statusColor} />
           </div>
 
@@ -73,16 +85,29 @@ function ProjectCard({ project }: ProjectCardProps) {
             {project.description}
           </p>
 
-          <div className="space-y-2 bg-slate-800/30 rounded-lg p-3 border border-slate-700/30">
-            <div className="flex items-center justify-between">
-              <span className="font-semibold text-fuchsia-300 text-xs font-mclaren">Team Lead:</span>
-              <span className="text-slate-300 text-xs font-mclaren">{project.teamLead}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="font-semibold text-fuchsia-300 text-xs font-mclaren">Assistant Lead:</span>
-              <span className="text-slate-300 text-xs font-mclaren">{project.assistantLead}</span>
-            </div>
-          </div>
+      <div className="space-y-2 bg-slate-800/30 rounded-lg p-3 border border-slate-700/30">
+  <div className="flex items-center justify-between">
+    <span className="font-semibold text-fuchsia-300 text-xs font-mclaren">
+      Project Lead:
+    </span>
+    <span className="text-slate-300 text-xs font-mclaren">
+      {typeof project.projectlead === "object"
+        ? project.projectlead?.name || "N/A"
+        : project.projectlead || "N/A"}
+    </span>
+  </div>
+  <div className="flex items-center justify-between">
+    <span className="font-semibold text-fuchsia-300 text-xs font-mclaren">
+      Assistant Lead:
+    </span>
+    <span className="text-slate-300 text-xs font-mclaren">
+      {typeof project.colead === "object"
+        ? project.colead?.name || "N/A"
+        : project.colead || "N/A"}
+    </span>
+  </div>
+</div>
+
 
           {project.github && (
             <a
@@ -91,13 +116,16 @@ function ProjectCard({ project }: ProjectCardProps) {
               rel="noopener noreferrer"
               className="group/link flex items-center gap-2 text-fuchsia-400 text-sm font-medium hover:text-fuchsia-300 transition-all duration-200 bg-fuchsia-500/10 hover:bg-fuchsia-500/20 rounded-lg p-3 border border-fuchsia-500/20 hover:border-fuchsia-400/40"
             >
-              <FaGithub className="group-hover/link:rotate-12 transition-transform duration-200" /> 
+              <FaGithub className="group-hover/link:rotate-12 transition-transform duration-200" />
               <span className="font-mclaren">GitHub Repository</span>
             </a>
           )}
 
           <div className="flex gap-3 mt-4">
-            <button className="flex-1 bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 shadow-lg shadow-fuchsia-500/25 hover:shadow-fuchsia-500/40 hover:transform hover:scale-105 border border-fuchsia-500/20 font-mclaren">
+            <button
+              onClick={() => onView(project.id)}
+              className="flex-1 bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 shadow-lg shadow-fuchsia-500/25 hover:shadow-fuchsia-500/40 hover:transform hover:scale-105 border border-fuchsia-500/20 font-mclaren"
+            >
               View Project
             </button>
           </div>
@@ -112,11 +140,14 @@ export default function ProjectLeadProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/projects", { cache: "no-store" });
+      const endpoint =
+        activeTab === "enrolled" ? "/api/projects/enrolled" : "/api/projects";
+      const res = await fetch(endpoint, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed to fetch projects");
       const data = await res.json();
       setProjects(Array.isArray(data) ? data : []);
@@ -130,14 +161,19 @@ export default function ProjectLeadProjects() {
 
   useEffect(() => {
     fetchProjects();
-  }, []);
+  }, [activeTab]);
 
   const filteredProjects = projects.filter((project) => {
     if (activeTab === "all") return true;
     if (activeTab === "enrolled") return project.enrolled;
-    if (activeTab === "available") return !project.enrolled;
+    if (activeTab === "available")
+      return project.badge === "active" && !project.enrolled;
     return true;
   });
+
+  const handleViewProject = (id: string) => {
+    router.push(`/projectlead/projects/${id}`);
+  };
 
   return (
     <div className="p-4 py-6 min-h-screen">
@@ -150,6 +186,7 @@ export default function ProjectLeadProjects() {
         </p>
       </div>
 
+      {/* Tabs */}
       <div className="flex gap-1 mb-8 bg-slate-800/60 rounded-xl w-fit border border-slate-700/50 p-1.5 backdrop-blur-sm">
         {["all", "enrolled", "available"].map((tab) => (
           <button
@@ -186,7 +223,9 @@ export default function ProjectLeadProjects() {
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-fuchsia-400 mx-auto mb-4"></div>
-            <p className="text-slate-300 text-lg font-mclaren">Loading projects...</p>
+            <p className="text-slate-300 text-lg font-mclaren">
+              Loading projects...
+            </p>
           </div>
         </div>
       ) : filteredProjects.length === 0 ? (
@@ -198,17 +237,22 @@ export default function ProjectLeadProjects() {
                 ? "No projects found"
                 : `No ${activeTab} projects found`}
             </p>
-            <p className="text-slate-500 text-sm mt-2 font-mclaren">Projects will appear here once they're available</p>
+            <p className="text-slate-500 text-sm mt-2 font-mclaren">
+              Projects will appear here once they're available
+            </p>
           </div>
         </div>
       ) : (
         <div className="flex flex-wrap gap-8 justify-start">
           {filteredProjects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard
+              key={project.id}
+              project={project}
+              onView={handleViewProject}
+            />
           ))}
         </div>
       )}
     </div>
   );
 }
-

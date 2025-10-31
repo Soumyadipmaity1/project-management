@@ -10,8 +10,9 @@ export default function Home({params}: Props)
 {
   return (
    <div>
-    <Project params={params} />
+    <Project params={{ ...params, Id: params.projectId }} />
    </div>
   )
 }
 
+ 

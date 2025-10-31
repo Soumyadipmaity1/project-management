@@ -5,143 +5,164 @@ import dbConnect from "@/lib/db";
 import ProjectModel from "@/model/Projects";
 import { authOptions } from "../../auth/[...nextauth]/option";
 import mongoose from "mongoose";
+import UserModel from "@/model/User";
 
-// Add this to your app/api/projects/[id]/route.ts
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+function errorResponse(error: string, status = 400, details?: string) {
+  return NextResponse.json({ success: false, error, details: details || null }, { status });
+}
+
+async function resolveUserIdentifier(val: any): Promise<string | undefined> {
+  if (!val) return undefined;
+  const s = String(val).trim();
+  if (mongoose.Types.ObjectId.isValid(s)) return s;
+  let u = await UserModel.findOne({ email: s }).select("_id").lean();
+  if (u) return String(u._id);
+  u = await UserModel.findOne({ rollNo: s }).select("_id").lean();
+  if (u) return String(u._id);
+  u = await UserModel.findOne({ name: s }).select("_id").lean();
+  if (u) return String(u._id);
+  return undefined; 
+}
+
+
+export async function GET(req: Request, { params }: { params: { id: string } }) {
   await dbConnect();
   const session = await getServerSession(authOptions);
-  
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  
-  if (!canProject(session.user.role, "delete")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+
+  if (!session?.user) return errorResponse("Unauthorized", 401);
+
+  const { id } = params;
+  if (!mongoose.Types.ObjectId.isValid(id))
+    return errorResponse("Invalid project ID", 400);
 
   try {
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
-      return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
-    }
+    console.log("Fetching project with ID:", id);
 
-    const deletedProject = await ProjectModel.findByIdAndDelete(params.id);
-    
-    if (!deletedProject) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
-    }
+    const project = await ProjectModel.findById(id)
+      .populate("projectlead", "name email role image")
+      .populate("colead", "name email role image")
+      .populate("members", "name email role image")
+      .lean();
 
-    return NextResponse.json({ message: "Project deleted successfully" }, { status: 200 });
-  } catch (error) {
-    console.error("Error deleting project:", error);
-    return NextResponse.json(
-      { error: "Server Error", details: "Failed to delete project" },
-      { status: 500 }
-    );
+    if (!project) return errorResponse("Project not found", 404);
+
+    return NextResponse.json({ success: true, project }, { status: 200 });
+  } catch (err: any) {
+    console.error("Error fetching project:", err);
+    return errorResponse("Server Error", 500, "Failed to fetch project");
   }
 }
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+
+async function handleUpdate(req: Request, id: string) {
   await dbConnect();
   const session = await getServerSession(authOptions);
-  
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  if (!session?.user) return errorResponse("Unauthorized", 401);
+  if (!canProject(session.user.role, "update")) return errorResponse("Forbidden", 403);
+
+  let body: any;
+  try {
+    body = await req.json();
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
   }
-  
-  if (!canProject(session.user.role, "update")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const existingProject = await ProjectModel.findById(id);
+  if (!existingProject) return errorResponse("Project not found", 404);
+
+  if (body.title && String(body.title).trim().length < 3)
+    return errorResponse("Title must be at least 3 characters long", 400);
+
+  if (body.description && String(body.description).trim().length < 10)
+    return errorResponse("Description must be at least 10 characters long", 400);
+
+let domainsArray: string[] = [];
+  if (body.domain !== undefined) {
+    try {
+      domainsArray = Array.isArray(body.domain)
+        ? body.domain
+        : JSON.parse(body.domain);
+      domainsArray = domainsArray.map((d: any) => String(d).trim()).filter(Boolean);
+    } catch {
+      domainsArray = [String(body.domain).trim()];
+    }
+    if (!domainsArray.length)
+      return errorResponse("At least one domain is required", 400);
   }
+
+  let projectleadId: string | undefined;
+  if (body.projectlead !== undefined) {
+    projectleadId = await resolveUserIdentifier(body.projectlead);
+    if (!projectleadId)
+      return errorResponse("Project lead not found or invalid", 400);
+  }
+
+  let coleadId: string | undefined;
+  if (body.colead !== undefined && String(body.colead).trim() !== "") {
+    coleadId = await resolveUserIdentifier(body.colead);
+    if (!coleadId)
+      return errorResponse("Co-lead not found or invalid", 400);
+  }
+
+  // ✅ Construct update object
+  const updatePayload: any = {
+    ...(body.title && { title: String(body.title).trim() }),
+    ...(domainsArray && { domain: domainsArray }),
+    ...(body.description && { description: String(body.description).trim() }),
+    ...(projectleadId && { projectlead: projectleadId }),
+    ...(coleadId && { colead: coleadId }),
+  };
+
+  const url = String(body.image || "").trim();
+  if (url && !url.match(/^https:\/\/|^\/uploads\//))
+    return errorResponse("Invalid image URL format", 400);
+  if (url) updatePayload.image = url;
 
   try {
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
-      return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
-    }
+    const updated = await ProjectModel.findByIdAndUpdate(id, updatePayload, {
+      new: true,
+      runValidators: true,
+    }).lean();
 
-    const body = await req.json();
-    
-    // Validate required fields
-    if (!body.title || !body.domain || !body.description || !body.teamlead) {
-      return NextResponse.json({ 
-        error: "Missing required fields",
-        details: "Title, domain, description, and team lead are required"
-      }, { status: 400 });
-    }
-
-    // Trim and validate field lengths
-    const title = body.title.trim();
-    const domain = body.domain.trim();
-    const description = body.description.trim();
-    const teamlead = body.teamlead.trim();
-    const colead = body.colead?.trim() || undefined;
-
-    if (title.length < 3) {
-      return NextResponse.json({ 
-        error: "Validation Error",
-        details: "Title must be at least 3 characters long" 
-      }, { status: 400 });
-    }
-
-    if (description.length < 10) {
-      return NextResponse.json({ 
-        error: "Validation Error",
-        details: "Description must be at least 10 characters long" 
-      }, { status: 400 });
-    }
-
-    if (domain.length < 2) {
-      return NextResponse.json({ 
-        error: "Validation Error",
-        details: "Domain must be at least 2 characters long" 
-      }, { status: 400 });
-    }
-
-    // Check if project exists
-    const existingProject = await ProjectModel.findById(params.id);
-    if (!existingProject) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
-    }
-
-    // Update the project
-    const updatedProject = await ProjectModel.findByIdAndUpdate(
-      params.id,
-      {
-        title,
-        domain,
-        description,
-        teamlead,
-        colead,
-        membersCount: body.membersCount || existingProject.membersCount,
-        badge: body.badge || existingProject.badge,
-        approved: body.approved !== undefined ? body.approved : existingProject.approved,
-      },
-      { new: true, runValidators: true }
-    );
-
-    return NextResponse.json(updatedProject, { status: 200 });
+    return NextResponse.json({ success: true, project: updated }, { status: 200 });
   } catch (error: any) {
     console.error("Error updating project:", error);
-    
-    // Handle Mongoose validation errors
-    if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map((err: any) => err.message);
-      return NextResponse.json(
-        { 
-          error: "Validation Error",
-          details: errors.join(", ")
-        },
-        { status: 400 }
-      );
+    if (error.name === "ValidationError") {
+      const details = Object.values(error.errors).map((e: any) => e.message).join(", ");
+      return errorResponse("Validation Error", 400, details);
     }
-    
-    return NextResponse.json(
-      { error: "Server Error", details: "Failed to update project" },
-      { status: 500 }
-    );
+    return errorResponse("Server Error", 500, "Failed to update project");
+  }
+}
+
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  return handleUpdate(req, params.id);
+}
+
+export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  return handleUpdate(req, params.id);
+}
+
+
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  await dbConnect();
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user) return errorResponse("Unauthorized", 401);
+  if (!canProject(session.user.role, "delete")) return errorResponse("Forbidden", 403);
+
+  const { id } = params;
+  if (!mongoose.Types.ObjectId.isValid(id))
+    return errorResponse("Invalid project ID", 400);
+
+  try {
+    const deleted = await ProjectModel.findByIdAndDelete(id).lean();
+    if (!deleted) return errorResponse("Project not found", 404);
+
+    return NextResponse.json({ success: true, message: "Project deleted", project: deleted });
+  } catch (error: any) {
+    console.error("Error deleting project:", error);
+    return errorResponse("Server Error", 500, "Failed to delete project");
   }
 }

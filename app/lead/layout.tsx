@@ -1,3 +1,4 @@
+"use client"
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { LeadSidebar } from "@/components/Essentials/LeadSidebar";
 import { Menu, User, LogOut, UserCircle } from "lucide-react";
@@ -10,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { signOut } from "next-auth/react";
 
 export default function LeadLayout({ children }: { children: React.ReactNode }) {
 
@@ -53,9 +55,9 @@ export default function LeadLayout({ children }: { children: React.ReactNode }) 
                       <DropdownMenuLabel className="text-gray-300">My Account</DropdownMenuLabel>
                       <DropdownMenuSeparator className="bg-gray-700" />
                       <DropdownMenuItem asChild className="cursor-pointer hover:bg-gray-700 focus:bg-gray-700 focus:text-white">
-                        <Link href="/profile" className="flex items-center">
-                          <UserCircle className="mr-2 h-4 w-4" />
-                          <span>View Profile</span>
+                     <Link href={`/lead/profile`} className="flex items-center">
+                         <UserCircle className="mr-2 h-4 w-4" />
+                           <span>View Profile</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem 
@@ -63,7 +65,9 @@ export default function LeadLayout({ children }: { children: React.ReactNode }) 
                         className="cursor-pointer hover:bg-gray-700 focus:bg-gray-700 focus:text-white text-red-400 focus:text-red-400"
                       >
                         <LogOut className="mr-2 h-4 w-4" />
-                        <span>Logout</span>
+                       <span onClick={() => signOut({ callbackUrl: "/" })}>
+                          Logout
+                        </span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

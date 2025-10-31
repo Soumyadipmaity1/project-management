@@ -8,7 +8,7 @@ interface Announcement {
   content: string;
   pinned: boolean;
   createdAt: string;
-  type?: "project" | "other"; // Add type field
+  type?: "project" | "other";
 }
 
 export default function AnnouncementsPage() {
@@ -19,12 +19,13 @@ export default function AnnouncementsPage() {
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
-        const res = await fetch("/api/announcement", { cache: "no-store" });
+        const res = await fetch("/api/announcement", { cache: "no-store" }); // ✅ fixed endpoint
         if (!res.ok) throw new Error("Failed to fetch announcements");
         const data = await res.json();
+        console.log("Fetched announcements:", data); // 👈 Add this
         setAnnouncements(data);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching announcements:", err);
       } finally {
         setLoading(false);
       }
@@ -44,8 +45,12 @@ export default function AnnouncementsPage() {
     );
   }
 
-  const projectAnnouncements = announcements.filter((a) => a.type === "project");
-  const otherAnnouncements = announcements.filter((a) => a.type === "other");
+
+// const projectAnnouncements = announcements; // show all under "Project"
+// const otherAnnouncements = []; // optional, keep empty for now
+
+const projectAnnouncements: Announcement[] = [];
+const otherAnnouncements: Announcement[] =  announcements;
 
   const renderAnnouncement = (ann: Announcement) => {
     const dateObj = new Date(ann.createdAt);
@@ -92,18 +97,9 @@ export default function AnnouncementsPage() {
     );
   };
 
-  if (announcements.length === 0) {
-    return (
-      <div className="min-h-screen p-6">
-        <h1 className="text-4xl font-bold text-gray-100 mb-8">Announcements</h1>
-        <div className="text-center py-12">
-          <div className="text-gray-400 text-lg">No announcements available</div>
-        </div>
-      </div>
-    );
-  }
+  const displayedAnnouncements =
+    activeTab === "project" ? projectAnnouncements : otherAnnouncements;
 
-  const displayedAnnouncements = activeTab === "project" ? projectAnnouncements : otherAnnouncements;
   const pinnedInTab = displayedAnnouncements.filter((a) => a.pinned);
   const unpinnedInTab = displayedAnnouncements.filter((a) => !a.pinned);
 
@@ -115,7 +111,7 @@ export default function AnnouncementsPage() {
         {/* Tab Navigation */}
         <div className="mb-8 border-b border-gray-700">
           <div className="flex space-x-8">
-            <button
+            {/* <button
               onClick={() => setActiveTab("project")}
               className={`pb-4 px-2 font-medium transition-colors relative ${
                 activeTab === "project"
@@ -132,7 +128,7 @@ export default function AnnouncementsPage() {
               {activeTab === "project" && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-400"></div>
               )}
-            </button>
+            </button> */}
             <button
               onClick={() => setActiveTab("other")}
               className={`pb-4 px-2 font-medium transition-colors relative ${
@@ -160,7 +156,11 @@ export default function AnnouncementsPage() {
             {pinnedInTab.length > 0 && (
               <div className="mb-12">
                 <div className="flex items-center mb-6">
-                  <svg className="w-6 h-6 text-indigo-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <svg
+                    className="w-6 h-6 text-indigo-400 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
                     <path d="M5 5a2 2 0 012-2h6a2 2 0 012 2v6.59l1.3 1.3a1 1 0 01-1.4 1.42L14 13.41V16a2 2 0 01-2 2H8a2 2 0 01-2-2v-2.59l-.9.9a1 1 0 01-1.4-1.42L5 11.59V5z" />
                   </svg>
                   <h2 className="text-2xl font-semibold text-gray-100">Pinned</h2>

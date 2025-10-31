@@ -9,11 +9,17 @@ export async function GET() {
   await dbConnect();
 
   try {
-      const announcements = await AnnouncementModel.find().lean().sort({ createdAt: -1 });
-      const formatted = announcements.map((a) => ({
+    const announcements = await AnnouncementModel.find()
+      .populate("createdBy", "name image")
+      .lean()
+      .sort({ createdAt: -1 });
+
+    const formatted = announcements.map((a: any) => ({
       ...a,
       _id: a._id.toString(),
-     }));
+      senderName: a.createdBy?.name || a.senderName || "",
+      senderProfilePic: a.createdBy?.image || a.senderProfilePic || "",
+    }));
 
     return NextResponse.json(formatted);
   } catch (error: any) {
@@ -39,26 +45,46 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    if (!body.senderName || !body.senderProfilePic || !body.content) {
+    if (!body.title || !body.content) {
       return NextResponse.json(
-        { message: "Sender info and content are required" },
+        { message: "Title and content are required" },
         { status: 400 }
       );
     }
 
+    const createdById = session.user._id || session.user._id || null;
+
     const newAnn = await AnnouncementModel.create({
-      senderName: body.senderName,
-      senderProfilePic: body.senderProfilePic,
+      title: body.title,
       content: body.content,
-      pinned: body.pinned,
-      createdBy: session.user._id,
+      pinned: !!body.pinned,
+      createdBy: createdById,
+      senderName: body.senderName || session.user.name || "",
+      senderProfilePic: body.senderProfilePic || session.user.image || "",
     });
-     const formatted = {
-     ...newAnn.toObject(),
-     _id: newAnn._id.toString(),
-     };
+
+    const populated = await AnnouncementModel.findById(newAnn._id)
+      .populate("createdBy", "name image")
+      .lean();
+
+    if (!populated) {
+      return NextResponse.json(
+        { message: "Announcement not found after creation" },
+        { status: 500 }
+      );
+    }
+
+    const creator = populated.createdBy as any;
+    const formatted = {
+      ...populated,
+      _id: populated._id.toString(),
+      senderName: creator?.name || populated.senderName || "",
+      senderProfilePic: creator?.image || populated.senderProfilePic || "",
+    };
+
     return NextResponse.json(formatted, { status: 201 });
   } catch (error: any) {
+    console.error("Error creating announcement:", error);
     return NextResponse.json(
       { message: "Error creating announcement", error: error.message },
       { status: 500 }

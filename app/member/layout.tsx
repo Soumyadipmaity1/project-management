@@ -9,12 +9,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { signOut } from "next-auth/react";
+
 
 export default function MemberLayout({ children }: { children: React.ReactNode }) {
   const handleLogout = () => {
     // Add your logout logic here
     console.log("Logging out...");
-    // Example: router.push('/login');
   };
 
   return (
@@ -73,9 +74,10 @@ export default function MemberLayout({ children }: { children: React.ReactNode }
                         className="flex items-center gap-3 cursor-pointer text-slate-300 focus:bg-red-900/20 focus:text-red-400"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Logout</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
+                       <span onClick={() => signOut({ callbackUrl: "/" })}>
+                          Logout
+                        </span>                      </DropdownMenuItem>
+                    </DropdownMenuContent> 
                   </DropdownMenu>
                 </div>
               </div>

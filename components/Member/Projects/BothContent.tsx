@@ -1,319 +1,669 @@
-import Link from 'next/link';
-import { FaChevronLeft, FaUsers, FaImage, FaEdit, FaCircle, FaBell } from 'react-icons/fa';
+// "use client";
 
+// import React, { useEffect, useState } from "react";
+// import { FaUsers, FaImage, FaCircle, FaGithub, FaGlobe } from "react-icons/fa";
 
-const mockProject = [
-  {
-    id: '1',
-    name: 'E-commerce Platform',
-    status: 'Active',
-    description: 'E-commerce content encompasses all materials businesses create to attract and retain customers online, including product descriptions, social media posts, blog posts, and more. It plays a crucial role in supporting the customer journey, providing brand messaging and product details to aid in informed purchasing decisions.',
-    technologies: [
-      { id: 't1', name: 'React' },
-      { id: 't2', name: 'Next.js' },
-      { id: 't3', name: 'Tailwind CSS' },
-    ],
-    domain: 'E-commerce',
-    teamLead: 'Alice',
-    assistantLead: 'Bob',
-    teamSize: 5,
-    activities: [
-      { id: 'a1', icon: '📝', description: 'Updated Resume', time: '2 hours ago' },
-      { id: 'a2', icon: '📝', description: 'Updated Resume', time: '2 hours ago' },
-    ],
-  },
- 
- {
-    id: '2',
-    name: 'E-commerce Platform',
-    status: 'Active',
-    description: 'E-commerce content encompasses all materials businesses create to attract and retain customers online, including product descriptions, social media posts, blog posts, and more. It plays a crucial role in supporting the customer journey, providing brand messaging and product details to aid in informed purchasing decisions.',
-    technologies: [
-      { id: 't1', name: 'React' },
-      { id: 't2', name: 'Next.js' },
-      { id: 't3', name: 'Tailwind CSS' },
-    ],
-    domain: 'E-commerce',
-    teamLead: 'Alice',
-    assistantLead: 'Bob',
-    teamSize: 5,
-    activities: [
-      { id: 'a1', icon: '📝', description: 'Updated Resume', time: '2 hours ago' },
-      { id: 'a2', icon: '📝', description: 'Updated Resume', time: '2 hours ago' },
-    ],
-  },
+// type Project = {
+//   _id: string;
+//   title: string;
+//   description: string;
+//   image?: string;
+//   domain: string | string[];
+//   badge: string;
+//   startDate?: Date;
+//   completionDate?: Date;
+//   projectlead?: { name: string } | string;
+//   colead?: { name: string } | string;
+//   members?: string[];
+//   membersCount?: number;
+//   technologies?: { id: string; name: string }[];
+//   githubLink?: string;
+//   liveDemo?: string;
+// };
 
-   {
-    id: '3',
-    name: 'E-commerce Platform',
-    status: 'Active',
-    description: 'E-commerce content encompasses all materials businesses create to attract and retain customers online, including product descriptions, social media posts, blog posts, and more. It plays a crucial role in supporting the customer journey, providing brand messaging and product details to aid in informed purchasing decisions.',
-    technologies: [
-      { id: 't1', name: 'React' },
-      { id: 't2', name: 'Next.js' },
-      { id: 't3', name: 'Tailwind CSS' },
-    ],
-    domain: 'E-commerce',
-    teamLead: 'Alice',
-    assistantLead: 'Bob',
-    teamSize: 5,
-    activities: [
-      { id: 'a1', icon: '📝', description: 'Updated Resume', time: '2 hours ago' },
-      { id: 'a2', icon: '📝', description: 'Updated Resume', time: '2 hours ago' },
-    ],
-  },
+// type Props = {
+//   params: {
+//     projectId: string;
+//     Id: string;
+//   };
+// };
 
-];
+// export default function ProjectPage({ params }: Props) {
+//   const [project, setProject] = useState<Project | null>(null);
+//   const [loading, setLoading] = useState(true);
 
-function getProjectById(projectId: string) {
-  return mockProject.find((p) => p.id === projectId);
-}
+//   const projectId = params.projectId ?? params.Id;
+
+//   useEffect(() => {
+//     const fetchProject = async () => {
+//       try {
+//         const res = await fetch(`/api/projects/${projectId}`, {
+//           cache: "no-store",
+//         });
+//         if (!res.ok) {
+//           throw new Error("Failed to fetch project");
+//         }
+//         const data = await res.json();
+//         setProject(data);
+//       } catch (err) {
+//         console.error("Error fetching project:", err);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     if (projectId) fetchProject();
+//   }, [projectId]);
+
+//   if (loading) {
+//     return (
+//       <div className="w-screen min-h-screen bg-gray-900 flex items-center justify-center text-xl text-gray-400">
+//         Loading project details...
+//       </div>
+//     );
+//   }
+
+//   if (!project) {
+//     return (
+//       <div className="w-screen min-h-screen bg-gray-900 flex items-center justify-center text-2xl text-red-400">
+//         Project not found!
+//       </div>
+//     );
+//   }
+
+//   // ✅ Safe destructuring after project is loaded
+//   const startDate = project.startDate ? new Date(project.startDate) : new Date();
+//   const targetDate = project.completionDate
+//     ? new Date(project.completionDate)
+//     : new Date();
+//   const currentDate = new Date();
+//   const totalDays = Math.max(
+//     1,
+//     Math.floor((targetDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+//   );
+//   const elapsedDays = Math.max(
+//     0,
+//     Math.floor((currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+//   );
+//   const remainingDays = Math.max(0, totalDays - elapsedDays);
+//   const progressPercentage = Math.min(100, Math.max(0, (elapsedDays / totalDays) * 100));
+
+//   const getProjectLeadName = () =>
+//     typeof project.projectlead === "string"
+//       ? project.projectlead
+//       : project.projectlead?.name || "Not assigned";
+
+//   const getCoLeadName = () =>
+//     typeof project.colead === "string"
+//       ? project.colead
+//       : project.colead?.name || "Not assigned";
+
+//   return (
+//     <div className="w-full min-h-screen py-6 overflow-x-hidden bg-gray-900 text-white">
+//       <div className="max-w-7xl mx-auto px-6">
+//         {/* HEADER */}
+//         <div className="flex items-center justify-between mb-12">
+//           <div className="flex items-center group">
+//             <span className="font-['Maven_Pro',sans-serif] font-bold text-[32px] tracking-[-0.5px]">
+//               {project.title}
+//             </span>
+//           </div>
+//           <div
+//             className={`px-6 py-2 rounded-full text-sm font-semibold shadow-lg ${
+//               project.badge === "active"
+//                 ? "bg-indigo-700 text-white"
+//                 : "bg-gray-700 text-gray-200"
+//             }`}
+//           >
+//             {project.badge.charAt(0).toUpperCase() + project.badge.slice(1)}
+//           </div>
+//         </div>
+
+//         <div className="flex flex-col xl:flex-row gap-8 w-full">
+//           {/* LEFT SECTION */}
+//           <div className="xl:flex-[2_1_0%] w-full space-y-8">
+//             {/* IMAGE */}
+//             <div className="w-full h-72 bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden flex items-center justify-center">
+//               {project.image ? (
+//                 <img
+//                   src={project.image}
+//                   alt={project.title}
+//                   className="w-full h-full object-cover rounded-2xl"
+//                 />
+//               ) : (
+//                 <div className="text-center">
+//                   <div className="w-16 h-16 bg-indigo-700 rounded-full flex items-center justify-center mx-auto mb-4">
+//                     <FaImage className="text-2xl text-white" />
+//                   </div>
+//                   <span className="text-gray-300 text-lg font-medium">
+//                     No Image Available
+//                   </span>
+//                 </div>
+//               )}
+//             </div>
+
+//             {/* DETAILS */}
+//             <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800">
+//               <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+//                 <div className="w-1 h-8 bg-indigo-700 rounded-full"></div>
+//                 Project Details
+//               </h2>
+
+//               <p className="text-gray-300 leading-relaxed text-sm bg-gray-800/30 p-4 rounded-xl border border-gray-700">
+//                 {project.description}
+//               </p>
+
+//               <div className="flex flex-wrap gap-4 mt-6">
+//                 <a
+//                   href={project.githubLink || "#"}
+//                   target="_blank"
+//                   rel="noopener noreferrer"
+//                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+//                     project.githubLink
+//                       ? "bg-gray-800 hover:bg-gray-700 text-indigo-400"
+//                       : "bg-gray-800 text-gray-500 cursor-not-allowed"
+//                   }`}
+//                 >
+//                   <FaGithub className="text-lg" />
+//                   {project.githubLink ? "GitHub Repository" : "GitHub Not Available"}
+//                 </a>
+
+//                 <a
+//                   href={project.liveDemo || "#"}
+//                   target="_blank"
+//                   rel="noopener noreferrer"
+//                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+//                     project.liveDemo
+//                       ? "bg-gray-800 hover:bg-gray-700 text-indigo-400"
+//                       : "bg-gray-800 text-gray-500 cursor-not-allowed"
+//                   }`}
+//                 >
+//                   <FaGlobe className="text-lg" />
+//                   {project.liveDemo ? "Live Demo" : "Live Demo Not Available"}
+//                 </a>
+//               </div>
+//             </div>
+
+//             {/* TIMELINE */}
+//             <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800">
+//               <h2 className="font-semibold text-xl mb-4 flex items-center gap-3">
+//                 <div className="w-1 h-6 bg-indigo-700 rounded-full"></div>
+//                 Timeline
+//               </h2>
+
+//               <div className="space-y-4 bg-gray-800/30 p-4 rounded-xl border border-gray-700">
+//                 <div className="flex items-center gap-3">
+//                   <FaCircle className="text-indigo-400 text-xs" />
+//                   <span className="text-gray-300 text-sm">
+//                     Start Date:{" "}
+//                     <span className="font-medium text-white">
+//                       {project.startDate
+//                         ? new Date(project.startDate).toLocaleDateString()
+//                         : "Not set"}
+//                     </span>
+//                   </span>
+//                 </div>
+
+//                 <div className="flex items-center gap-3">
+//                   <FaCircle className="text-indigo-400 text-xs" />
+//                   <span className="text-gray-300 text-sm">
+//                     Target Date:{" "}
+//                     <span className="font-medium text-white">
+//                       {project.completionDate
+//                         ? new Date(project.completionDate).toLocaleDateString()
+//                         : "Not set"}
+//                     </span>
+//                   </span>
+//                 </div>
+
+//                 {/* Progress Bar */}
+//                 <div className="pt-3 space-y-2">
+//                   <div className="flex justify-between items-center mb-2">
+//                     <span className="text-xs text-gray-400">Progress</span>
+//                     <span className="text-xs font-semibold text-indigo-400">
+//                       {progressPercentage.toFixed(1)}%
+//                     </span>
+//                   </div>
+//                   <div className="w-full bg-gray-800 rounded-full h-3 border border-gray-700">
+//                     <div
+//                       className="h-full bg-indigo-700 rounded-full transition-all duration-500"
+//                       style={{ width: `${progressPercentage}%` }}
+//                     />
+//                   </div>
+//                   <div className="flex justify-between items-center text-xs mt-2 text-gray-400">
+//                     <span>
+//                       <span className="font-semibold text-indigo-400">{elapsedDays}</span>{" "}
+//                       days elapsed
+//                     </span>
+//                     <span>
+//                       <span className="font-semibold text-indigo-400">{remainingDays}</span>{" "}
+//                       days left
+//                     </span>
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+
+//           {/* RIGHT SIDEBAR */}
+//           <div className="xl:flex-[1_1_0%] w-full space-y-8">
+//             <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 sticky top-8">
+//               <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
+//                 <div className="w-1 h-8 bg-indigo-700 rounded-full"></div>
+//                 Project Info
+//               </h3>
+
+//               <div className="space-y-6">
+//                 <div className="p-4 bg-gray-800/30 rounded-xl border border-gray-700">
+//                   <span className="font-semibold text-gray-200 block mb-2">
+//                     Domain
+//                   </span>
+//                   <span className="text-white bg-indigo-700 px-3 py-1 rounded-lg text-sm font-medium">
+//                     {Array.isArray(project.domain)
+//                       ? project.domain.join(", ")
+//                       : project.domain}
+//                   </span>
+//                 </div>
+
+//                 <div className="p-4 bg-gray-800/30 rounded-xl border border-gray-700">
+//                   <span className="font-semibold text-gray-200 block mb-3">
+//                     Leadership
+//                   </span>
+//                   <div className="space-y-3">
+//                     <div className="flex items-center gap-3">
+//                       <FaCircle className="text-indigo-400 text-xs" />
+//                       <span className="text-gray-400 text-sm">Project Lead:</span>
+//                       <span className="text-gray-200 font-medium">
+//                         {getProjectLeadName()}
+//                       </span>
+//                     </div>
+//                     <div className="flex items-center gap-3">
+//                       <FaCircle className="text-indigo-400 text-xs" />
+//                       <span className="text-gray-400 text-sm">Co-Lead:</span>
+//                       <span className="text-gray-200 font-medium">
+//                         {getCoLeadName()}
+//                       </span>
+//                     </div>
+//                   </div>
+//                 </div>
+
+//                 <div className="p-4 bg-gray-800/30 rounded-xl border border-gray-700">
+//                   <span className="font-semibold text-gray-200 block mb-2">
+//                     Team Size
+//                   </span>
+//                   <div className="flex items-center gap-2">
+//                     <FaUsers className="text-indigo-400" />
+//                     <span className="text-gray-400 font-medium">
+//                       {project.membersCount || project.members?.length || 1} members
+//                     </span>
+//                   </div>
+//                 </div>
+
+//                 <div className="pt-4">
+//                   <button
+//                     onClick={async () => {
+//                       try {
+//                         const res = await fetch(`/api/projects/${project._id}/apply`, {
+//                           method: "POST",
+//                         });
+//                         if (res.ok) {
+//                           alert("Application sent successfully!");
+//                         } else {
+//                           alert("Failed to send application. Please try again.");
+//                         }
+//                       } catch (err) {
+//                         console.error("Error applying:", err);
+//                         alert("Something went wrong!");
+//                       }
+//                     }}
+//                     className="w-full bg-indigo-700 hover:bg-indigo-600 text-white font-semibold py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-indigo-500/25"
+//                   >
+//                     Apply to Join
+//                   </button>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { FaUsers, FaImage, FaCircle, FaGithub, FaGlobe } from "react-icons/fa";
+import toast, { Toaster } from "react-hot-toast";
+
+type Project = {
+  _id: string;
+  title: string;
+  description: string;
+  image?: string;
+  domain: string | string[];
+  badge: string;
+  startDate?: Date;
+  completionDate?: Date;
+  projectlead?: { name: string } | string;
+  colead?: { name: string } | string;
+  members?: string[];
+  membersCount?: number;
+  technologies?: { id: string; name: string }[];
+  githubLink?: string;
+  liveDemo?: string;
+};
 
 type Props = {
   params: {
     projectId: string;
+    Id: string;
   };
 };
 
-export default async function Project({ params }: Props) {
-  const { projectId } = params;
-  const project = await getProjectById(projectId);
+export default function ProjectPage({ params }: Props) {
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [applied, setApplied] = useState(false);
 
-  if (!project) {
+  const projectId = params.projectId ?? params.Id;
+
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const res = await fetch(`/api/projects/${projectId}`, { cache: "no-store" });
+        if (!res.ok) throw new Error("Failed to fetch project");
+        const data = await res.json();
+        setProject(data);
+      } catch (err) {
+        console.error("Error fetching project:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (projectId) fetchProject();
+  }, [projectId]);
+
+  if (loading) {
     return (
-      <div className="w-screen min-h-screen bg-gray-900 flex items-center justify-center text-3xl text-red-400">
-        Project not found!!
+      <div className="w-screen min-h-screen bg-gray-900 flex items-center justify-center text-xl text-gray-400">
+        Loading project details...
       </div>
     );
   }
 
-  // Calculate progress
-  const startDate = new Date('2025-09-15');
-  const targetDate = new Date('2025-11-30');
+  if (!project) {
+    return (
+      <div className="w-screen min-h-screen bg-gray-900 flex items-center justify-center text-2xl text-red-400">
+        Project not found!
+      </div>
+    );
+  }
+
+  // ✅ Safe destructuring after project is loaded
+  const startDate = project.startDate ? new Date(project.startDate) : new Date();
+  const targetDate = project.completionDate
+    ? new Date(project.completionDate)
+    : new Date();
   const currentDate = new Date();
-  
-  const totalDays = Math.floor((targetDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-  const elapsedDays = Math.floor((currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+  const totalDays = Math.max(
+    1,
+    Math.floor((targetDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+  );
+  const elapsedDays = Math.max(
+    0,
+    Math.floor((currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+  );
   const remainingDays = Math.max(0, totalDays - elapsedDays);
   const progressPercentage = Math.min(100, Math.max(0, (elapsedDays / totalDays) * 100));
 
+  const getProjectLeadName = () =>
+    typeof project.projectlead === "string"
+      ? project.projectlead
+      : project.projectlead?.name || "Not assigned";
+
+  const getCoLeadName = () =>
+    typeof project.colead === "string"
+      ? project.colead
+      : project.colead?.name || "Not assigned";
+
+  // ✅ Handle Apply
+  const handleApply = async () => {
+    try {
+      const res = await fetch(`/api/projects/${project._id}/apply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectId: project._id }),
+      });
+
+      if (res.ok) {
+        setApplied(true);
+        toast.success("Application sent successfully!");
+      } else {
+        const errMsg = await res.text();
+        toast.error(errMsg || "Failed to send application!");
+      }
+    } catch (err:any) {
+      console.error("Error applying:", err.message);
+      toast.error("Something went wrong!");
+    }
+  };
+
   return (
-    <div className="w-full min-h-screen  py-6  overflow-x-hidden">
+    <div className="w-full min-h-screen py-6 overflow-x-hidden bg-gray-900 text-white">
+      <Toaster position="top-right" reverseOrder={false} />
       <div className="max-w-7xl mx-auto px-6">
-        {/* Header */}
+        {/* HEADER */}
         <div className="flex items-center justify-between mb-12">
-          <div className="text-white hover:text-indigo-300 hover:underline flex items-center group transition-colors duration-300">
-            <span className="font-['Maven_Pro',sans-serif] font-bold text-[32px] leading-[100%] tracking-[-0.5px]">{project.name}</span>
+          <div className="flex items-center group">
+            <span className="font-['Maven_Pro',sans-serif] font-bold text-[32px] tracking-[-0.5px]">
+              {project.title}
+            </span>
           </div>
-          <div className={`px-6 py-2 rounded-full text-sm font-semibold shadow-lg ${
-            project.status === 'Active' 
-              ? 'bg-indigo-700 text-white' 
-              : 'bg-gray-700 text-gray-200'
-          }`}>
-            {project.status}
+          <div
+            className={`px-6 py-2 rounded-full text-sm font-semibold shadow-lg ${
+              project.badge === "active"
+                ? "bg-indigo-700 text-white"
+                : "bg-gray-700 text-gray-200"
+            }`}
+          >
+            {project.badge.charAt(0).toUpperCase() + project.badge.slice(1)}
           </div>
         </div>
 
         <div className="flex flex-col xl:flex-row gap-8 w-full">
+          {/* LEFT SECTION */}
           <div className="xl:flex-[2_1_0%] w-full space-y-8">
-            {/* Project Image */}
-            <div className="w-full h-72 bg-gray-900 rounded-2xl flex items-center justify-center shadow-2xl border border-gray-800">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-indigo-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <FaImage className="text-2xl text-white" />
+            {/* IMAGE */}
+            <div className="w-full h-72 bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden flex items-center justify-center">
+              {project.image ? (
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover rounded-2xl"
+                />
+              ) : (
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-indigo-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FaImage className="text-2xl text-white" />
+                  </div>
+                  <span className="text-gray-300 text-lg font-medium">
+                    No Image Available
+                  </span>
                 </div>
-                <span className="text-gray-300 text-lg font-medium">Project Preview</span>
-              </div>
+              )}
             </div>
 
-            {/* Project Details */}
-            <div className="bg-gray-900 p-8 w-full rounded-2xl shadow-2xl border border-gray-800">
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+            {/* DETAILS */}
+            <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800">
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
                 <div className="w-1 h-8 bg-indigo-700 rounded-full"></div>
                 Project Details
               </h2>
-              
-              <div className="space-y-6">
-                <div>
-                  <h3 className="font-semibold mb-3 text-gray-200 text-lg">Description</h3>
-                  <p className="text-gray-300 leading-relaxed text-sm bg-gray-800/30 p-4 rounded-xl border border-gray-700">{project.description}</p>
-                </div>
-                
-                <div>
-                  <h3 className="font-semibold mb-3 text-gray-200 text-lg">Tech Stack</h3>
-                  <div className="flex flex-wrap gap-3">
-                    {project.technologies.map((tech) => (
-                      <span key={tech.id} className="px-4 py-2 rounded-xl text-sm font-semibold shadow-lg border bg-indigo-900/50 text-indigo-200 border-indigo-800/50 hover:bg-indigo-900/50 transition-all duration-300 hover:scale-105">
-                        {tech.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+
+              <p className="text-gray-300 leading-relaxed text-sm bg-gray-800/30 p-4 rounded-xl border border-gray-700">
+                {project.description}
+              </p>
+
+              <div className="flex flex-wrap gap-4 mt-6">
+                <a
+                  href={project.githubLink || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                    project.githubLink
+                      ? "bg-gray-800 hover:bg-gray-700 text-indigo-400"
+                      : "bg-gray-800 text-gray-500 cursor-not-allowed"
+                  }`}
+                >
+                  <FaGithub className="text-lg" />
+                  {project.githubLink ? "GitHub Repository" : "GitHub Not Available"}
+                </a>
+
+                <a
+                  href={project.liveDemo || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                    project.liveDemo
+                      ? "bg-gray-800 hover:bg-gray-700 text-indigo-400"
+                      : "bg-gray-800 text-gray-500 cursor-not-allowed"
+                  }`}
+                >
+                  <FaGlobe className="text-lg" />
+                  {project.liveDemo ? "Live Demo" : "Live Demo Not Available"}
+                </a>
               </div>
             </div>
 
-            {/* Timeline & Actions */}
-            <div className="bg-gray-900 p-8 rounded-2xl shadow-2xl border border-gray-800">
-              <div className="flex flex-col lg:flex-row lg:justify-between mb-8 gap-6">
-                <div className="flex-1">
-                  <h2 className="font-semibold text-xl mb-4 text-white flex items-center gap-3">
-                    <div className="w-1 h-6 bg-indigo-700 rounded-full"></div>
-                    Timeline
-                  </h2>
-                  <div className="space-y-4 bg-gray-800/30 p-4 rounded-xl border border-gray-700">
-                    <div className="flex items-center gap-3">
-                      <FaCircle className="text-indigo-400 text-xs" />
-                      <span className="text-gray-300 text-sm">Start Date: <span className="font-medium text-white">2025-09-15</span></span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <FaCircle className="text-indigo-400 text-xs" />
-                      <span className="text-gray-300 text-sm">Target Date: <span className="font-medium text-white">2025-11-30</span></span>
-                    </div>
-                    
-                    {/* Progress Bar */}
-                    <div className="pt-3 space-y-2">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-xs text-gray-400">Progress</span>
-                        <span className="text-xs font-semibold text-indigo-300">{progressPercentage.toFixed(1)}%</span>
-                      </div>
-                      <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden border border-gray-700">
-                        <div 
-                          className="h-full bg-indigo-700 rounded-full transition-all duration-500 relative overflow-hidden"
-                          style={{ width: `${progressPercentage}%` }}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center text-xs mt-2">
-                        <span className="text-gray-400">
-                          <span className="font-semibold text-indigo-300">{elapsedDays}</span> days elapsed
-                        </span>
-                        <span className="text-gray-400">
-                          <span className="font-semibold text-indigo-300">{remainingDays}</span> days left
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+            {/* TIMELINE */}
+            <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800">
+              <h2 className="font-semibold text-xl mb-4 flex items-center gap-3">
+                <div className="w-1 h-6 bg-indigo-700 rounded-full"></div>
+                Timeline
+              </h2>
+
+              <div className="space-y-4 bg-gray-800/30 p-4 rounded-xl border border-gray-700">
+                <div className="flex items-center gap-3">
+                  <FaCircle className="text-indigo-400 text-xs" />
+                  <span className="text-gray-300 text-sm">
+                    Start Date:{" "}
+                    <span className="font-medium text-white">
+                      {project.startDate
+                        ? new Date(project.startDate).toLocaleDateString()
+                        : "Not set"}
+                    </span>
+                  </span>
                 </div>
-              </div>
 
-              <div className="flex gap-4">
-                <button className="px-6 py-3 bg-indigo-700 hover:bg-indigo-800 text-white rounded-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl transform">
-                  View Live
-                </button>
-                <button className="px-6 py-3 border-2 border-gray-700 text-gray-200 hover:bg-gray-800/50 hover:border-gray-500 rounded-xl font-semibold transition-all duration-300 hover:scale-105 backdrop-blur-sm">
-                  View Code
-                </button>
-              </div>
-            </div>
+                <div className="flex items-center gap-3">
+                  <FaCircle className="text-indigo-400 text-xs" />
+                  <span className="text-gray-300 text-sm">
+                    Target Date:{" "}
+                    <span className="font-medium text-white">
+                      {project.completionDate
+                        ? new Date(project.completionDate).toLocaleDateString()
+                        : "Not set"}
+                    </span>
+                  </span>
+                </div>
 
-            {/* Team Members */}
-            <div className="bg-gray-900 p-8 shadow-2xl rounded-2xl border border-gray-800">
-              <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                <div className="w-1 h-8 bg-indigo-700 rounded-full"></div>
-                Team Members
-              </h3>
-              
-              <div className="space-y-4">
-                {[
-                  { name: 'John Doe', email: 'john@example.com', role: 'Team Lead' },
-                  { name: 'Jane Smith', email: 'jane@example.com', role: 'Assistant Lead' },
-                  { name: 'Alice', email: 'alice@example.com', role: 'Member' },
-                  { name: 'Bob', email: 'bob@example.com', role: 'Member' },
-                  { name: 'Charlie', email: 'charlie@example.com', role: 'Member' },
-                ].map((member) => (
-                  <div key={member.email} className="flex items-center justify-between p-4 bg-gray-800/30 rounded-xl border border-gray-700 hover:bg-gray-800/50 transition-all duration-300 group">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-sm shadow-lg bg-indigo-700 text-white">
-                        {member.name
-                          .split(' ')
-                          .map((n) => n[0])
-                          .join('')
-                          .toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="font-semibold text-gray-100 group-hover:text-white transition-colors duration-300">{member.name}</div>
-                        <div className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors duration-300">{member.email}</div>
-                      </div>
-                    </div>
-                    <span className={`px-4 py-2 text-xs rounded-full font-semibold shadow-lg ${
-                      member.role === 'Team Lead'
-                        ? 'bg-indigo-700 text-white'
-                        : member.role === 'Assistant Lead'
-                        ? 'bg-indigo-500 text-white'
-                        : 'bg-gray-800 text-gray-300 border border-gray-700'
-                    }`}>
-                      {member.role}
+                {/* Progress Bar */}
+                <div className="pt-3 space-y-2">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs text-gray-400">Progress</span>
+                    <span className="text-xs font-semibold text-indigo-400">
+                      {progressPercentage.toFixed(1)}%
                     </span>
                   </div>
-                ))}
+                  <div className="w-full bg-gray-800 rounded-full h-3 border border-gray-700">
+                    <div
+                      className="h-full bg-indigo-700 rounded-full transition-all duration-500"
+                      style={{ width: `${progressPercentage}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center text-xs mt-2 text-gray-400">
+                    <span>
+                      <span className="font-semibold text-indigo-400">{elapsedDays}</span>{" "}
+                      days elapsed
+                    </span>
+                    <span>
+                      <span className="font-semibold text-indigo-400">{remainingDays}</span>{" "}
+                      days left
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Sidebar */}
+          {/* RIGHT SIDEBAR */}
           <div className="xl:flex-[1_1_0%] w-full space-y-8">
-            {/* Project Info */}
-            <div className="bg-gray-900 p-8 w-full rounded-2xl shadow-2xl border border-gray-800 sticky top-8">
-              <h3 className="text-xl font-bold mb-6 text-white flex items-center gap-3">
+            <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 sticky top-8">
+              <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
                 <div className="w-1 h-8 bg-indigo-700 rounded-full"></div>
                 Project Info
               </h3>
 
               <div className="space-y-6">
                 <div className="p-4 bg-gray-800/30 rounded-xl border border-gray-700">
-                  <span className="font-semibold text-gray-200 block mb-2">Domain</span>
-                  <span className="text-gray-300 bg-indigo-900/30 px-3 py-1 rounded-lg text-sm font-medium">{project.domain}</span>
+                  <span className="font-semibold text-gray-200 block mb-2">
+                    Domain
+                  </span>
+                  <span className="text-white bg-indigo-700 px-3 py-1 rounded-lg text-sm font-medium">
+                    {Array.isArray(project.domain)
+                      ? project.domain.join(", ")
+                      : project.domain}
+                  </span>
                 </div>
 
                 <div className="p-4 bg-gray-800/30 rounded-xl border border-gray-700">
-                  <span className="font-semibold text-gray-200 block mb-3">Leadership</span>
+                  <span className="font-semibold text-gray-200 block mb-3">
+                    Leadership
+                  </span>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <FaCircle className="text-indigo-400 text-xs" />
-                      <span className="text-gray-400 text-sm">Team Lead:</span>
-                      <span className="text-gray-200 font-medium">{project.teamLead}</span>
+                      <span className="text-gray-400 text-sm">Project Lead:</span>
+                      <span className="text-gray-200 font-medium">
+                        {getProjectLeadName()}
+                      </span>
                     </div>
                     <div className="flex items-center gap-3">
                       <FaCircle className="text-indigo-400 text-xs" />
-                      <span className="text-gray-400 text-sm">Assistant Lead:</span>
-                      <span className="text-gray-200 font-medium">{project.assistantLead}</span>
+                      <span className="text-gray-400 text-sm">Co-Lead:</span>
+                      <span className="text-gray-200 font-medium">
+                        {getCoLeadName()}
+                      </span>
                     </div>
                   </div>
                 </div>
-                    
+
                 <div className="p-4 bg-gray-800/30 rounded-xl border border-gray-700">
-                  <span className="font-semibold text-gray-200 block mb-2">Team Size</span>
+                  <span className="font-semibold text-gray-200 block mb-2">
+                    Team Size
+                  </span>
                   <div className="flex items-center gap-2">
                     <FaUsers className="text-indigo-400" />
-                    <span className="text-gray-300 font-medium">{project.teamSize} members</span>
+                    <span className="text-gray-400 font-medium">
+                      {project.membersCount || project.members?.length || 1} members
+                    </span>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Recent Activity */}
-            <div className="bg-gray-900 p-8 rounded-2xl shadow-2xl border border-gray-800">
-              <h3 className="text-xl font-bold mb-6 text-white flex items-center gap-3">
-                <div className="w-1 h-8 bg-indigo-700 rounded-full"></div>
-                Recent Activity
-              </h3>
-              <div className="space-y-4">
-                {project.activities.length > 0 ? (
-                  project.activities.map((activity) => (
-                    <div key={activity.id} className="flex items-start gap-4 p-4 bg-gray-800/30 rounded-xl border border-gray-700 hover:bg-gray-800/50 transition-all duration-300">
-                      <FaEdit className="text-2xl text-indigo-400 mt-1" />
-                      <div className="flex-1">
-                        <div className="text-gray-200 font-medium mb-1">{activity.description}</div>
-                        <div className="text-xs text-gray-500">{activity.time}</div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-gray-400 text-sm text-center py-8 bg-gray-800/20 rounded-xl border border-gray-700">
-                    No recent activity.
-                  </div>
-                )}
+                <div className="pt-4">
+                  <button
+                    onClick={handleApply}
+                    disabled={applied}
+                    className={`w-full font-semibold py-3 rounded-xl transition-all duration-300 shadow-md ${
+                      applied
+                        ? "bg-gray-600 text-gray-300 cursor-not-allowed"
+                        : "bg-indigo-700 hover:bg-indigo-600 text-white hover:shadow-indigo-500/25"
+                    }`}
+                  >
+                    {applied ? "Application Sent" : "Apply to Join"}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -322,4 +672,3 @@ export default async function Project({ params }: Props) {
     </div>
   );
 }
-

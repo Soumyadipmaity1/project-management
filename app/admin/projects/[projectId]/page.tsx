@@ -10,7 +10,7 @@ export default function Home({params}: Props)
 {
   return (
    <div>
-    <RightContent params={params}/>
+    <RightContent params={{ ...params, Id: params.projectId }}/>
    </div>
   )
 }

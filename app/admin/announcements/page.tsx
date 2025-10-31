@@ -1,537 +1,390 @@
 "use client";
-import React, { useState, useMemo } from "react";
-import { FaEllipsisV, FaPlus, FaChevronDown, FaTimes, FaEdit, FaTrash, FaThumbtack } from "react-icons/fa";
 
-// Sample data with domain and project fields
-const initialAnnouncements = [
-	{
-		id: 1,
-		author: "Sanskar Singh",
-		date: "August 05, 2025",
-		time: "09:01 AM",
-		domain: "Development",
-		project: "Web Portal",
-		month: "August",
-		year: "2025",
-		content: (
-			<>
-				We are excited to announce that our society's Annual Orientation Program
-				will be held on August 12th at 4:00 PM in the Main Auditorium. All new and
-				existing members are requested to join. We will cover introductions, a
-				roadmap for upcoming projects, and fun team-building activities.
-				<br />
-				<span role="img" aria-label="memo">
-					📝
-				</span>{" "}
-				Please confirm your attendance by filling out the forms shared in the
-				group.
-			</>
-		),
-		pinned: true,
-	},
-	{
-		id: 2,
-		author: "Sanskar Singh",
-		date: "July 25, 2025",
-		time: "09:01 AM",
-		domain: "Design",
-		project: "Mobile App",
-		month: "July",
-		year: "2025",
-		content: (
-			<>
-				We are excited to announce that our society's Annual Orientation Program
-				will be held on August 12th at 4:00 PM in the Main Auditorium. All new and
-				existing members are requested to join. We will cover introductions, a
-				roadmap for upcoming projects, and fun team-building activities.
-				<br />
-				<span role="img" aria-label="memo">
-					📝
-				</span>{" "}
-				Please confirm your attendance by filling out the forms shared in the
-				group.
-			</>
-		),
-		pinned: false,
-	},
-	{
-		id: 3,
-		author: "Sanskar Singh",
-		date: "June 15, 2024",
-		time: "09:01 AM",
-		domain: "Marketing",
-		project: "Campaign 2024",
-		month: "June",
-		year: "2024",
-		content: (
-			<>
-				We are excited to announce that our society's Annual Orientation Program
-				will be held on August 12th at 4:00 PM in the Main Auditorium. All new and
-				existing members are requested to join. We will cover introductions, a
-				roadmap for upcoming projects, and fun team-building activities.
-				<br />
-				<span role="img" aria-label="memo">
-					📝
-				</span>{" "}
-				Please confirm your attendance by filling out the forms shared in the
-				group.
-			</>
-		),
-		pinned: false,
-	},
-];
+import React, { useState, useEffect } from "react";
+import { FaPlus, FaTimes } from "react-icons/fa";
+import { Trash, Edit, Pin } from "lucide-react";
 
 export default function AnnouncementsPage() {
-	const [announcements, setAnnouncements] = useState(initialAnnouncements);
-	const [selectedDomain, setSelectedDomain] = useState("All Domains");
-	const [selectedProject, setSelectedProject] = useState("All Projects");
-	const [selectedYear, setSelectedYear] = useState("All Years");
-	const [selectedMonth, setSelectedMonth] = useState("All Months");
-	const [showCreateModal, setShowCreateModal] = useState(false);
-	const [openDropdown, setOpenDropdown] = useState<number | null>(null);
-	const [formData, setFormData] = useState({
-		author: "",
-		domain: "",
-		project: "",
-		month: "",
-		year: "",
-		content: ""
-	});
+  const [groups, setGroups] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [selectedProject, setSelectedProject] = useState<string>("all");
+  const [showAdminOnly, setShowAdminOnly] = useState(false);
+  const [showMyAnnouncements, setShowMyAnnouncements] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [pinned, setPinned] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [selectedProjectForAnnouncement, setSelectedProjectForAnnouncement] =
+    useState<string>("");
+  const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-	// Get unique domains, projects, years, and months
-	const domains = [
-		"All Domains",
-		...Array.from(new Set(announcements.map((a) => a.domain))),
-	];
-	const projects = [
-		"All Projects",
-		...Array.from(new Set(announcements.map((a) => a.project))),
-	];
-	const years = ["All Years", ...Array.from(new Set(announcements.map((a) => a.year)))];
-	const months = ["All Months", ...Array.from(new Set(announcements.map((a) => a.month)))];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [announcementsRes, projectsRes, userRes] = await Promise.all([
+          fetch("/api/announcement", { cache: "no-store" }),
+          fetch("/api/projects", { cache: "no-store" }),
+          fetch("/api/auth/session", { cache: "no-store" }),
+        ]);
 
-	// Filter announcements based on selected filters
-	const filteredAnnouncements = useMemo(() => {
-		return announcements.filter((ann) => {
-			const domainMatch =
-				selectedDomain === "All Domains" || ann.domain === selectedDomain;
-			const projectMatch =
-				selectedProject === "All Projects" || ann.project === selectedProject;
-			const yearMatch = selectedYear === "All Years" || ann.year === selectedYear;
-			const monthMatch = selectedMonth === "All Months" || ann.month === selectedMonth;
-			return domainMatch && projectMatch && yearMatch && monthMatch;
-		});
-	}, [announcements, selectedDomain, selectedProject, selectedYear, selectedMonth]);
+        const announcementsData = await announcementsRes.json();
+        const projectsData = await projectsRes.json();
+        const userData = await userRes.json().catch(() => ({}));
 
-	const pinned = filteredAnnouncements.filter((a) => a.pinned);
-	const unpinned = filteredAnnouncements.filter((a) => !a.pinned);
+        setGroups(Array.isArray(announcementsData) ? announcementsData : []);
+        setProjects(Array.isArray(projectsData) ? projectsData : []);
+        setCurrentUserId(userData?.user?._id || userData?.user?.id || "");
+      } catch (err) {
+        console.error("fetchData error:", err);
+        alert("Error loading data — check console.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
-	const handleCreateAnnouncement = () => {
-		if (!formData.author || !formData.domain || !formData.project || !formData.content) {
-			alert("Please fill in all required fields");
-			return;
-		}
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-300 bg-black">
+        <div className="w-16 h-16 border-4 border-gray-700 border-t-emerald-500 rounded-full animate-spin"></div>
+        <p className="ml-4">Loading announcements...</p>
+      </div>
+    );
 
-		const newAnnouncement = {
-			id: announcements.length + 1,
-			author: formData.author,
-			date: new Date().toLocaleDateString("en-US", { 
-				year: "numeric", 
-				month: "long", 
-				day: "2-digit" 
-			}),
-			time: new Date().toLocaleTimeString("en-US", { 
-				hour: "2-digit", 
-				minute: "2-digit", 
-				hour12: true 
-			}),
-			domain: formData.domain,
-			project: formData.project,
-			month: formData.month || new Date().toLocaleDateString("en-US", { month: "long" }),
-			year: formData.year || new Date().getFullYear().toString(),
-			content: <>{formData.content}</>,
-			pinned: false,
-		};
+  const openModalForEdit = (ann: any) => {
+    setEditingId(ann._id);
+    setTitle(ann.title || "");
+    setContent(ann.content || "");
+    setPinned(!!ann.pinned);
+    setIsAdmin(!!ann.isAdmin);
+    setSelectedProjectForAnnouncement(ann.projectId || "");
+    setIsModalOpen(true);
+  };
 
-		setAnnouncements([newAnnouncement, ...announcements]);
-		setFormData({ author: "", domain: "", project: "", month: "", year: "", content: "" });
-		setShowCreateModal(false);
-	};
+  const resetModal = () => {
+    setIsModalOpen(false);
+    setTitle("");
+    setContent("");
+    setPinned(false);
+    setIsAdmin(false);
+    setSelectedProjectForAnnouncement("");
+    setEditingId(null);
+  };
 
-	const handleDeleteAnnouncement = (id) => {
-		setAnnouncements(announcements.filter(ann => ann.id !== id));
-		setOpenDropdown(null);
-	};
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const payload: any = {
+        title,
+        content,
+        pinned,
+        isAdmin,
+        projectId: selectedProjectForAnnouncement || undefined,
+      };
 
-	const handlePinToggle = (id) => {
-		setAnnouncements(announcements.map(ann => 
-			ann.id === id ? { ...ann, pinned: !ann.pinned } : ann
-		));
-		setOpenDropdown(null);
-	};
+      const url = editingId
+        ? `/api/announcement/${editingId}`
+        : "/api/announcement";
+      const method = editingId ? "PUT" : "POST";
 
-	const handleEditAnnouncement = (id) => {
-		// For now, just close dropdown - you can implement edit functionality later
-		console.log("Edit announcement:", id);
-		setOpenDropdown(null);
-	};
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-	return (
-		<div className="min-h-screen py-6 px-4 text-white">
-			{/* Heading and Create button */}
-			<div className="flex items-center justify-between  mb-8">
-				<h1 className="text-4xl font-bold text-white">
-					Announcements
-				</h1>
-				<button 
-					onClick={() => setShowCreateModal(true)}
-					className="flex items-center gap-2 bg-white text-black px-7 py-3 rounded-md text-[15px] font-mclaren font-normal shadow hover:bg-neutral-200 transition"
-				>
-					<FaPlus /> Create announcement
-				</button>
-			</div>
+      const saved = await res.json();
+      if (!res.ok) throw new Error(saved.message || "Error saving announcement");
 
-			{/* Filter Dropdowns */}
-			<div className="flex gap-4 mb-8 flex-wrap">
-				{/* Domain Dropdown */}
-				<div className="relative">
-					<select
-						value={selectedDomain}
-						onChange={(e) => setSelectedDomain(e.target.value)}
-						className="appearance-none bg-neutral-900 border border-neutral-700 text-white px-4 py-2 pr-8 rounded-md text-[14px] font-mclaren focus:outline-none focus:border-neutral-500 cursor-pointer"
-					>
-						{domains.map((domain) => (
-							<option
-								key={domain}
-								value={domain}
-								className="bg-neutral-900 text-white"
-							>
-								{domain}
-							</option>
-						))}
-					</select>
-					<FaChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-neutral-400 pointer-events-none text-xs" />
-				</div>
+      if (editingId) {
+        setGroups((prev) =>
+          prev.map((a) => (a._id === editingId ? saved : a))
+        );
+      } else {
+        setGroups((prev) => [saved, ...prev]);
+      }
+      resetModal();
+    } catch (err) {
+      console.error("handleSubmit error:", err);
+      alert("Failed to save announcement — check console.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-				{/* Project Dropdown */}
-				<div className="relative">
-					<select
-						value={selectedProject}
-						onChange={(e) => setSelectedProject(e.target.value)}
-						className="appearance-none bg-neutral-900 border border-neutral-700 text-white px-4 py-2 pr-8 rounded-md text-[14px] font-mclaren focus:outline-none focus:border-neutral-500 cursor-pointer"
-					>
-						{projects.map((project) => (
-							<option
-								key={project}
-								value={project}
-								className="bg-neutral-900 text-white"
-							>
-								{project}
-							</option>
-						))}
-					</select>
-					<FaChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-neutral-400 pointer-events-none text-xs" />
-				</div>
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this announcement?")) return;
+    try {
+      const res = await fetch(`/api/announcement/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error(await res.text());
+      setGroups((prev) => prev.filter((a) => a._id !== id));
+    } catch (err) {
+      console.error("handleDelete error:", err);
+      alert("Delete failed — see console.");
+    }
+  };
 
-				{/* Year Dropdown */}
-				<div className="relative">
-					<select
-						value={selectedYear}
-						onChange={(e) => setSelectedYear(e.target.value)}
-						className="appearance-none bg-neutral-900 border border-neutral-700 text-white px-4 py-2 pr-8 rounded-md text-[14px] font-mclaren focus:outline-none focus:border-neutral-500 cursor-pointer"
-					>
-						{years.map((year) => (
-							<option
-								key={year}
-								value={year}
-								className="bg-neutral-900 text-white"
-							>
-								{year}
-							</option>
-						))}
-					</select>
-					<FaChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-neutral-400 pointer-events-none text-xs" />
-				</div>
+  const handlePin = async (id: string) => {
+    try {
+      const res = await fetch("/api/announcement/pin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      setGroups((prev) =>
+        prev.map((a) => (a._id === id ? { ...a, pinned: true } : a))
+      );
+    } catch (err) {
+      console.error("handlePin error:", err);
+      alert("Failed to pin announcement");
+    }
+  };
 
-				{/* Month Dropdown */}
-				<div className="relative">
-					<select
-						value={selectedMonth}
-						onChange={(e) => setSelectedMonth(e.target.value)}
-						className="appearance-none bg-neutral-900 border border-neutral-700 text-white px-4 py-2 pr-8 rounded-md text-[14px] font-mclaren focus:outline-none focus:border-neutral-500 cursor-pointer"
-					>
-						{months.map((month) => (
-							<option
-								key={month}
-								value={month}
-								className="bg-neutral-900 text-white"
-							>
-								{month}
-							</option>
-						))}
-					</select>
-					<FaChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-neutral-400 pointer-events-none text-xs" />
-				</div>
-			</div>
+  const handleUnpin = async (id: string) => {
+    try {
+      const res = await fetch("/api/announcement/unpin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      setGroups((prev) =>
+        prev.map((a) => (a._id === id ? { ...a, pinned: false } : a))
+      );
+    } catch (err) {
+      console.error("handleUnpin error:", err);
+      alert("Failed to unpin announcement");
+    }
+  };
 
-			{/* Pinned Section */}
-			{pinned.length > 0 && (
-				<>
-					<div className="text-white text-[18px] font-mclaren mb-2 font-bold uppercase tracking-[0]">
-						Pinned
-					</div>
-					<div className="flex flex-col gap-0 w-full mb-10">
-						{pinned.map((ann) => (
-							<div
-								key={ann.id}
-								className="bg-neutral-900 border border-neutral-700 rounded-lg px-6 py-4 shadow-sm flex flex-col gap-2 relative mb-4"
-							>
-								<div className="flex items-center justify-between">
-									<div className="flex items-center gap-3">
-										<div className="w-10 h-10 rounded-full bg-neutral-600 object-cover" />
-										<div>
-											<div className="text-white text-[20px] font-mclaren leading-[100%] tracking-[0] font-normal">
-												{ann.author}
-											</div>
-											<div className="text-neutral-400 text-[13px] font-mclaren leading-[100%] tracking- font-normal mt-1">
-												{ann.date}&nbsp;&nbsp;•&nbsp;&nbsp;{ann.time}
-												&nbsp;&nbsp;•&nbsp;&nbsp;{ann.domain}
-												&nbsp;&nbsp;•&nbsp;&nbsp;{ann.project}
-											</div>
-										</div>
-									</div>
-									<div className="flex items-center gap-2">
-										<span className="bg-neutral-700 text-neutral-300 px-4 py-1 rounded-md text-[15px] font-mclaren font-normal">
-											Pinned
-										</span>
-										<div className="relative">
-											<FaEllipsisV 
-												className="text-neutral-400 cursor-pointer hover:text-white" 
-												onClick={() => setOpenDropdown(openDropdown === ann.id ? null : ann.id)}
-											/>
-											{openDropdown === ann.id && (
-												<div className="absolute right-0 top-6 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10 min-w-[120px]">
-													<button
-														onClick={() => handleEditAnnouncement(ann.id)}
-														className="flex items-center gap-2 w-full px-3 py-2 text-left text-neutral-300 hover:bg-neutral-700 hover:text-white text-sm"
-													>
-														<FaEdit /> Edit
-													</button>
-													<button
-														onClick={() => handlePinToggle(ann.id)}
-														className="flex items-center gap-2 w-full px-3 py-2 text-left text-neutral-300 hover:bg-neutral-700 hover:text-white text-sm"
-													>
-														<FaThumbtack /> Unpin
-													</button>
-													<button
-														onClick={() => handleDeleteAnnouncement(ann.id)}
-														className="flex items-center gap-2 w-full px-3 py-2 text-left text-red-400 hover:bg-neutral-700 hover:text-red-300 text-sm"
-													>
-														<FaTrash /> Delete
-													</button>
-												</div>
-											)}
-										</div>
-									</div>
-								</div>
-								<div className="text-neutral-200 text-[18px] font-mclaren leading-[100%] tracking-[0] font-normal mb-3 mt-3">
-									{ann.content}
-								</div>
-							</div>
-						))}
-					</div>
-				</>
-			)}
+  const filteredAnnouncements = groups.filter((ann) => {
+    if (showAdminOnly && !ann.isAdmin) return false;
+    if (selectedProject !== "all" && ann.projectId !== selectedProject)
+      return false;
+    if (showMyAnnouncements && ann.createdBy !== currentUserId) return false;
+    return true;
+  });
 
-			{/* Month/Year Heading */}
-			<div className="text-neutral-400 text-[20px] font-mclaren mb-3 leading-[100%] tracking-[0] font-normal">
-				{selectedMonth !== "All Months" && selectedYear !== "All Years"
-					? `${selectedMonth} ${selectedYear}`
-					: selectedMonth !== "All Months"
-					? selectedMonth
-					: selectedYear !== "All Years"
-					? selectedYear
-					: "All Announcements"}
-			</div>
+  const pinnedAnnouncements = filteredAnnouncements.filter((a) => a.pinned);
+  const otherAnnouncements = filteredAnnouncements.filter((a) => !a.pinned);
 
-			{/* Unpinned announcements */}
-			<div className="flex flex-col gap-0 w-full">
-				{unpinned.map((ann) => (
-					<div
-						key={ann.id}
-						className="bg-neutral-900 border border-neutral-700 rounded-lg px-6 py-4 shadow-sm flex flex-col gap-2 relative mb-4"
-					>
-						<div className="flex items-center justify-between">
-							<div className="flex items-center gap-3">
-								<div className="w-10 h-10 rounded-full bg-neutral-600 object-cover" />
-								<div>
-									<div className="text-white text-[20px] font-mclaren leading-[100%] tracking-[0] font-normal">
-										{ann.author}
-									</div>
-									<div className="text-neutral-400 text-[13px] font-mclaren leading-[100%] tracking- font-normal mt-1">
-										{ann.date}&nbsp;&nbsp;•&nbsp;&nbsp;{ann.time}
-										&nbsp;&nbsp;•&nbsp;&nbsp;{ann.domain}
-										&nbsp;&nbsp;•&nbsp;&nbsp;{ann.project}
-									</div>
-								</div>
-							</div>
-							<div className="relative">
-								<FaEllipsisV 
-									className="text-neutral-400 cursor-pointer hover:text-white" 
-									onClick={() => setOpenDropdown(openDropdown === ann.id ? null : ann.id)}
-								/>
-								{openDropdown === ann.id && (
-									<div className="absolute right-0 top-6 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10 min-w-[120px]">
-										<button
-											onClick={() => handleEditAnnouncement(ann.id)}
-											className="flex items-center gap-2 w-full px-3 py-2 text-left text-neutral-300 hover:bg-neutral-700 hover:text-white text-sm"
-										>
-											<FaEdit /> Edit
-										</button>
-										<button
-											onClick={() => handlePinToggle(ann.id)}
-											className="flex items-center gap-2 w-full px-3 py-2 text-left text-neutral-300 hover:bg-neutral-700 hover:text-white text-sm"
-										>
-											<FaThumbtack /> Pin
-										</button>
-										<button
-											onClick={() => handleDeleteAnnouncement(ann.id)}
-											className="flex items-center gap-2 w-full px-3 py-2 text-left text-red-400 hover:bg-neutral-700 hover:text-red-300 text-sm"
-										>
-											<FaTrash /> Delete
-										</button>
-									</div>
-								)}
-							</div>
-						</div>
-						<div className="text-neutral-200 text-[18px] font-mclaren leading-[100%] tracking- font-normal mb-3 mt-3">
-							{ann.content}
-						</div>
-						<button className="text-sm text-neutral-400 font-semibold w-fit mt-1 px-0 outline-none bg-transparent hover:text-white cursor-pointer">
-							Show More
-						</button>
-					</div>
-				))}
-			</div>
+  return (
+    <div className="min-h-screen py-6 px-4 bg-black text-white">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-wrap items-center justify-between mt-5 mb-6 gap-4">
+          <h1 className="text-4xl font-bold text-white">Announcements</h1>
 
-			{/* No results message */}
-			{filteredAnnouncements.length === 0 && (
-				<div className="text-center text-neutral-400 py-8">
-					<p className="text-[18px] font-mclaren">
-						No announcements found for the selected filters.
-					</p>
-				</div>
-			)}
+          <div className="flex flex-wrap gap-3 items-center">
+            {/* <select
+              value={selectedProject}
+              onChange={(e) => setSelectedProject(e.target.value)}
+              className="bg-white text-black border border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-gray-400"
+            >
+              <option value="all">All Projects</option>
+              {projects.map((p) => (
+                <option key={p._id} value={p._id}>
+                  {p.title}
+                </option>
+              ))}
+            </select> */}
 
-			{/* Create Announcement Modal */}
-			{showCreateModal && (
-				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-					<div className="bg-neutral-900 border border-neutral-700 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-						<div className="flex items-center justify-between mb-6">
-							<h2 className="text-white text-[24px] font-mclaren font-normal">Create Announcement</h2>
-							<button
-								onClick={() => setShowCreateModal(false)}
-								className="text-neutral-400 hover:text-white"
-							>
-								<FaTimes />
-							</button>
-						</div>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-white px-5 py-2 rounded-xl shadow-sm"
+            >
+              <FaPlus /> Create
+            </button>
+          </div>
+        </div>
 
-						<div className="space-y-4">
-							<div>
-								<label className="block text-neutral-300 text-sm font-mclaren mb-2">Author *</label>
-								<input
-									type="text"
-									value={formData.author}
-									onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-									className="w-full bg-neutral-800 border border-neutral-700 text-white px-3 py-2 rounded-md text-sm font-mclaren focus:outline-none focus:border-neutral-500"
-									placeholder="Enter author name"
-								/>
-							</div>
+        {pinnedAnnouncements.length > 0 && (
+          <div>
+            <h2 className="text-xl font-semibold mb-3 text-gray-200">
+              📌 Pinned
+            </h2>
+            <div className="space-y-4 mb-8">
+              {pinnedAnnouncements.map((ann) => (
+                <AnnouncementCard
+                  key={ann._id}
+                  ann={ann}
+                  onEdit={openModalForEdit}
+                  onDelete={handleDelete}
+                  onUnpin={handleUnpin}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
-							<div className="grid grid-cols-2 gap-4">
-								<div>
-									<label className="block text-neutral-300 text-sm font-mclaren mb-2">Domain *</label>
-									<input
-										type="text"
-										value={formData.domain}
-										onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
-										className="w-full bg-neutral-800 border border-neutral-700 text-white px-3 py-2 rounded-md text-sm font-mclaren focus:outline-none focus:border-neutral-500"
-										placeholder="e.g., Development"
-									/>
-								</div>
-								<div>
-									<label className="block text-neutral-300 text-sm font-mclaren mb-2">Project *</label>
-									<input
-										type="text"
-										value={formData.project}
-										onChange={(e) => setFormData({ ...formData, project: e.target.value })}
-										className="w-full bg-neutral-800 border border-neutral-700 text-white px-3 py-2 rounded-md text-sm font-mclaren focus:outline-none focus:border-neutral-500"
-										placeholder="e.g., Web Portal"
-									/>
-								</div>
-							</div>
+        <div>
+          {/* <h2 className="text-xl font-semibold mb-3 text-gray-200">
+            Other Announcements
+          </h2> */}
+          {otherAnnouncements.length > 0 ? (
+            <div className="space-y-4">
+              {otherAnnouncements.map((ann) => (
+                <AnnouncementCard
+                  key={ann._id}
+                  ann={ann}
+                  onEdit={openModalForEdit}
+                  onDelete={handleDelete}
+                  onPin={handlePin}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-gray-500 mt-8">
+              No announcements yet.
+            </p>
+          )}
+        </div>
+      </div>
 
-							<div className="grid grid-cols-2 gap-4">
-								<div>
-									<label className="block text-neutral-300 text-sm font-mclaren mb-2">Month</label>
-									<input
-										type="text"
-										value={formData.month}
-										onChange={(e) => setFormData({ ...formData, month: e.target.value })}
-										className="w-full bg-neutral-800 border border-neutral-700 text-white px-3 py-2 rounded-md text-sm font-mclaren focus:outline-none focus:border-neutral-500"
-										placeholder="e.g., January (optional)"
-									/>
-								</div>
-								<div>
-									<label className="block text-neutral-300 text-sm font-mclaren mb-2">Year</label>
-									<input
-										type="text"
-										value={formData.year}
-										onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-										className="w-full bg-neutral-800 border border-neutral-700 text-white px-3 py-2 rounded-md text-sm font-mclaren focus:outline-none focus:border-neutral-500"
-										placeholder="e.g., 2025 (optional)"
-									/>
-								</div>
-							</div>
-
-							<div>
-								<label className="block text-neutral-300 text-sm font-mclaren mb-2">Content *</label>
-								<textarea
-									value={formData.content}
-									onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-									rows={6}
-									className="w-full bg-neutral-800 border border-neutral-700 text-white px-3 py-2 rounded-md text-sm font-mclaren focus:outline-none focus:border-neutral-500 resize-vertical"
-									placeholder="Enter announcement content..."
-								/>
-							</div>
-						</div>
-
-						<div className="flex gap-3 mt-6 justify-end">
-							<button
-								onClick={() => setShowCreateModal(false)}
-								className="px-4 py-2 text-neutral-300 hover:text-white font-mclaren text-sm border border-neutral-700 rounded-md hover:bg-neutral-800 transition"
-							>
-								Cancel
-							</button>
-							<button
-								onClick={handleCreateAnnouncement}
-								className="px-4 py-2 bg-white text-black font-mclaren text-sm rounded-md hover:bg-neutral-200 transition"
-							>
-								Create Announcement
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
-
-			{/* Click outside to close dropdown */}
-			{openDropdown && (
-				<div 
-					className="fixed inset-0 z-5" 
-					onClick={() => setOpenDropdown(null)}
-				/>
-			)}
-		</div>
-	);
+      {/* MODAL */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+          <div className="bg-white text-black p-6 rounded-xl w-full max-w-lg relative shadow-xl">
+            <button
+              onClick={resetModal}
+              className="absolute top-4 right-4 text-gray-600 hover:text-black"
+            >
+              <FaTimes />
+            </button>
+            <h3 className="text-2xl font-bold mb-4">
+              {editingId ? "Edit Announcement" : "Create Announcement"}
+            </h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Title"
+                className="w-full p-3 rounded-xl border border-gray-300 bg-white text-black focus:ring-2 focus:ring-gray-400"
+              />
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                required
+                rows={5}
+                className="w-full p-3 rounded-xl border border-gray-300 bg-white text-black focus:ring-2 focus:ring-gray-400"
+                placeholder="Description"
+              />
+              <div className="flex items-center gap-3">
+                <input
+                  id="pinned"
+                  type="checkbox"
+                  checked={pinned}
+                  onChange={(e) => setPinned(e.target.checked)}
+                  className="accent-gray-600"
+                />
+                <label htmlFor="pinned" className="text-sm text-black">
+                  Pin this announcement
+                </label>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="bg-gray-800 text-white px-4 py-2 rounded-xl hover:bg-gray-700"
+                >
+                  {submitting
+                    ? "Saving..."
+                    : editingId
+                    ? "Update"
+                    : "Create"}
+                </button>
+                <button
+                  type="button"
+                  onClick={resetModal}
+                  className="px-4 py-2 rounded-xl border border-gray-400 text-gray-700 hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
+
+const AnnouncementCard = ({ ann, onEdit, onDelete, onPin, onUnpin }: any) => (
+  <div className="p-5 bg-gray-900 rounded-xl border border-gray-700 shadow-sm hover:shadow-md transition duration-200">
+    <div className="flex justify-between items-start">
+      <div className="flex items-center gap-3">
+        {ann.senderProfilePic ? (
+          <img
+            src={ann.senderProfilePic}
+            alt="Profile"
+            className="w-10 h-10 rounded-full object-cover border border-gray-600"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-white font-semibold">
+            {ann.senderName ? ann.senderName.charAt(0).toUpperCase() : "U"}
+          </div>
+        )}
+
+        <div>
+          <h3 className="text-base font-semibold text-gray-100">
+            {ann.senderName || "Unknown"}
+          </h3>
+          <p className="text-xs text-gray-400">
+            {new Date(ann.createdAt).toLocaleString()}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex gap-2 text-gray-400">
+        <button
+          onClick={() => onEdit(ann)}
+          title="Edit"
+          className="hover:text-gray-100 transition"
+        >
+          <Edit size={16} />
+        </button>
+
+        {onPin && (
+          <button
+            onClick={() => onPin(ann._id)}
+            title="Pin"
+            className="hover:text-emerald-400 transition"
+          >
+            <Pin size={16} />
+          </button>
+        )}
+
+        {onUnpin && (
+          <button
+            onClick={() => onUnpin(ann._id)}
+            title="Unpin"
+            className="text-yellow-400 hover:text-yellow-300 transition"
+          >
+            <Pin size={16} />
+          </button>
+        )}
+
+        <button
+          onClick={() => onDelete(ann._id)}
+          title="Delete"
+          className="hover:text-red-500 transition"
+        >
+          <Trash size={16} />
+        </button>
+      </div>
+    </div>
+
+    <div className="mt-3">
+      <h2 className="text-lg font-semibold text-gray-100">{ann.title}</h2>
+      <p className="text-gray-300 mt-2 leading-relaxed">{ann.content}</p>
+    </div>
+  </div>
+);

@@ -1,40 +1,47 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { canProject } from "@/lib/permissions";
+import { authOptions } from "@/app/api/auth/[...nextauth]/option";
+import dbConnect from "@/lib/db";
 import ProjectModel from "@/model/Projects";
+import mongoose from "mongoose";
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
-  const session = await getServerSession();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    await dbConnect();
+
+    const session = await getServerSession(authOptions);
+    if (!session?.user?._id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = new mongoose.Types.ObjectId(session.user._id);
+    const project = await ProjectModel.findById(params.id);
+
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    // 🧩 Check if user already a member
+    if (project.members.some((m: mongoose.Types.ObjectId) => m.equals(userId))) {
+      return NextResponse.json({ error: "Already a member" }, { status: 400 });
+    }
+
+    // 🧩 Check if already applied
+    const existing = project.requests.find((r: any) => r.user.equals(userId));
+    if (existing) {
+      return NextResponse.json({ error: "Already applied" }, { status: 400 });
+    }
+
+    // 🆕 Add new pending request
+    project.requests.push({ user: userId, status: "Pending" });
+    await project.save();
+
+    return NextResponse.json({
+      message: "Request submitted successfully",
+      projectId: project._id,
+    });
+  } catch (err) {
+    console.error("Error submitting request:", err);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
-
-  const { role, id } = session.user;
-  if (!canProject(role, "applyproject")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-  const project = await ProjectModel.findById(params.id);
-  if (!project) {
-    return NextResponse.json(
-      { error: "Project not available for applications" },
-      { status: 400 }
-    );
-  }
-
-  if (project.members.includes(id)) {
-    return NextResponse.json({ error: "Already a member" }, { status: 400 });
-  }
-
-  const existingRequest = project.requests.find(
-    (r) => r.user.toString() === id
-  );
-  if (existingRequest) {
-    return NextResponse.json({ error: "Already applied" }, { status: 400 });
-  }
-
-  project.requests.push({ user: id, status: "Pending" });
-  await project.save();
-
-  return NextResponse.json({ message: "Request submitted", project });
 }

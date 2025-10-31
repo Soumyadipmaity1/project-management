@@ -1,464 +1,329 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { Github, Linkedin, Mail, Briefcase, Trophy, Target, Code, Calendar, BookOpen, Edit, X, Save, FolderKanban } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import toast, { Toaster } from 'react-hot-toast';
+import {
+  Github,
+  Linkedin,
+  Mail,
+  Code,
+  FolderKanban,
+  Edit2,
+  Save,
+  Upload,
+} from 'lucide-react';
 
-interface ProfileData {
+interface UserProfile {
+  _id: string;
   name: string;
   email: string;
-  designation: string;
-  github: string;
-  linkedin: string;
-  year: string;
-  semester: string;
-  profilePhoto: string;
-  skills: string[];
-  projectContribution: number;
-  domainLeadContribution: number;
-  projectLeadContribution: number;
-  completedProjects: number;
-  ongoingProjects: number;
-  currentProject: string;
+  rollNo?: string;
+  role?: string;
+  githubId?: string;
+  linkedinId?: string;
+  domain?: string;
+  profilePic?: string;
+  ProjectCount?: number;
+  skills?: string[];
+  projects?: {
+    projectId: string;
+    projectName: string;
+  }[];
 }
-
-interface StatCardProps {
-  icon: React.ReactNode;
-  title: string;
-  value: number;
-  gradient: string;
-}
-
-interface ProjectCardProps {
-  title: string;
-  count: number;
-  icon: React.ReactNode;
-  bgGradient: string;
-  borderColor: string;
-  iconColor: string;
-}
-
-// Sample data - replace with actual data from API/database
-const initialProfileData: ProfileData = {
-  name: "John Doe",
-  email: "john.doe@example.com",
-  designation: "Project Lead",
-  github: "https://github.com/johndoe",
-  linkedin: "https://linkedin.com/in/johndoe",
-  year: "3rd Year",
-  semester: "6th Semester",
-  profilePhoto: "/placeholder-avatar.jpg",
-  skills: ["React", "Next.js", "TypeScript", "Node.js", "Python", "MongoDB", "AWS", "Docker"],
-  projectContribution: 45,
-  domainLeadContribution: 12,
-  projectLeadContribution: 8,
-  completedProjects: 15,
-  ongoingProjects: 3,
-  currentProject: "AI-Powered Project Management System"
-};
-
-// Helper function to extract username from GitHub URL
-const getGithubUsername = (url: string): string => {
-  try {
-    const match = url.match(/github\.com\/([^\/\?]+)/);
-    return match ? match[1] : 'GitHub';
-  } catch {
-    return 'GitHub';
-  }
-};
-
-// Helper function to extract username from LinkedIn URL
-const getLinkedinUsername = (url: string): string => {
-  try {
-    const match = url.match(/linkedin\.com\/in\/([^\/\?]+)/);
-    return match ? match[1] : 'LinkedIn';
-  } catch {
-    return 'LinkedIn';
-  }
-};
 
 export default function ProfilePage() {
-  const [profileData, setProfileData] = useState<ProfileData>(initialProfileData);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editData, setEditData] = useState<ProfileData>(initialProfileData);
-  const [newSkill, setNewSkill] = useState('');
+  const { data: session, status } = useSession();
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
-  const handleAddSkill = () => {
-    if (newSkill.trim() !== '' && !editData.skills.includes(newSkill.trim())) {
-      setEditData({ ...editData, skills: [...editData.skills, newSkill.trim()] });
-      setNewSkill('');
+  // 🔹 Fetch user profile on mount
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user?._id) {
+      (async () => {
+        try {
+          const res = await fetch(`/api/users/${session.user._id}`);
+          const data = await res.json();
+          setUser(data);
+        } catch (err) {
+          console.error('Error fetching user:', err);
+        } finally {
+          setLoading(false);
+        }
+      })();
+    }
+  }, [session, status]);
+
+  // 🔹 Save updated profile info
+  const handleSave = async () => {
+    if (!user || !session?.user?._id) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/users/${session.user._id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          domain: user.domain,
+          skills: user.skills,
+          githubId: user.githubId,
+          linkedinId: user.linkedinId,
+          profilePic: user.profilePic,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setUser(data);
+        setEditing(false);
+        toast.success('Profile updated successfully!');
+      } else {
+        toast.error(data.error || 'Update failed');
+      }
+    } catch (err) {
+      console.error('Error updating user:', err);
+      toast.error('An error occurred while saving.');
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleRemoveSkill = (skillToRemove: string) => {
-    setEditData({ ...editData, skills: editData.skills.filter(skill => skill !== skillToRemove) });
+  // 🔹 Handle Cloudinary image upload
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.[0]) return;
+    const file = e.target.files[0];
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append(
+        'upload_preset',
+        process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'workpilot'
+      );
+
+      const cloudName =
+        process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dm9j97lv3';
+
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      const data = await res.json();
+      if (data.secure_url) {
+        setUser((prev) =>
+          prev ? { ...prev, profilePic: data.secure_url } : prev
+        );
+        toast.success('Image uploaded!');
+      } else {
+        toast.error('Failed to upload image.');
+      }
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      toast.error('Upload failed.');
+    } finally {
+      setUploading(false);
+    }
   };
 
-  const handleSave = () => {
-    // TODO: Add API call to save data to backend
-    console.log('Saving data:', editData);
-    setProfileData(editData);
-    setIsEditModalOpen(false);
-  };
+  if (status === 'loading' || loading)
+    return <p className="text-center text-slate-400 mt-20">Loading user profile...</p>;
 
-  const handleOpenModal = () => {
-    setEditData(profileData);
-    setIsEditModalOpen(true);
-  };
+  if (!session || !user)
+    return <p className="text-center text-red-400 mt-20">No user found or not logged in.</p>;
+
+  const getGithubUsername = (url?: string) =>
+    url ? url.split('github.com/')[1]?.replace('/', '') || 'GitHub' : 'GitHub';
+  const getLinkedinUsername = (url?: string) =>
+    url ? url.split('linkedin.com/in/')[1]?.replace('/', '') || 'LinkedIn' : 'LinkedIn';
 
   return (
-    <div className="min-h-screen">
-      {/* Header Section */}
-      <div className="relative overflow-hidden">
-        {/* Background Pattern */}
-        
-        <div className="relative max-w-7xl mx-auto px-2 md:px-4 lg:px-8 lg:pt-8 pt-2">
-          {/* Edit Button */}
-          <div className="flex justify-end mb-4">
-            <button
-              onClick={handleOpenModal}
-              className="flex items-center gap-2 px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-emerald-500/50 transition-all duration-300"
-            >
-              <Edit size={16} />
-              <span>Edit Profile</span>
-            </button>
+    <div className="min-h-screen py-10 px-6 md:px-10 text-slate-200">
+      <Toaster position="top-right" />
+      <div className="max-w-4xl mx-auto bg-slate-900/90 border border-emerald-500/20 rounded-3xl shadow-xl shadow-emerald-500/10 p-8">
+
+        {/* --- Profile Header --- */}
+        <div className="flex flex-col md:flex-row items-center gap-8">
+          <div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-emerald-500 group">
+            <Image
+              src={user.profilePic || '/placeholder-avatar.jpg'}
+              alt={user.name}
+              fill
+              className="object-cover"
+              unoptimized={false}
+            />
+            {editing && (
+              <label className="absolute inset-0 bg-black/50 flex items-center justify-center cursor-pointer hover:bg-black/60 transition">
+                {uploading ? (
+                  <span className="text-sm text-slate-200">Uploading...</span>
+                ) : (
+                  <Upload className="w-6 h-6 text-white" />
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </label>
+            )}
           </div>
 
-          {/* Profile Header Card */}
-          <div className="bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-emerald-500/20 shadow-2xl shadow-emerald-500/10 overflow-hidden">
-            <div className="p-4 md:p-8">
-              <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-                {/* Profile Photo */}
-                <div className="relative group">
-                  <div className="relative w-60 h-60 rounded-full overflow-hidden border-4 border-slate-900 ring-2 ring-emerald-500">
-                    <Image
-                      src={profileData.profilePhoto}
-                      alt={profileData.name}
-                      fill
-                      className="object-cover"
-                      priority
-                    />
-                  </div>
-                </div>
+          {/* --- User Info --- */}
+          <div className="flex-1 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-between">
+              <h1 className="text-4xl font-bold text-emerald-400">{user.name}</h1>
+              {editing ? (
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="flex items-center gap-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white disabled:opacity-50"
+                >
+                  <Save size={18} /> {saving ? 'Saving...' : 'Save'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => setEditing(true)}
+                  className="flex items-center gap-2 px-3 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200"
+                >
+                  <Edit2 size={18} /> Edit
+                </button>
+              )}
+            </div>
 
-                {/* Basic Info */}
-                <div className="flex-1 text-center md:text-left">
-                  <h1 className="text-4xl md:text-5xl font-bold text-emerald-400 mb-2">
-                    {profileData.name}
-                  </h1>
-                  <p className="text-xl text-emerald-300 font-semibold mb-4">{profileData.designation}</p>
-                  
-                  <div className="flex flex-wrap justify-center md:justify-start gap-4 mb-6">
-                    <a href={`mailto:${profileData.email}`} 
-                       className="flex items-center gap-2 text-slate-300 hover:text-emerald-400 transition-colors">
-                      <Mail size={18} />
-                      <span className="text-sm">{profileData.email}</span>
-                    </a>
-                    <a href={profileData.github} target="_blank" rel="noopener noreferrer"
-                       className="flex items-center gap-2 text-slate-300 hover:text-emerald-400 transition-colors group/link">
-                      <Github size={18} className="group-hover/link:scale-110 transition-transform" />
-                      <span className="text-sm">@{getGithubUsername(profileData.github)}</span>
-                    </a>
-                    <a href={profileData.linkedin} target="_blank" rel="noopener noreferrer"
-                       className="flex items-center gap-2 text-slate-300 hover:text-emerald-400 transition-colors group/link">
-                      <Linkedin size={18} className="group-hover/link:scale-110 transition-transform" />
-                      <span className="text-sm">@{getLinkedinUsername(profileData.linkedin)}</span>
-                    </a>
-                  </div>
+            {editing ? (
+              <>
+                <input
+                  type="text"
+                  placeholder="Enter domain"
+                  value={user.domain || ''}
+                  onChange={(e) => setUser({ ...user, domain: e.target.value })}
+                  className="mt-3 w-full p-2 bg-slate-800 border border-slate-600 rounded-lg"
+                />
+                <input
+                  type="text"
+                  placeholder="Comma-separated skills"
+                  value={user.skills?.join(', ') || ''}
+                  onChange={(e) =>
+                    setUser({
+                      ...user,
+                      skills: e.target.value.split(',').map((s) => s.trim()),
+                    })
+                  }
+                  className="mt-2 w-full p-2 bg-slate-800 border border-slate-600 rounded-lg"
+                />
+                <input
+                  type="text"
+                  placeholder="GitHub link"
+                  value={user.githubId || ''}
+                  onChange={(e) => setUser({ ...user, githubId: e.target.value })}
+                  className="mt-2 w-full p-2 bg-slate-800 border border-slate-600 rounded-lg"
+                />
+                <input
+                  type="text"
+                  placeholder="LinkedIn link"
+                  value={user.linkedinId || ''}
+                  onChange={(e) => setUser({ ...user, linkedinId: e.target.value })}
+                  className="mt-2 w-full p-2 bg-slate-800 border border-slate-600 rounded-lg"
+                />
+              </>
+            ) : (
+              <>
+                {user.domain && <p className="text-lg text-emerald-300 font-semibold">{user.domain}</p>}
+                {user.role && <p className="text-sm text-slate-400 mt-1 capitalize">{user.role}</p>}
 
-                  <div className="flex flex-wrap justify-center md:justify-start gap-4">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
-                      <Calendar size={16} className="text-emerald-400" />
-                      <span className="text-sm text-slate-200">{profileData.year}</span>
-                    </div>
-                    <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
-                      <BookOpen size={16} className="text-emerald-400" />
-                      <span className="text-sm text-slate-200">{profileData.semester}</span>
-                    </div>
-                  </div>
-
-                  {/* Current Project */}
-                  {profileData.currentProject && (
-                    <div className="mt-6 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl">
-                      <div className="flex items-center gap-2 mb-2">
-                        <FolderKanban size={18} className="text-emerald-400" />
-                        <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Current Project</span>
-                      </div>
-                      <p className="text-base font-semibold text-slate-200">{profileData.currentProject}</p>
-                    </div>
+                <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4">
+                  {user.email && (
+                    <a
+                      href={`mailto:${user.email}`}
+                      className="flex items-center gap-2 text-slate-300 hover:text-emerald-400 transition"
+                    >
+                      <Mail size={18} /> {user.email}
+                    </a>
+                  )}
+                  {user.githubId && (
+                    <a
+                      href={user.githubId}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-slate-300 hover:text-emerald-400 transition"
+                    >
+                      <Github size={18} /> @{getGithubUsername(user.githubId)}
+                    </a>
+                  )}
+                  {user.linkedinId && (
+                    <a
+                      href={user.linkedinId}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-slate-300 hover:text-emerald-400 transition"
+                    >
+                      <Linkedin size={18} /> @{getLinkedinUsername(user.linkedinId)}
+                    </a>
                   )}
                 </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* --- Skills Section --- */}
+        {user.skills && user.skills.length > 0 && !editing && (
+          <div className="mt-10">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-emerald-600 rounded-xl">
+                <Code className="w-6 h-6 text-white" />
               </div>
+              <h2 className="text-2xl font-bold text-emerald-400">Skills</h2>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {user.skills.map((skill, i) => (
+                <span
+                  key={i}
+                  className="px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-slate-200 font-medium hover:bg-emerald-500/30 transition"
+                >
+                  {skill}
+                </span>
+              ))}
             </div>
           </div>
-        </div>
-      </div>
+        )}
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
-        {/* Contributions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatCard
-            icon={<Briefcase className="w-6 h-6" />}
-            title="Project Contribution"
-            value={profileData.projectContribution}
-            gradient="from-emerald-600 to-emerald-600"
-          />
-          <StatCard
-            icon={<Target className="w-6 h-6" />}
-            title="Domain Lead Contribution"
-            value={profileData.domainLeadContribution}
-            gradient="from-emerald-600 to-emerald-600"
-          />
-          <StatCard
-            icon={<Trophy className="w-6 h-6" />}
-            title="Project Lead Contribution"
-            value={profileData.projectLeadContribution}
-            gradient="from-emerald-600 to-emerald-600"
-          />
-        </div>
-
-        {/* Projects Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ProjectCard
-            title="Completed Projects"
-            count={profileData.completedProjects}
-            icon={<Trophy className="w-8 h-8" />}
-            bgGradient="from-green-500/10 to-emerald-500/10"
-            borderColor="border-green-500/30"
-            iconColor="text-green-400"
-          />
-          <ProjectCard
-            title="Ongoing Projects"
-            count={profileData.ongoingProjects}
-            icon={<Target className="w-8 h-8" />}
-            bgGradient="from-blue-500/10 to-cyan-500/10"
-            borderColor="border-blue-500/30"
-            iconColor="text-blue-400"
-          />
-        </div>
-
-        {/* Skills Section */}
-        <div className="bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-emerald-500/20 shadow-xl shadow-emerald-500/5 p-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 bg-emerald-600 rounded-xl">
-              <Code className="w-6 h-6 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-emerald-400">
-              Technical Skills
-            </h2>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            {profileData.skills.map((skill, index) => (
-              <span
-                key={index}
-                className="px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-slate-200 font-medium hover:bg-emerald-500/30 transition-all duration-300 hover:scale-105 cursor-default"
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Edit Modal */}
-      {isEditModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-slate-900 rounded-3xl border border-emerald-500/30 shadow-2xl shadow-emerald-500/20 max-w-2xl w-full max-h-[90vh] overflow-hidden">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-emerald-500/20">
+        {/* --- Projects Section --- */}
+        {user.projects && user.projects.length > 0 && (
+          <div className="mt-10">
+            <div className="flex items-center gap-6 mb-6">
+              <div className="p-3 bg-emerald-600 rounded-xl">
+                <FolderKanban className="w-6 h-6 text-white" />
+              </div>
               <h2 className="text-2xl font-bold text-emerald-400">
-                Edit Profile
+                Projects
+                <span className="text-slate-400 text-lg font-medium ml-3">
+                  (Total: {user.ProjectCount ?? user.projects.length})
+                </span>
               </h2>
-              <button
-                onClick={() => setIsEditModalOpen(false)}
-                className="p-2 hover:bg-emerald-500/10 rounded-lg transition-colors"
-              >
-                <X size={24} className="text-slate-300" />
-              </button>
             </div>
 
-            {/* Modal Content */}
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)] space-y-6">
-              {/* Year and Semester */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Year
-                  </label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                    <input
-                      type="text"
-                      value={editData.year}
-                      onChange={(e) => setEditData({ ...editData, year: e.target.value })}
-                      className="w-full pl-11 pr-4 py-3 bg-slate-800/50 border border-emerald-500/30 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="e.g., 3rd Year"
-                    />
-                  </div>
+            <div className="grid sm:grid-cols-2 gap-5">
+              {user.projects.map((proj, idx) => (
+                <div
+                  key={proj.projectId || idx}
+                  className="p-5 bg-slate-800/60 border border-emerald-500/20 rounded-xl hover:border-emerald-500/40 transition"
+                >
+                  <h3 className="text-lg font-semibold text-emerald-400">
+                    {proj.projectName || 'Untitled Project'}
+                  </h3>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Semester
-                  </label>
-                  <div className="relative">
-                    <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                    <input
-                      type="text"
-                      value={editData.semester}
-                      onChange={(e) => setEditData({ ...editData, semester: e.target.value })}
-                      className="w-full pl-11 pr-4 py-3 bg-slate-800/50 border border-emerald-500/30 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="e.g., 6th Semester"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Current Project */}
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Current Project
-                </label>
-                <div className="relative">
-                  <FolderKanban className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                  <input
-                    type="text"
-                    value={editData.currentProject}
-                    onChange={(e) => setEditData({ ...editData, currentProject: e.target.value })}
-                    className="w-full pl-11 pr-4 py-3 bg-slate-800/50 border border-emerald-500/30 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                    placeholder="e.g., AI-Powered Project Management System"
-                  />
-                </div>
-              </div>
-
-              {/* GitHub URL */}
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  GitHub Profile URL
-                </label>
-                <div className="relative">
-                  <Github className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                  <input
-                    type="url"
-                    value={editData.github}
-                    onChange={(e) => setEditData({ ...editData, github: e.target.value })}
-                    className="w-full pl-11 pr-4 py-3 bg-slate-800/50 border border-emerald-500/30 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                    placeholder="https://github.com/username"
-                  />
-                </div>
-              </div>
-
-              {/* LinkedIn URL */}
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  LinkedIn Profile URL
-                </label>
-                <div className="relative">
-                  <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                  <input
-                    type="url"
-                    value={editData.linkedin}
-                    onChange={(e) => setEditData({ ...editData, linkedin: e.target.value })}
-                    className="w-full pl-11 pr-4 py-3 bg-slate-800/50 border border-emerald-500/30 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                    placeholder="https://linkedin.com/in/username"
-                  />
-                </div>
-              </div>
-
-              {/* Skills */}
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Skills
-                </label>
-                <div className="flex gap-2 mb-3">
-                  <input
-                    type="text"
-                    value={newSkill}
-                    onChange={(e) => setNewSkill(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddSkill()}
-                    className="flex-1 px-4 py-3 bg-slate-800/50 border border-emerald-500/30 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                    placeholder="Add a new skill..."
-                  />
-                  <button
-                    onClick={handleAddSkill}
-                    className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all duration-300"
-                  >
-                    Add
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {editData.skills.map((skill, index) => (
-                    <span
-                      key={index}
-                      className="group flex items-center gap-2 px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-slate-200 font-medium"
-                    >
-                      {skill}
-                      <button
-                        onClick={() => handleRemoveSkill(skill)}
-                        className="opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all"
-                      >
-                        <X size={16} />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="flex items-center justify-end gap-4 p-6 border-t border-emerald-500/20">
-              <button
-                onClick={() => setIsEditModalOpen(false)}
-                className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-xl transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-emerald-500/50 transition-all duration-300"
-              >
-                <Save size={20} />
-                <span>Save Changes</span>
-              </button>
+              ))}
             </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Reusable Components
-function StatCard({ icon, title, value, gradient }: StatCardProps) {
-  return (
-    <div className="group relative bg-slate-900/90 backdrop-blur-xl rounded-2xl border border-emerald-500/20 shadow-xl shadow-emerald-500/5 p-6 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 hover:scale-105">
-      <div className={`absolute inset-0 bg-emerald-600 opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-300`} />
-      <div className="relative">
-        <div className={`inline-flex p-3 bg-emerald-600 rounded-xl mb-4 shadow-lg`}>
-          <div className="text-white">{icon}</div>
-        </div>
-        <h3 className="text-slate-400 text-sm font-medium mb-2">{title}</h3>
-        <p className="text-4xl font-bold text-emerald-400">
-          {value}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function ProjectCard({ title, count, icon, bgGradient, borderColor, iconColor }: ProjectCardProps) {
-  return (
-    <div className={`bg-slate-900/90 backdrop-blur-xl rounded-2xl border ${borderColor} shadow-xl p-8 hover:scale-105 transition-all duration-300`}>
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-slate-300 text-lg font-medium mb-2">{title}</h3>
-          <p className="text-5xl font-bold text-emerald-400">
-            {count}
-          </p>
-        </div>
-        <div className={iconColor}>
-          {icon}
-        </div>
+        )}
       </div>
     </div>
   );

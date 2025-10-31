@@ -42,13 +42,13 @@ const elements = [
   },
 ];
 
-const items = [
-  {
-    title: "Web Development",
-    url: "/member/domains",
-    icon: Code2,
-  },
-];
+// const items = [
+//   {
+//     title: "Web Development",
+//     url: "/member/domains",
+//     icon: Code2,
+//   },
+// ];
 
 export function MemberSidebar() {
   const pathname = usePathname();
@@ -141,7 +141,7 @@ export function MemberSidebar() {
         </SidebarGroup>
 
         {/* Domains Section */}
-        <SidebarGroup className="px-2">
+        {/* <SidebarGroup className="px-2">
           {!isCollapsed && (
             <SidebarGroupLabel className="font-mclaren text-indigo-400 text-[12px] font-semibold mb-2 px-3 uppercase tracking-wider">
               Domains
@@ -171,7 +171,7 @@ export function MemberSidebar() {
                     >
                       <Link href={item.url} className="flex items-center gap-3 px-3">
                         {/* Active indicator */}
-                        {isActive && !isCollapsed && (
+                        {/* {isActive && !isCollapsed && (
                           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-indigo-400 to-indigo-600 rounded-r-full"></div>
                         )}
                         
@@ -212,7 +212,7 @@ export function MemberSidebar() {
               })}
             </SidebarMenu>
           </SidebarGroupContent>
-        </SidebarGroup>
+        </SidebarGroup> */} 
 
         {/* Footer */}
         {/* <SidebarFooter className="mt-auto p-3 border-t border-slate-700/50">
