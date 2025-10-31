@@ -68,7 +68,6 @@ const UserSchema: Schema<User> = new Schema(
       max: [1000, "Project count cannot exceed 1000"],
     },
 
-    // 🆕 Profile fields
     skills: { type: [String], default: [] },
   },
   {
