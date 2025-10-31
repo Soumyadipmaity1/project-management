@@ -33,7 +33,7 @@ export default function TeamMembers() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await fetch("/api/myproject");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/myproject`);
         if (!res.ok) throw new Error("Failed to fetch projects");
         const data = await res.json();
         setProjects(Array.isArray(data) ? data : []);
@@ -57,7 +57,7 @@ export default function TeamMembers() {
 
       setLoading(true);
       try {
-        const res = await fetch(`/api/projects/${selectedProjectId}/member`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${selectedProjectId}/member`);
         if (!res.ok) throw new Error("Failed to fetch members");
         const data = await res.json();
 
@@ -109,7 +109,7 @@ export default function TeamMembers() {
 
   try {
     const res = await fetch(
-      `/api/projects/${selectedProjectId}/member/${memberToRemove._id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/projects/${selectedProjectId}/member/${memberToRemove._id}`,
       { method: "DELETE" }
     );
 

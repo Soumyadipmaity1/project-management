@@ -19,10 +19,10 @@ export default function AnnouncementsPage() {
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
-        const res = await fetch("/api/announcement", { cache: "no-store" }); // ✅ fixed endpoint
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/announcement`, { cache: "no-store" }); 
         if (!res.ok) throw new Error("Failed to fetch announcements");
         const data = await res.json();
-        console.log("Fetched announcements:", data); // 👈 Add this
+        console.log("Fetched announcements:", data);
         setAnnouncements(data);
       } catch (err) {
         console.error("Error fetching announcements:", err);

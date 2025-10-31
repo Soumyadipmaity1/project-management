@@ -201,13 +201,12 @@ export default function MemProjects() {
     };
     window.addEventListener("openEditProject", handler as EventListener);
     return () => window.removeEventListener("openEditProject", handler as EventListener);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/myproject", { cache: "no-store" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/myproject`, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed to fetch projects");
       const data = await res.json();
       setProjects(Array.isArray(data) ? data : []);
@@ -271,7 +270,7 @@ export default function MemProjects() {
       form.append("domain", JSON.stringify(selectedDomains));
       if (imageFile) form.append("image", imageFile);
 
-      const res = await fetch("/api/projects", { method: "POST", body: form });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`, { method: "POST", body: form });
       const data = await res.json();
       if (!res.ok) {
         const errorMessage = data?.error || data?.message || "An unexpected error occurred.";
@@ -292,12 +291,12 @@ export default function MemProjects() {
     }
   };
 
-  const handleViewProject = (projectId: string) => router.push(`/lead/myprojects/${projectId}`);
+  const handleViewProject = (projectId: string) => router.push(`${process.env.NEXT_PUBLIC_API_URL}/lead/myprojects/${projectId}`);
 
   const handleDelete = async (projectId: string) => {
     if (!confirm("Are you sure you want to delete this project?")) return;
     try {
-      const res = await fetch(`/api/projects/${projectId}`, { method: "DELETE" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${projectId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete project");
       toast.success("Project deleted successfully!");
       await fetchProjects();
@@ -421,7 +420,7 @@ const handleEditSubmit = async (e: React.FormEvent) => {
       image: previewImage || editFormData.image, // optional
     };
 
-    const res = await fetch(`/api/projects/${editingProjectId}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${editingProjectId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

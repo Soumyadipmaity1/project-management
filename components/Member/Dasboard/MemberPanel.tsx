@@ -200,7 +200,7 @@ export default function MemberPanel({ role = "Member" }: MemberPanelProps) {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch("/api/stats");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/stats`);
         if (!res.ok) throw new Error("Failed to fetch stats");
         const data = await res.json();
 

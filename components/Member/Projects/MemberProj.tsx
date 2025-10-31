@@ -30,12 +30,12 @@ export default function ProjectGrid() {
 
         if (activeTab === "enrolled") {
           // Fetch only enrolled projects
-          const res = await fetch("/api/projects/enrolled");
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/enrolled`);
           if (!res.ok) throw new Error("Failed to fetch enrolled projects");
           data = await res.json();
         } else {
           // Fetch all other projects
-          const res = await fetch("/api/projects");
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`);
           if (!res.ok) throw new Error("Failed to fetch projects");
           data = await res.json();
         }
@@ -214,12 +214,12 @@ function ProjectCard({ project }: { project: Project }) {
   const enrolled = project.enrolled;
 
   const handleOpenProject = () => {
-    if (!disabled) router.push(`/member/projects/${project._id}`);
+    if (!disabled) router.push(`${process.env.NEXT_PUBLIC_API_URL}/member/projects/${project._id}`);
   };
 
   const handleSendRequest = async () => {
     try {
-      const res = await fetch(`/api/project-requests`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/project-requests`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ projectId: project._id }),
