@@ -17,7 +17,6 @@ export async function GET() {
     const user = await UserModel.findOne({ email: session.user.email });
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    // Get only projects where user is a member
     const enrolledProjects = await ProjectModel.find({ members: user._id })
       .populate("projectlead", "name")
       .populate("colead", "name")

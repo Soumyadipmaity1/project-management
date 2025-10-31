@@ -12,7 +12,7 @@ export async function GET(
 
     const project = await ProjectModel.findById(id)
       .populate("members", "name email profilePic domain")
-      .lean(); // ✅ lean() converts Mongoose docs to plain JSON
+      .lean(); 
 
     if (!project) {
       return NextResponse.json(

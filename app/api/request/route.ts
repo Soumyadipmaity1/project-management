@@ -81,7 +81,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // ✅ Safely parse JSON body once
     const body = await req.json();
 
     if (!body || typeof body !== "object") {
@@ -90,12 +89,10 @@ export async function POST(req: Request) {
 
     const { title, domain, description, link, startDate, endDate, image } = body;
 
-    // ✅ Validate input
     if (!title || !description || !domain?.length || !startDate || !endDate || !image) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // ✅ Create new request
     const newRequest = await RequestModel.create({
       user: session.user._id,
       title,
