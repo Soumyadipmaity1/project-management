@@ -7,285 +7,117 @@ import { authOptions } from "../../auth/[...nextauth]/option";
 import mongoose from "mongoose";
 import UserModel from "@/model/User";
 
-async function resolveUserIdentifier(val: any): Promise<string | null> {
-  if (!val) return null;
+function errorResponse(error: string, status = 400, details?: string) {
+  return NextResponse.json({ success: false, error, details: details || null }, { status });
+}
+
+async function resolveUserIdentifier(val: any): Promise<string | undefined> {
+  if (!val) return undefined;
   const s = String(val).trim();
   if (mongoose.Types.ObjectId.isValid(s)) return s;
-  // try by email
   let u = await UserModel.findOne({ email: s }).select("_id").lean();
   if (u) return String(u._id);
-  // try by rollNo
   u = await UserModel.findOne({ rollNo: s }).select("_id").lean();
   if (u) return String(u._id);
-  // try by name (exact match)
   u = await UserModel.findOne({ name: s }).select("_id").lean();
   if (u) return String(u._id);
-  return null;
+  return undefined; 
 }
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  await dbConnect();
 
+export async function GET(req: Request, { params }: { params: { id: string } }) {
+  await dbConnect();
   const session = await getServerSession(authOptions);
 
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!session?.user) return errorResponse("Unauthorized", 401);
+
+  const { id } = params;
+  if (!mongoose.Types.ObjectId.isValid(id))
+    return errorResponse("Invalid project ID", 400);
 
   try {
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
-      return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
-    }
+    console.log("Fetching project with ID:", id);
 
-    console.log("Fetching project with ID:", params.id);
-    const project = await ProjectModel.findById(params.id)
-      .populate("projectlead", "name email role")
-      .populate("colead", "name email role")
-      .populate("members", "name email role")
+    const project = await ProjectModel.findById(id)
+      .populate("projectlead", "name email role image")
+      .populate("colead", "name email role image")
+      .populate("members", "name email role image")
       .lean();
 
-    if (!project) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
-    }
+    if (!project) return errorResponse("Project not found", 404);
 
-    return NextResponse.json(project, { status: 200 });
-  } catch (error) {
-    console.error("Error fetching project:", error);
-    return NextResponse.json(
-      { error: "Server Error", details: "Failed to fetch project" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: true, project }, { status: 200 });
+  } catch (err: any) {
+    console.error("Error fetching project:", err);
+    return errorResponse("Server Error", 500, "Failed to fetch project");
   }
 }
 
-// async function handleUpdate(req: Request, id: string) {
-//   await dbConnect();
-//   const session = await getServerSession(authOptions);
-
-//   if (!session?.user) {
-//     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-//   }
-
-//   if (!canProject(session.user.role, "update")) {
-//     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-//   }
-
-//   if (!mongoose.Types.ObjectId.isValid(id)) {
-//     return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
-//   }
-
-//   let body: any = {};
-//   try {
-//     body = await req.json();
-//   } catch (e) {
-//     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-//   }
-
-//   const existingProject = await ProjectModel.findById(id);
-//   if (!existingProject) {
-//     return NextResponse.json({ error: "Project not found" }, { status: 404 });
-//   }
-
-//   // Validate title and description if provided
-//   if (body.title && String(body.title).trim().length < 3) {
-//     return NextResponse.json({ error: "Validation Error", details: "Title must be at least 3 characters long" }, { status: 400 });
-//   }
-//   if (body.description && String(body.description).trim().length < 10) {
-//     return NextResponse.json({ error: "Validation Error", details: "Description must be at least 10 characters long" }, { status: 400 });
-//   }
-
-//   // Coerce domain to array
-//   let domainsArray: string[] | undefined;
-//   if (body.domain !== undefined) {
-//     if (Array.isArray(body.domain)) {
-//       domainsArray = body.domain.map((d: any) => String(d).trim()).filter(Boolean);
-//     } else if (typeof body.domain === "string") {
-//       try {
-//         // maybe JSON string
-//         const parsed = JSON.parse(body.domain);
-//         if (Array.isArray(parsed)) domainsArray = parsed.map((d: any) => String(d).trim()).filter(Boolean);
-//         else domainsArray = [String(body.domain).trim()];
-//       } catch (e) {
-//         domainsArray = [String(body.domain).trim()];
-//       }
-//     }
-
-//     if (domainsArray && domainsArray.length === 0) {
-//       return NextResponse.json({ error: "Validation Error", details: "At least one domain is required" }, { status: 400 });
-//     }
-//   }
-
-//   // Resolve projectlead and colead to ObjectId strings if provided
-//   let projectleadId: string | undefined;
-//   if (body.projectlead !== undefined) {
-//     const id = await resolveUserIdentifier(body.projectlead);
-//     if (!id) {
-//       return NextResponse.json({ error: "Validation Error", details: "projectlead not found or invalid" }, { status: 400 });
-//     }
-//     projectleadId = id;
-//   }
-
-//   let coleadId: string | undefined;
-//   if (body.colead !== undefined && body.colead !== null && String(body.colead).trim() !== "") {
-//     const id2 = await resolveUserIdentifier(body.colead);
-//     if (!id2) {
-//       return NextResponse.json({ error: "Validation Error", details: "colead not found or invalid" }, { status: 400 });
-//     }
-//     coleadId = id2;
-//   }
-
-//   // Build update payload only with provided fields
-//   const updatePayload: any = {};
-//   if (body.title !== undefined) updatePayload.title = String(body.title).trim();
-//   if (domainsArray !== undefined) updatePayload.domain = domainsArray;
-//   if (body.description !== undefined) updatePayload.description = String(body.description).trim();
-//   if (projectleadId !== undefined) updatePayload.projectlead = projectleadId;
-//   if (coleadId !== undefined) updatePayload.colead = coleadId;
-//   if (body.membersCount !== undefined) updatePayload.membersCount = Number(body.membersCount);
-//   if (body.badge !== undefined) updatePayload.badge = body.badge;
-//   if (body.approved !== undefined) updatePayload.approved = Boolean(body.approved);
-//   if (body.startDate !== undefined) updatePayload.startDate = new Date(body.startDate);
-//   if (body.completionDate !== undefined) updatePayload.completionDate = new Date(body.completionDate);
-//   if (body.github !== undefined) updatePayload.github = body.github;
-//   if (body.liveDemo !== undefined) updatePayload.liveDemo = body.liveDemo;
-
-//   try {
-//     const updated = await ProjectModel.findByIdAndUpdate(id, updatePayload, { new: true, runValidators: true }).lean();
-//     return NextResponse.json(updated, { status: 200 });
-//   } catch (error: any) {
-//     console.error("Error updating project:", error);
-//     if (error.name === 'ValidationError') {
-//       const errors = Object.values(error.errors).map((err: any) => err.message);
-//       return NextResponse.json({ error: "Validation Error", details: errors.join(", ") }, { status: 400 });
-//     }
-//     return NextResponse.json({ error: "Server Error", details: "Failed to update project" }, { status: 500 });
-//   }
-// }
 
 async function handleUpdate(req: Request, id: string) {
   await dbConnect();
   const session = await getServerSession(authOptions);
 
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!session?.user) return errorResponse("Unauthorized", 401);
+  if (!canProject(session.user.role, "update")) return errorResponse("Forbidden", 403);
 
-  if (!canProject(session.user.role, "update")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-
-  let body: any = {};
+  let body: any;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    return errorResponse("Invalid JSON body", 400);
   }
 
   const existingProject = await ProjectModel.findById(id);
-  if (!existingProject) {
-    return NextResponse.json({ error: "Project not found" }, { status: 404 });
-  }
+  if (!existingProject) return errorResponse("Project not found", 404);
 
-  // 🧩 Validate inputs
-  if (body.title && String(body.title).trim().length < 3) {
-    return NextResponse.json(
-      { error: "Validation Error", details: "Title must be at least 3 characters long" },
-      { status: 400 }
-    );
-  }
-  if (body.description && String(body.description).trim().length < 10) {
-    return NextResponse.json(
-      { error: "Validation Error", details: "Description must be at least 10 characters long" },
-      { status: 400 }
-    );
-  }
+  if (body.title && String(body.title).trim().length < 3)
+    return errorResponse("Title must be at least 3 characters long", 400);
 
-  // ✅ Convert domain to array if needed
-  let domainsArray: string[] | undefined;
+  if (body.description && String(body.description).trim().length < 10)
+    return errorResponse("Description must be at least 10 characters long", 400);
+
+let domainsArray: string[] = [];
   if (body.domain !== undefined) {
-    if (Array.isArray(body.domain)) {
-      domainsArray = body.domain.map((d: any) => String(d).trim()).filter(Boolean);
-    } else if (typeof body.domain === "string") {
-      try {
-        const parsed = JSON.parse(body.domain);
-        if (Array.isArray(parsed))
-          domainsArray = parsed.map((d: any) => String(d).trim()).filter(Boolean);
-        else domainsArray = [String(body.domain).trim()];
-      } catch {
-        domainsArray = [String(body.domain).trim()];
-      }
+    try {
+      domainsArray = Array.isArray(body.domain)
+        ? body.domain
+        : JSON.parse(body.domain);
+      domainsArray = domainsArray.map((d: any) => String(d).trim()).filter(Boolean);
+    } catch {
+      domainsArray = [String(body.domain).trim()];
     }
-
-    if (domainsArray && domainsArray.length === 0) {
-      return NextResponse.json(
-        { error: "Validation Error", details: "At least one domain is required" },
-        { status: 400 }
-      );
-    }
+    if (!domainsArray.length)
+      return errorResponse("At least one domain is required", 400);
   }
 
-  // ✅ Resolve user references
   let projectleadId: string | undefined;
   if (body.projectlead !== undefined) {
-    const id1 = await resolveUserIdentifier(body.projectlead);
-    if (!id1) {
-      return NextResponse.json(
-        { error: "Validation Error", details: "projectlead not found or invalid" },
-        { status: 400 }
-      );
-    }
-    projectleadId = id1;
+    projectleadId = await resolveUserIdentifier(body.projectlead);
+    if (!projectleadId)
+      return errorResponse("Project lead not found or invalid", 400);
   }
 
   let coleadId: string | undefined;
-  if (body.colead !== undefined && body.colead !== null && String(body.colead).trim() !== "") {
-    const id2 = await resolveUserIdentifier(body.colead);
-    if (!id2) {
-      return NextResponse.json(
-        { error: "Validation Error", details: "colead not found or invalid" },
-        { status: 400 }
-      );
-    }
-    coleadId = id2;
+  if (body.colead !== undefined && String(body.colead).trim() !== "") {
+    coleadId = await resolveUserIdentifier(body.colead);
+    if (!coleadId)
+      return errorResponse("Co-lead not found or invalid", 400);
   }
 
-  // ✅ Build update payload safely
-  const updatePayload: any = {};
+  // ✅ Construct update object
+  const updatePayload: any = {
+    ...(body.title && { title: String(body.title).trim() }),
+    ...(domainsArray && { domain: domainsArray }),
+    ...(body.description && { description: String(body.description).trim() }),
+    ...(projectleadId && { projectlead: projectleadId }),
+    ...(coleadId && { colead: coleadId }),
+  };
 
-  if (body.title !== undefined) updatePayload.title = String(body.title).trim();
-  if (domainsArray !== undefined) updatePayload.domain = domainsArray;
-  if (body.description !== undefined) updatePayload.description = String(body.description).trim();
-  if (projectleadId !== undefined) updatePayload.projectlead = projectleadId;
-  if (coleadId !== undefined) updatePayload.colead = coleadId;
-  if (body.membersCount !== undefined) updatePayload.membersCount = Number(body.membersCount);
-  if (body.badge !== undefined) updatePayload.badge = body.badge;
-  if (body.approved !== undefined) updatePayload.approved = Boolean(body.approved);
-  if (body.startDate !== undefined) updatePayload.startDate = new Date(body.startDate);
-  if (body.completionDate !== undefined) updatePayload.completionDate = new Date(body.completionDate);
-  if (body.github !== undefined) updatePayload.github = body.github;
-  if (body.liveDemo !== undefined) updatePayload.liveDemo = body.liveDemo;
-
-  // 🖼️ ✅ New: Handle image update
-  if (body.image !== undefined) {
-    const imageUrl = String(body.image).trim();
-    if (
-      imageUrl &&
-      (imageUrl.startsWith("https://res.cloudinary.com/") ||
-        imageUrl.startsWith("https://") ||
-        imageUrl.startsWith("/uploads/"))
-    ) {
-      updatePayload.image = imageUrl;
-    } else if (imageUrl) {
-      return NextResponse.json(
-        { error: "Validation Error", details: "Invalid image URL format" },
-        { status: 400 }
-      );
-    }
-  }
+  const url = String(body.image || "").trim();
+  if (url && !url.match(/^https:\/\/|^\/uploads\//))
+    return errorResponse("Invalid image URL format", 400);
+  if (url) updatePayload.image = url;
 
   try {
     const updated = await ProjectModel.findByIdAndUpdate(id, updatePayload, {
@@ -293,23 +125,16 @@ async function handleUpdate(req: Request, id: string) {
       runValidators: true,
     }).lean();
 
-    return NextResponse.json(updated, { status: 200 });
+    return NextResponse.json({ success: true, project: updated }, { status: 200 });
   } catch (error: any) {
     console.error("Error updating project:", error);
     if (error.name === "ValidationError") {
-      const errors = Object.values(error.errors).map((err: any) => err.message);
-      return NextResponse.json(
-        { error: "Validation Error", details: errors.join(", ") },
-        { status: 400 }
-      );
+      const details = Object.values(error.errors).map((e: any) => e.message).join(", ");
+      return errorResponse("Validation Error", 400, details);
     }
-    return NextResponse.json(
-      { error: "Server Error", details: "Failed to update project" },
-      { status: 500 }
-    );
+    return errorResponse("Server Error", 500, "Failed to update project");
   }
 }
-
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
   return handleUpdate(req, params.id);
@@ -319,46 +144,25 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   return handleUpdate(req, params.id);
 }
 
-/* =========================
-   DELETE PROJECT HANDLER
-========================= */
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   await dbConnect();
-
   const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
-  if (!canProject(session.user.role, "delete")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  if (!session?.user) return errorResponse("Unauthorized", 401);
+  if (!canProject(session.user.role, "delete")) return errorResponse("Forbidden", 403);
 
   const { id } = params;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
-  }
+  if (!mongoose.Types.ObjectId.isValid(id))
+    return errorResponse("Invalid project ID", 400);
 
   try {
     const deleted = await ProjectModel.findByIdAndDelete(id).lean();
+    if (!deleted) return errorResponse("Project not found", 404);
 
-    if (!deleted) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
-    }
-
-    return NextResponse.json(
-      { message: "Project deleted successfully", project: deleted },
-      { status: 200 }
-    );
-  } catch (error) {
+    return NextResponse.json({ success: true, message: "Project deleted", project: deleted });
+  } catch (error: any) {
     console.error("Error deleting project:", error);
-    return NextResponse.json(
-      { error: "Server Error", details: "Failed to delete project" },
-      { status: 500 }
-    );
+    return errorResponse("Server Error", 500, "Failed to delete project");
   }
 }

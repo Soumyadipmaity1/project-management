@@ -109,7 +109,6 @@ function ProjectCard({ project, onView }: ProjectCardProps) {
 </div>
 
 
-          {/* GitHub */}
           {project.github && (
             <a
               href={project.github}
@@ -122,7 +121,6 @@ function ProjectCard({ project, onView }: ProjectCardProps) {
             </a>
           )}
 
-          {/* View Project Button */}
           <div className="flex gap-3 mt-4">
             <button
               onClick={() => onView(project.id)}
@@ -173,7 +171,6 @@ export default function ProjectLeadProjects() {
     return true;
   });
 
-  // ✅ Fixed: use id, not project._id
   const handleViewProject = (id: string) => {
     router.push(`/projectlead/projects/${id}`);
   };
@@ -210,7 +207,6 @@ export default function ProjectLeadProjects() {
         ))}
       </div>
 
-      {/* Error */}
       {error && (
         <div className="bg-red-900/50 border border-red-500/50 rounded-xl p-4 mb-6 text-red-200 font-mclaren shadow-lg">
           <p className="mb-2">{error}</p>
@@ -223,7 +219,6 @@ export default function ProjectLeadProjects() {
         </div>
       )}
 
-      {/* Loading or Projects */}
       {loading ? (
         <div className="flex items-center justify-center py-16">
           <div className="text-center">

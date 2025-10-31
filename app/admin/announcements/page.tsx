@@ -56,7 +56,6 @@ export default function AnnouncementsPage() {
       </div>
     );
 
-  // ------------------ HANDLERS ------------------
   const openModalForEdit = (ann: any) => {
     setEditingId(ann._id);
     setTitle(ann.title || "");
@@ -181,7 +180,6 @@ export default function AnnouncementsPage() {
   return (
     <div className="min-h-screen py-6 px-4 bg-black text-white">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="flex flex-wrap items-center justify-between mt-5 mb-6 gap-4">
           <h1 className="text-4xl font-bold text-white">Announcements</h1>
 
@@ -227,7 +225,6 @@ export default function AnnouncementsPage() {
           </div>
         )}
 
-        {/* ---------------- OTHERS ---------------- */}
         <div>
           {/* <h2 className="text-xl font-semibold mb-3 text-gray-200">
             Other Announcements
@@ -320,11 +317,9 @@ export default function AnnouncementsPage() {
   );
 }
 
-// ---------------- Announcement Card ----------------
 const AnnouncementCard = ({ ann, onEdit, onDelete, onPin, onUnpin }: any) => (
   <div className="p-5 bg-gray-900 rounded-xl border border-gray-700 shadow-sm hover:shadow-md transition duration-200">
     <div className="flex justify-between items-start">
-      {/* Sender Section */}
       <div className="flex items-center gap-3">
         {ann.senderProfilePic ? (
           <img
@@ -348,7 +343,6 @@ const AnnouncementCard = ({ ann, onEdit, onDelete, onPin, onUnpin }: any) => (
         </div>
       </div>
 
-      {/* Action Buttons */}
       <div className="flex gap-2 text-gray-400">
         <button
           onClick={() => onEdit(ann)}
@@ -388,7 +382,6 @@ const AnnouncementCard = ({ ann, onEdit, onDelete, onPin, onUnpin }: any) => (
       </div>
     </div>
 
-    {/* Content Section */}
     <div className="mt-3">
       <h2 className="text-lg font-semibold text-gray-100">{ann.title}</h2>
       <p className="text-gray-300 mt-2 leading-relaxed">{ann.content}</p>

@@ -270,7 +270,6 @@ export default async function ProjectPage({ params }: Props) {
                   </span>
                 </div>
 
-                {/* Progress Bar */}
                 <div className="pt-3 space-y-2">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs text-gray-400">Progress</span>

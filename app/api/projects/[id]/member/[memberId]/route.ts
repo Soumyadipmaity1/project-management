@@ -4,7 +4,6 @@ import ProjectModel from "@/model/Projects";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/option";
 
-// DELETE /api/projects/[id]/member/[memberId]
 export async function DELETE(
   req: Request,
   { params }: { params: { id: string; memberId: string } }
@@ -21,7 +20,6 @@ export async function DELETE(
 
     const { id, memberId } = params;
 
-    // ✅ Find project
     const project = await ProjectModel.findById(id);
     if (!project)
       return NextResponse.json(
@@ -29,7 +27,6 @@ export async function DELETE(
         { status: 404 }
       );
 
-    // ✅ Check permissions — only project lead can remove members
     if (project.projectlead.toString() !== session.user._id) {
       return NextResponse.json(
         { message: "Not authorized to remove members" },

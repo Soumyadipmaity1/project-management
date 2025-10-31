@@ -300,7 +300,7 @@ export default function TeamMembers() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await fetch("/api/projects");
+        const res = await fetch("/api/myproject");
         if (!res.ok) throw new Error("Failed to fetch projects");
         const data = await res.json();
         setProjects(Array.isArray(data) ? data : []);
@@ -312,7 +312,6 @@ export default function TeamMembers() {
     fetchProjects();
   }, []);
 
-  // ✅ Fetch members when a project is selected
   useEffect(() => {
     const fetchMembers = async () => {
       // 👉 If “All” selected, don’t fetch anything
@@ -372,26 +371,33 @@ export default function TeamMembers() {
     setShowRemoveDialog(true);
   };
 
-  const confirmRemove = async () => {
-    if (!memberToRemove || selectedProjectId === "all") return;
+ const confirmRemove = async () => {
+  if (!memberToRemove || selectedProjectId === "all") return;
 
-    try {
-      const res = await fetch(
-        `/api/projects/${selectedProjectId}/member/${memberToRemove._id}`,
-        { method: "DELETE" }
-      );
-      if (!res.ok) throw new Error("Failed to remove member");
+  try {
+    const res = await fetch(
+      `/api/projects/${selectedProjectId}/member/${memberToRemove._id}`,
+      { method: "DELETE" }
+    );
 
-      setMembers((prev) => prev.filter((m) => m._id !== memberToRemove._id));
-      toast.success("Member removed successfully");
-    } catch (error) {
-      console.error(error);
-      toast.error("Error removing member");
-    } finally {
-      setShowRemoveDialog(false);
-      setMemberToRemove(null);
+    const data = await res.json();
+
+    if (!res.ok) {
+      toast.error(data.message || "Failed to remove member");
+      return;
     }
-  };
+
+    setMembers((prev) => prev.filter((m) => m._id !== memberToRemove._id));
+    toast.success(data.message || "Member removed successfully");
+  } catch (error: any) {
+    console.error("Error removing member:", error);
+    toast.error(error.message || "Something went wrong");
+  } finally {
+    setShowRemoveDialog(false);
+    setMemberToRemove(null);
+  }
+};
+
 
   // ✅ Loading state
   if (loading) {

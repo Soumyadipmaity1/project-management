@@ -52,7 +52,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // ✅ Safely handle missing _id in session
     const createdById = session.user._id || session.user._id || null;
 
     const newAnn = await AnnouncementModel.create({

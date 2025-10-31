@@ -96,7 +96,7 @@ function ProjectCard({ project, onView, onDelete, isOwner }: ProjectCardProps) {
 
           <p className="text-slate-300 text-sm leading-relaxed font-mclaren">{project.description}</p>
 
-          <div className="space-y-2 bg-slate-800/30 rounded-lg p-3 border border-slate-700/30">
+          {/* <div className="space-y-2 bg-slate-800/30 rounded-lg p-3 border border-slate-700/30">
             <div className="flex items-center justify-between">
               <span className="font-semibold text-fuchsia-300 text-xs font-mclaren">Project Lead:</span>
               <span className="text-slate-300 text-xs font-mclaren">{typeof project.projectlead === "object" ? project.projectlead.name : project.projectlead}</span>
@@ -109,7 +109,44 @@ function ProjectCard({ project, onView, onDelete, isOwner }: ProjectCardProps) {
               <span className="font-semibold text-fuchsia-300 text-xs font-mclaren">Members:</span>
               <span className="text-slate-300 text-xs font-mclaren">{project.membersCount ?? 1}</span>
             </div>
-          </div>
+          </div> */}
+<div className="space-y-2 bg-slate-800/30 rounded-lg p-3 border border-slate-700/30">
+  <div className="flex items-center justify-between">
+    <span className="font-semibold text-fuchsia-300 text-xs font-mclaren">
+      Project Lead:
+    </span>
+   <span className="text-slate-300 text-xs font-mclaren">
+  {project.projectlead && typeof project.projectlead === "object"
+    ? "name" in project.projectlead
+      ? project.projectlead.name
+      : String((project.projectlead as any)?.$oid || "-")
+    : project.projectlead || "-"}
+</span>
+  </div>
+
+  <div className="flex items-center justify-between">
+    <span className="font-semibold text-fuchsia-300 text-xs font-mclaren">
+      Assistant Lead:
+    </span>
+   
+<span className="text-slate-300 text-xs font-mclaren">
+  {project.colead && typeof project.colead === "object"
+    ? "name" in project.colead
+      ? project.colead.name
+      : String((project.colead as any)?.$oid || "-")
+    : project.colead || "-"}
+</span>
+  </div>
+
+  <div className="flex items-center justify-between">
+    <span className="font-semibold text-fuchsia-300 text-xs font-mclaren">
+      Members:
+    </span>
+    <span className="text-slate-300 text-xs font-mclaren">
+      {project?.membersCount ?? 1}
+    </span>
+  </div>
+</div>
 
           {project.github && (
             <a href={project.github} target="_blank" rel="noopener noreferrer" className="group/link flex items-center gap-2 text-fuchsia-400 text-sm font-medium hover:text-fuchsia-300 transition-all duration-200 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-lg p-3 border border-emerald-500/20 hover:border-emerald-400/40">
@@ -306,28 +343,38 @@ export default function MemProjects() {
     }
   };
 
-  function openEditModal(proj: Project) {
-    setEditingProjectId(proj._id || null);
-    setEditFormData({
-      _id: proj._id || "",
-      title: proj.title || "",
-      domain1: Array.isArray(proj.domain) ? (proj.domain[0] || "") : String(proj.domain || ""),
-      domain2: Array.isArray(proj.domain) ? (proj.domain[1] || "") : "",
-      domain3: Array.isArray(proj.domain) ? (proj.domain[2] || "") : "",
-      description: proj.description || "",
-      projectlead: typeof proj.projectlead === "object" ? (proj.projectlead as any).name || "" : String(proj.projectlead || ""),
-      colead: typeof proj.colead === "object" ? (proj.colead as any).name || "" : String(proj.colead || ""),
-      github: proj.github || "",
-      liveDemo: proj.liveDemo || "",
-      badge: proj.badge || "active",
-      approved: !!proj.approved,
-      image: proj.image || "",
-      startDate: proj.startDate ? String(proj.startDate).slice(0, 10) : "",
-      completionDate: proj.completionDate ? String(proj.completionDate).slice(0, 10) : "",
-    });
-    setPreviewImage(proj.image || null);
-    setIsEditOpen(true);
-  }
+ function openEditModal(proj: Project) {
+  setEditingProjectId(proj._id || null);
+  setEditFormData({
+    _id: proj._id || "",
+    title: proj.title || "",
+    domain1: Array.isArray(proj.domain) ? proj.domain[0] || "" : String(proj.domain || ""),
+    domain2: Array.isArray(proj.domain) ? proj.domain[1] || "" : "",
+    domain3: Array.isArray(proj.domain) ? proj.domain[2] || "" : "",
+    description: proj.description || "",
+    projectlead:
+      proj.projectlead && typeof proj.projectlead === "object"
+        ? ("name" in proj.projectlead
+            ? (proj.projectlead as any).name
+            : String((proj.projectlead as any)?.$oid || ""))
+        : String(proj.projectlead || ""),
+    colead:
+      proj.colead && typeof proj.colead === "object"
+        ? ("name" in proj.colead
+            ? (proj.colead as any).name
+            : String((proj.colead as any)?.$oid || ""))
+        : String(proj.colead || ""),
+    github: proj.github || "",
+    liveDemo: proj.liveDemo || "",
+    badge: (proj.badge as "active" | "completed" | "disabled" | "available") || "active",
+    approved: !!proj.approved,
+    image: proj.image || "",
+    startDate: proj.startDate ? String(proj.startDate).slice(0, 10) : "",
+    completionDate: proj.completionDate ? String(proj.completionDate).slice(0, 10) : "",
+  });
+  setIsEditOpen(true); 
+}
+
 
   const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -345,112 +392,6 @@ export default function MemProjects() {
   };
 
 
-//   const handleEditSubmit = async (e: React.FormEvent) => {
-//   e.preventDefault();
-//   if (!editingProjectId) return;
-//   setSubmitting(true);
-
-//   try {
-//     const selectedDomains = [
-//       editFormData.domain1,
-//       editFormData.domain2,
-//       editFormData.domain3,
-//     ].filter(Boolean);
-
-//     // use FormData instead of JSON
-//     const form = new FormData();
-//     form.append("title", editFormData.title);
-//     form.append("description", editFormData.description);
-//     form.append("domain", JSON.stringify(selectedDomains));
-//     form.append("projectlead", editFormData.projectlead);
-//     form.append("colead", editFormData.colead);
-//     form.append("github", editFormData.github);
-//     form.append("liveDemo", editFormData.liveDemo);
-//     form.append("badge", editFormData.badge);
-//     form.append("approved", String(editFormData.approved));
-//     form.append("startDate", editFormData.startDate);
-//     form.append("completionDate", editFormData.completionDate);
-
-//     if (imageFile) form.append("image", imageFile); // 👈 only append if changed
-
-//     const res = await fetch(`/api/projects/${editingProjectId}`, {
-//       method: "PUT",
-//       body: form, 
-//     });
-
-//     const data = await res.json();
-//     if (!res.ok) {
-//       const errorMessage = data?.error || data?.message || "Failed to update project";
-//       toast.error(errorMessage);
-//     } else {
-//       toast.success("Project updated successfully");
-//       await fetchProjects();
-//       setIsEditOpen(false);
-//     }
-//   } catch (err: any) {
-//     toast.error(err?.message || "Failed to update project");
-//   } finally {
-//     setSubmitting(false);
-//   }
-// };
-
-// const handleEditSubmit = async (e: React.FormEvent) => {
-//   e.preventDefault();
-//   if (!editingProjectId) return;
-//   setSubmitting(true);
-
-//   try {
-//     const selectedDomains = [
-//       editFormData.domain1,
-//       editFormData.domain2,
-//       editFormData.domain3,
-//     ].filter(Boolean);
-
-//     // ✅ prepare FormData
-//     const form = new FormData();
-//     form.append("title", editFormData.title);
-//     form.append("description", editFormData.description);
-//     form.append("domain", JSON.stringify(selectedDomains));
-//     form.append("projectlead", editFormData.projectlead);
-//     form.append("colead", editFormData.colead);
-//     form.append("github", editFormData.github);
-//     form.append("liveDemo", editFormData.liveDemo);
-//     form.append("badge", editFormData.badge);
-//     form.append("approved", String(editFormData.approved));
-//     form.append("startDate", editFormData.startDate);
-//     form.append("completionDate", editFormData.completionDate);
-
-//     // ✅ include image file only if changed
-//     if (imageFile) {
-//       form.append("image", imageFile);
-//     } else if (editFormData.image) {
-//       form.append("image", editFormData.image);
-//     }
-
-//     // ✅ send PUT request as multipart/form-data
-//     const res = await fetch(`/api/projects/${editingProjectId}`, {
-//       method: "PUT",
-//       body: form,
-//     });
-
-//     if (!res.ok) {
-//       const data = await res.json();
-//       const errorMessage =
-//         data?.error || data?.message || "Failed to update project";
-//       toast.error(errorMessage);
-//       return;
-//     }
-
-//     toast.success("Project updated successfully!");
-//     await fetchProjects();
-//     setIsEditOpen(false);
-//   } catch (err: any) {
-//     console.error(err);
-//     toast.error(err?.message || "Failed to update project.");
-//   } finally {
-//     setSubmitting(false);
-//   }
-// };
 const handleEditSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   if (!editingProjectId) return;

@@ -129,13 +129,13 @@ export default function SignInModal({ isOpen, onClose, onSwitchToSignUp }: SignI
               <span className="text-md font-medium">Sign in with Google</span>
             </button>
 
-            <button
+            {/* <button
               onClick={() => signIn("github", { callbackUrl: "/" })}
               className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white py-3 rounded-lg transition-colors"
             >
               <Github size={18} />
               Sign in with GitHub
-            </button>
+            </button> */}
 
             {/* <p className="text-sm text-gray-500 mt-4 text-center">
               Don't have an account?{" "}
