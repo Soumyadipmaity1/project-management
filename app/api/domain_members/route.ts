@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+
+
 import { error } from 'console';
 import { authOptions } from './../auth/[...nextauth]/option';
 import { NextResponse } from 'next/server';
@@ -6,6 +9,8 @@ import dbConnect from '@/lib/db';
 import UserModel from '@/model/User';
 import { canDomainMember } from '@/lib/permissions';
 import mongoose from 'mongoose';
+import ProjectModel from "@/model/Projects";
+
 
 export async function GET(req: Request){
     try{
