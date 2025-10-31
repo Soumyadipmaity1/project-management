@@ -33,7 +33,6 @@ async function resolveUserIdentifier(val: any) {
   return null;
 }
 
-// ----------------- GET -----------------
 export async function GET() {
   try {
     await dbConnect();
@@ -47,7 +46,7 @@ export async function GET() {
 
     const formatted = projects.map((p: any) => {
       const out: any = { ...p };
-      out.id = String(p._id); // ✅ Add this line
+      out.id = String(p._id); 
       out.startDate = p.startDate || null;
       out.completionDate = p.completionDate || null;
 
@@ -91,7 +90,6 @@ export async function GET() {
   }
 }
 
-// ----------------- POST -----------------
 export async function POST(req: Request) {
   try {
     await dbConnect();
@@ -105,7 +103,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // ✅ Parse multipart/form-data
     const formData = await req.formData();
 
     const title = (formData.get("title") as string)?.trim();

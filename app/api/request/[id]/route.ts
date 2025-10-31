@@ -24,7 +24,6 @@ export async function PATCH(req: Request) {
     const allowedToApprove = canRequest(user.role, "approverequest");
     const allowedToReject = canRequest(user.role, "rejectrequest");
 
-    // Extract request ID from URL
     const url = new URL(req.url);
     const parts = url.pathname.split("/").filter(Boolean);
     const reqId = parts[parts.length - 1];
@@ -36,7 +35,6 @@ export async function PATCH(req: Request) {
       );
     }
 
-    // Parse body safely
     let body: any = {};
     try {
       body = await req.json();
@@ -49,7 +47,6 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Request not found" }, { status: 404 });
     }
 
-    // Restrict Lead to their domain
     if (user.role === "Lead") {
       const reqDomains = Array.isArray(request.domain)
         ? request.domain
@@ -62,12 +59,10 @@ export async function PATCH(req: Request) {
       }
     }
 
-    // Extract lead, co-lead, and action
     const leadId = body.teamlead || body.projectlead || body.projectLeadName || null;
     const coLeadId = body.colead || body.coLead || body.coLeadName || null;
     const action = body.action ? String(body.action).toLowerCase() : null;
 
-    // ✅ APPROVE FLOW
     if (leadId || action === "approve") {
       if (!allowedToApprove) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -99,20 +94,17 @@ export async function PATCH(req: Request) {
         }
       }
 
-      // ✅ Update request status
       request.status = "Approved";
       request.projectlead = leadUser._id;
       request.colead = coLeadUser ? coLeadUser._id : undefined;
       await request.save();
 
-      // ✅ Fetch all request details after approval
       const populatedRequest = await RequestModel.findById(request._id)
         .populate("user", "name email _id")
         .populate("projectlead", "name email _id")
         .populate("colead", "name email _id")
         .lean();
 
-      // ✅ Create project using request info
       const projectPayload: any = {
         title: request.title,
         description: request.description,
@@ -131,7 +123,6 @@ export async function PATCH(req: Request) {
 
       const newProject = await ProjectModel.create(projectPayload);
 
-      // ✅ Update Lead user
       try {
         if (leadUser.role !== "Admin" && leadUser.role !== "Lead") {
           leadUser.role = "ProjectLead";
@@ -183,7 +174,6 @@ export async function PATCH(req: Request) {
       );
     }
 
-    // ✅ REJECT FLOW
     if (action === "reject" || (!leadId && !action)) {
       if (!allowedToReject) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });

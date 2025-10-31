@@ -40,7 +40,6 @@ export async function DELETE(
       (m: any) => m.toString() !== memberId
     );
 
-    // ✅ Update membersCount
     project.membersCount = project.members.length;
 
     if (project.members.length === beforeCount) {

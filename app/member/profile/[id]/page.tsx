@@ -22,7 +22,6 @@ interface ProfileData {
   currentProject: string;
 }
 
-// Sample data - replace with actual data from API/database
 const profileData: ProfileData = {
   name: "John Doe",
   email: "john.doe@example.com",

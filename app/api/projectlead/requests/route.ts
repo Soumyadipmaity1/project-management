@@ -26,19 +26,6 @@ export async function GET() {
       return NextResponse.json([], { status: 200 });
     }
 
-    // Collect all pending requests
-    // const pendingRequests = leadProjects.flatMap((p) =>
-    //   (p.requests || [])
-    //     .filter((r) => r.status === "Pending")
-    //     .map((r) => ({
-    //       projectId: p._id,
-    //       projectTitle: p.title,
-    //       user: r.user,
-    //       status: r.status,
-    //       requestId: r._id,
-    //     }))
-    // );
-
     const pendingRequests = leadProjects.flatMap((p) =>
   (p.requests || [])
     .filter((r: any) => r.status === "Pending")

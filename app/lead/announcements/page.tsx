@@ -168,7 +168,6 @@ export default function AnnouncementsPage() {
     }
   };
 
-  // ---------- FILTERS ----------
   const filteredAnnouncements = groups.filter((ann) => {
     if (showAdminOnly && !ann.isAdmin) return false;
     if (selectedProject !== "all" && ann.projectId !== selectedProject)

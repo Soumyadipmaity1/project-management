@@ -1,4 +1,3 @@
-// File: src/app/api/myproject/route.ts
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import dbConnect from "@/lib/db";
@@ -10,17 +9,14 @@ export async function GET() {
   try {
     await dbConnect();
 
-    // 1️⃣ Get session
     const session = await getServerSession(authOptions);
     if (!session?.user?.email)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // 2️⃣ Get user info
     const user = await UserModel.findOne({ email: session.user.email });
     if (!user)
       return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    // 3️⃣ Find all projects where user is either projectlead or colead
     const myProjects = await ProjectModel.find({
       $or: [{ projectlead: user._id }, { colead: user._id }],
     })
@@ -29,7 +25,6 @@ export async function GET() {
       .populate("members", "name email")
       .lean();
 
-    // 4️⃣ Format data for frontend
     const formatted = myProjects.map((p: any) => ({
       _id: p._id.toString(),
       title: p.title,

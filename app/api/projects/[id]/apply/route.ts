@@ -21,18 +21,15 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // 🧩 Check if user already a member
     if (project.members.some((m: mongoose.Types.ObjectId) => m.equals(userId))) {
       return NextResponse.json({ error: "Already a member" }, { status: 400 });
     }
 
-    // 🧩 Check if already applied
     const existing = project.requests.find((r: any) => r.user.equals(userId));
     if (existing) {
       return NextResponse.json({ error: "Already applied" }, { status: 400 });
     }
 
-    // 🆕 Add new pending request
     project.requests.push({ user: userId, status: "Pending" });
     await project.save();
 

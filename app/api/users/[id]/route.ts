@@ -1,43 +1,3 @@
-// import { NextResponse } from "next/server";
-// import mongoose from "mongoose";
-// import dbConnect from "@/lib/db";
-// import UserModel from "@/model/User";
-
-// export async function GET(
-//   req: Request,
-//   { params }: { params: { id: string } }
-// ) {
-//   try {
-//     await dbConnect();
-//     const { id } = params;
-
-//     if (!mongoose.Types.ObjectId.isValid(id)) {
-//       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
-//     }
-
-//     const user = await UserModel.findById(id)
-//       .select("-password -__v") 
-//       .lean();
-
-//     if (!user) {
-//       return NextResponse.json({ error: "User not found" }, { status: 404 });
-//     }
-
-//     const ProjectCount = user.projects?.length || 0;
-
-//     return NextResponse.json(
-//       { ...user, ProjectCount },
-//       { status: 200 }
-//     );
-//   } catch (error: any) {
-//     console.error("Error fetching user:", error);
-//     return NextResponse.json(
-//       { error: "Failed to fetch user data" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import UserModel from "@/model/User";
@@ -48,8 +8,8 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   await dbConnect();
   try {
     const user = await UserModel.findById(params.id)
-      .select("-password -otp -otpExpiry") // hide sensitive fields
-      .populate("projects.projectId", "title badge") // optional if you store refs
+      .select("-password -otp -otpExpiry") 
+      .populate("projects.projectId", "title badge") 
       .lean();
 
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
