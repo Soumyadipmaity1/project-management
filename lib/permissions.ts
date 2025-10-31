@@ -88,7 +88,6 @@ export function canDomainMember(role: string | undefined, action: ActionDomainMe
   return !!(normalized && domainMemberPermission[normalized].includes(action));
 }
 
-// ✅ Project Member Permissions
 const projectMemberPermission: Record<BaseRole, ActionProjectMembers[]> = {
   Admin: ["approve", "reject", "view", "remove"],
   Lead: ["approve", "reject", "view", "remove"],
