@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+
+
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import mongoose from "mongoose";
@@ -6,6 +9,8 @@ import { authOptions } from "../auth/[...nextauth]/option";
 import UserModel from "@/model/User";
 import RequestModel from "@/model/ProjectRequest";
 import { canRequest } from "@/lib/permissions";
+import ProjectModel from "@/model/Projects";
+
 
 export async function GET(req: Request) {
   try {
