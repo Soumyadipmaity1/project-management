@@ -17,7 +17,7 @@ export interface User extends Document {
   otpExpiry?: Date;
   projects: { projectId: mongoose.Types.ObjectId; projectName: string }[];
   ProjectCount: number;
-  skills: string[];
+  skills: string[]; 
 }
 
 const UserSchema: Schema<User> = new Schema(

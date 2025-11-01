@@ -244,6 +244,10 @@ export async function POST(req: Request) {
       return corsResponse({ message: "File must be an image" }, 400);
     }
 
+    if (!githubId || !linkedinId) {
+  return corsResponse({ message: "GitHub and LinkedIn IDs are required" }, 400);
+}
+
     const buffer = Buffer.from(await file.arrayBuffer());
     if (buffer.length > 5 * 1024 * 1024) {
       return corsResponse({ message: "Image size exceeds 5MB" }, 400);
