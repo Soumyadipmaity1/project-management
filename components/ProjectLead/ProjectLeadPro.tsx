@@ -172,7 +172,7 @@ export default function ProjectLeadProjects() {
   });
 
   const handleViewProject = (id: string) => {
-    router.push(`${process.env.NEXT_PUBLIC_API_URL}/projectlead/projects/${id}`);
+    router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/projectlead/projects/${id}`);
   };
 
   return (

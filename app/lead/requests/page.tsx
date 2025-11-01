@@ -178,7 +178,7 @@ export default function PendingRequests() {
       setSelectedRequest(req);
 
       const domainParam = Array.isArray(req.domain) && req.domain.length > 0 ? req.domain[0] : "";
-      const membersRes = await fetch(`/api/domain_members?domain=${encodeURIComponent(domainParam)}`);
+      const membersRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/domain_members?domain=${encodeURIComponent(domainParam)}`);
       const members: TeamMember[] = membersRes.ok ? await membersRes.json() : [];
       setDomainMembers(Array.isArray(members) ? members : []);
 
