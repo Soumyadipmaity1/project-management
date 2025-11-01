@@ -26,10 +26,11 @@ export default function SignInModal({ isOpen, onClose, onSwitchToSignUp }: SignI
   useEffect(() => {
     if (session?.user?.role) {
       const role = String(session.user.role);
-      if (role === "Lead" || role === "lead") router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/lead`);
-      else if (role === "ProjectLead" || role === "CoLead" || role === "projectlead" || role === "colead") router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/projectlead`);
-      else if (role === "Admin" || role === "admin") router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/admin`);
-      else if (role === "Member" || role === "member") router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/member`);
+if (role === "Lead" || role === "lead") router.push("/lead");
+else if (role === "ProjectLead" || role === "CoLead" || role === "projectlead" || role === "colead") router.push("/projectlead");
+else if (role === "Admin" || role === "admin") router.push("/admin");
+else if (role === "Member" || role === "member") router.push("/member");
+
     }
   }, [session, router]);
 
