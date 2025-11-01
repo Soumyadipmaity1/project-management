@@ -61,7 +61,8 @@ async function getProjectById(projectId: string): Promise<Project | null> {
       out.image = doc.image
         ? doc.image.startsWith("http")
           ? doc.image
-          : `${process.env.NEXTAUTH_URL || `${process.env.NEXT_PUBLIC_API_URL}`}${doc.image}`
+          // : `${process.env.NEXTAUTH_URL || }${doc.image}`
+          : `${process.env.NEXTAUTH_URL || "http://localhost:3000"}${doc.image}`
         : "";
       out.completionDate = doc.completionDate ? new Date(doc.completionDate) : null;
       out.members = doc.members ?? [];

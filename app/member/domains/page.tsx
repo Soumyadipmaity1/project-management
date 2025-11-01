@@ -27,7 +27,7 @@ function DomainProjectsContent() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`);
+        const res = await fetch(`/api/projects`);
         const data = await res.json();
 
         const filteredData =

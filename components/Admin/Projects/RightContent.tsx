@@ -52,7 +52,7 @@ async function getProjectById(projectId: string): Promise<Project | null> {
       image: doc.image
         ? doc.image.startsWith("http")
           ? doc.image
-          : `${process.env.NEXTAUTH_URL || `${process.env.NEXT_PUBLIC_API_URL}`}${doc.image}`
+          : `${process.env.NEXTAUTH_URL || "http://localhost:3000"}${doc.image}`
         : "",
       membersCount: doc.members?.length ?? 0,
       githubLink: doc.githubLink ?? "",

@@ -142,7 +142,7 @@ export default function PendingRequests() {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/request`);
+        const res = await fetch(`/api/request`);
         const data = await res.json();
 
         if (!res.ok) {
@@ -178,7 +178,7 @@ export default function PendingRequests() {
       setSelectedRequest(req);
 
       const domainParam = Array.isArray(req.domain) && req.domain.length > 0 ? req.domain[0] : "";
-      const membersRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/domain_members?domain=${encodeURIComponent(domainParam)}`);
+      const membersRes = await fetch(`/api/domain_members?domain=${encodeURIComponent(domainParam)}`);
       const members: TeamMember[] = membersRes.ok ? await membersRes.json() : [];
       setDomainMembers(Array.isArray(members) ? members : []);
 
@@ -191,7 +191,7 @@ export default function PendingRequests() {
 const handleApprove = async (leadId: string, assistantId?: string) => {
   if (!selectedRequest) return;
   try {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/request/${selectedRequest._id}`, {
+    await fetch(`/api/request/${selectedRequest._id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ teamlead: leadId, colead: assistantId }),
@@ -209,7 +209,7 @@ const handleApprove = async (leadId: string, assistantId?: string) => {
 
   const handleReject = async (id: string) => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/request/${id}`, { method: "PATCH" });
+      await fetch(`/api/request/${id}`, { method: "PATCH" });
       setRequests((prev) => prev.filter((r) => r._id !== id));
       toast.success("Request rejected.");
     } catch (err) {

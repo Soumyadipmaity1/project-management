@@ -181,7 +181,7 @@ export default function MyProjectsPage() {
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`, { cache: "no-store" });
+      const res = await fetch(`/api/projects`, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed to fetch projects");
       const data = await res.json();
       setProjects(Array.isArray(data) ? data : []);
@@ -209,7 +209,7 @@ useEffect(() => {
   const handleDelete = async (projectId: string) => {
     if (!confirm("Are you sure you want to delete this project?")) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${projectId}`, { method: "DELETE" });
+      const res = await fetch(`/api/projects/${projectId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete project");
       toast.success("Project deleted successfully!");
       await fetchProjects();

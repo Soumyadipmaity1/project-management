@@ -46,7 +46,7 @@ export default function ProfilePage() {
     if (status === 'authenticated' && session?.user?._id) {
       (async () => {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${session.user._id}`);
+          const res = await fetch(`/api/users/${session.user._id}`);
           const data = await res.json();
           setUser(data);
         } catch (err) {
@@ -63,7 +63,7 @@ export default function ProfilePage() {
     if (!user || !session?.user?._id) return;
     setSaving(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${session.user._id}`, {
+      const res = await fetch(`/api/users/${session.user._id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

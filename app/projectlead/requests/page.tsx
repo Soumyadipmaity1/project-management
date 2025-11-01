@@ -10,7 +10,7 @@ export default function ProjectLeadPendingRequests() {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projectlead/requests`);
+        const res = await fetch(`/api/projectlead/requests`);
         const data = await res.json();
 
         if (!res.ok) throw new Error(data.message || "Failed to fetch requests");
@@ -33,7 +33,7 @@ export default function ProjectLeadPendingRequests() {
     action: "approve" | "reject"
   ) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projectlead/requests/${requestId}`, {
+      const res = await fetch(`/api/projectlead/requests/${requestId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ projectId, requestId, action }),
