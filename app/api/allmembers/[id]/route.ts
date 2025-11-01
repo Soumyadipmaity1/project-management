@@ -1,18 +1,23 @@
 export const dynamic = "force-dynamic";
-
-import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import UserModel from "@/model/User";
+import { corsResponse, handleOptions } from "@/lib/cors";
+
+
+export async function OPTIONS() {
+  return handleOptions();
+}
+
 
 export async function PUT(req: Request, { params }: any) {
   await dbConnect();
   const { role } = await req.json();
   const updated = await UserModel.findByIdAndUpdate(params.id, { role }, { new: true });
-  return NextResponse.json(updated);
+  return corsResponse(updated);
 }
 
 export async function DELETE(req: Request, { params }: any) {
   await dbConnect();
   await UserModel.findByIdAndDelete(params.id);
-  return NextResponse.json({ message: "Deleted successfully" });
+  return corsResponse({ message: "Deleted successfully" });
 }
