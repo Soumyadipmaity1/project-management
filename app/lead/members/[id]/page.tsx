@@ -33,7 +33,7 @@ export default function MemberProfilePage() {
 
     (async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${id}`);
+        const res = await fetch(`/api/users/${id}`);
         const data = await res.json();
         setUser(data);
       } catch (err) {

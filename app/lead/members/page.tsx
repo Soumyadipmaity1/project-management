@@ -35,7 +35,7 @@ export default function TeamMembers() {
 
   const fetchMembers = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/domain_members`);
+      const res = await fetch(`/api/domain_members`);
       if (!res.ok) throw new Error("Failed to fetch members");
       const data = await res.json();
       setAllMembers(data);
@@ -64,7 +64,7 @@ export default function TeamMembers() {
   }, [searchQuery, allMembers]);
 
   const handleViewProfile = (memberId: string) => {
-    router.push(`${process.env.NEXT_PUBLIC_API_URL}/lead/members/${memberId}`);
+    router.push(`/lead/members/${memberId}`);
   };
 
   const handleRemoveClick = (member: TeamMember) => {
@@ -75,7 +75,7 @@ export default function TeamMembers() {
   const confirmRemove = async () => {
     if (!memberToRemove) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/domain_members/${memberToRemove._id}`, {
+      const res = await fetch(`/api/domain_members/${memberToRemove._id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to remove member");
@@ -100,7 +100,7 @@ export default function TeamMembers() {
   const confirmPromote = async () => {
     if (!memberToPromote) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/domain_members/${memberToPromote._id}`, {
+      const res = await fetch(`/api/domain_members/${memberToPromote._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role: promoteRole }),

@@ -104,7 +104,7 @@ export default function ProjectGrid() {
   async function fetchRequests() {
     try {
       setLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/request`, { cache: "no-store" });
+      const res = await fetch(`/api/request`, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed to fetch project requests.");
       const data = await res.json();
       setRequests(Array.isArray(data) ? data : []);
@@ -186,7 +186,7 @@ export default function ProjectGrid() {
         image: imageUrl,
       };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/request`, {
+      const res = await fetch(`/api/request`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

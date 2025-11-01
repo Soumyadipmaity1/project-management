@@ -16,7 +16,7 @@ export default function MemberPanel() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/allstats`);
+        const res = await fetch(`/api/allstats`);
         if (!res.ok) throw new Error("Failed to fetch stats");
         const data = await res.json();
         setStats(data);

@@ -370,7 +370,7 @@ export default function ProjectPage({ params }: Props) {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${projectId}`, { cache: "no-store" });
+        const res = await fetch(`/api/projects/${projectId}`, { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to fetch project");
         const data = await res.json();
         setProject(data);
@@ -430,7 +430,7 @@ export default function ProjectPage({ params }: Props) {
   // ✅ Handle Apply
   const handleApply = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${project._id}/apply`, {
+      const res = await fetch(`/api/projects/${project._id}/apply`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ projectId: project._id }),

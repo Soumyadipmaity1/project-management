@@ -82,7 +82,7 @@ export default function LeadPanel({ role = "Team Lead" }: LeadPanelProps) {
       setLoading(true);
       try {
         const [statsRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/stats`),
+          fetch(`/api/stats`),
           // fetch("/api/admin/domains"),
         ]);
 
