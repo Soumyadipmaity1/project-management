@@ -328,7 +328,7 @@ export default function MemProjects() {
     }
   };
 
-  const handleViewProject = (projectId: string) => router.push(`${process.env.NEXT_PUBLIC_API_URL}/projectlead/myprojects/${projectId}`);
+  const handleViewProject = (projectId: string) => router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/projectlead/myprojects/${projectId}`);
 
   const handleDelete = async (projectId: string) => {
     if (!confirm("Are you sure you want to delete this project?")) return;

@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GithubProvider from "next-auth/providers/github";
@@ -8,7 +6,6 @@ import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/db";
 import UserModel, { User } from "@/model/User";
 
-const kiitEmailRegex = /^(2[2-9]|30)[0-9]{5,9}@kiit\.ac\.in$/i;
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -33,12 +30,6 @@ export const authOptions: NextAuthOptions = {
         await dbConnect();
 
         try {
-          if (credentials.identifier.includes("@")) {
-            if (!kiitEmailRegex.test(credentials.identifier)) {
-              throw new Error("Only KIIT email addresses are allowed.");
-            }
-          }
-
           const user = await UserModel.findOne({
             $or: [
               { email: credentials.identifier },
@@ -47,7 +38,7 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (!user) {
-            throw new Error("User not found");
+            throw new Error("No user found with this Email/Roll No.");
           }
 
           const isPasswordValid = await bcrypt.compare(
@@ -71,59 +62,38 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/signin",
   },
 
+
   callbacks: {
-    async signIn({ user, account }) {
-      await dbConnect();
+  async jwt({ token, user }) {
+      const validroles = ["Admin", "Lead", "Member", "ProjectLead" , "CoLead" , "member" , "lead" , "admin" , "projectlead" , "colead"];
+    if (user) {
+      const u = user as unknown as User;
+      token._id = u._id?.toString();
+      token.name = u.name;
+      token.email = u.email;
+      token.rollNo = u.rollNo;
+      token.role = validroles.includes(u.role) ? u.role : "Member";
+      token.domain = u.domain;
+      token.githubId = u.githubId;
+      token.linkedinId = u.linkedinId;
+    }
+    return token;   
+  }, 
 
-      if (account?.provider === "google" || account?.provider === "github") {
-        const email = user?.email || "";
-        if (!kiitEmailRegex.test(email)) {
-          return "/"; 
-        }
-
-        const existingUser = await UserModel.findOne({ email });
-        if (!existingUser) {
-          return "/"; 
-        }
-      }
-
-      return true;
-    },
-
-    async jwt({ token, user }) {
-      const validRoles = [
-        "Admin", "Lead", "Member", "ProjectLead", "CoLead",
-        "member", "lead", "admin", "projectlead", "colead"
-      ];
-
-      if (user) {
-        const u = user as unknown as User;
-        token._id = u._id?.toString();
-        token.name = u.name;
-        token.email = u.email;
-        token.rollNo = u.rollNo;
-        token.role = validRoles.includes(u.role) ? u.role : "Member";
-        token.domain = u.domain;
-        token.githubId = u.githubId;
-        token.linkedinId = u.linkedinId;
-      }
-      return token;
-    },
-
-    async session({ session, token }) {
-      if (token && session.user) {
-        session.user._id = token._id as string;
-        session.user.name = token.name as string;
-        session.user.email = token.email as string;
-        session.user.rollNo = token.rollNo as string;
-        session.user.role = token.role as string;
-        session.user.domain = token.domain as string;
-        session.user.githubId = token.githubId as string;
-        session.user.linkedinId = token.linkedinId as string;
-      }
-      return session;
-    },
+  async session({ session, token }) {
+    if (token && session.user) {
+      session.user._id = token._id as string;
+      session.user.name = token.name as string;
+      session.user.email = token.email as string;
+      session.user.rollNo = token.rollNo as string;
+      session.user.role =  token.role as string;
+      session.user.domain = token.domain as string;
+      session.user.githubId = token.githubId as string;
+      session.user.linkedinId = token.linkedinId as string;
+    }
+    return session;
   },
+},
 
   session: {
     strategy: "jwt",

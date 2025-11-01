@@ -192,7 +192,7 @@ export default function MyProjectsPage() {
       setLoading(false);
     }
   };
-  const handleViewProject = (projectId: string) => router.push(`${process.env.NEXT_PUBLIC_API_URL}/lead/projects/${projectId}`);
+  const handleViewProject = (projectId: string) => router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/lead/projects/${projectId}`);
 
   useEffect(() => {
     fetchProjects();

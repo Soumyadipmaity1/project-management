@@ -214,7 +214,7 @@ function ProjectCard({ project }: { project: Project }) {
   const enrolled = project.enrolled;
 
   const handleOpenProject = () => {
-    if (!disabled) router.push(`${process.env.NEXT_PUBLIC_API_URL}/member/projects/${project._id}`);
+    if (!disabled) router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/member/projects/${project._id}`);
   };
 
   const handleSendRequest = async () => {
