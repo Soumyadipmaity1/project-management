@@ -29,7 +29,12 @@ const allowedOrigins = ["https://workpilot-f.onrender.com"];
 
 export function corsResponse(data: any, status: number = 200) {
   const res = NextResponse.json(data, { status });
-  
+  // remove any previously set CORS headers to avoid duplicate values
+  res.headers.delete("Access-Control-Allow-Origin");
+  res.headers.delete("Access-Control-Allow-Methods");
+  res.headers.delete("Access-Control-Allow-Headers");
+  res.headers.delete("Access-Control-Allow-Credentials");
+
   // Use the first allowed origin only
   res.headers.set("Access-Control-Allow-Origin", allowedOrigins[0]);
   res.headers.set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
@@ -41,6 +46,12 @@ export function corsResponse(data: any, status: number = 200) {
 
 export function handleOptions() {
   const res = new NextResponse(null, { status: 204 });
+  // remove any previously set CORS headers to avoid duplicate values
+  res.headers.delete("Access-Control-Allow-Origin");
+  res.headers.delete("Access-Control-Allow-Methods");
+  res.headers.delete("Access-Control-Allow-Headers");
+  res.headers.delete("Access-Control-Allow-Credentials");
+
   res.headers.set("Access-Control-Allow-Origin", allowedOrigins[0]);
   res.headers.set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
