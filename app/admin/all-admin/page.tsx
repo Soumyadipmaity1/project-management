@@ -2,6 +2,11 @@
 import React, { useEffect, useState } from "react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 
+
+const fetchWithCred = (input: RequestInfo, init?: RequestInit) => {
+	return fetch(input, { credentials: 'include', ...(init || {}) });
+};
+
 export default function TeamMembers() {
   const [admins, setAdmins] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -9,7 +14,7 @@ export default function TeamMembers() {
   useEffect(() => {
     const fetchAdmins = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/alladmin`, { cache: "no-store" });
+        const res = await fetchWithCred(`${process.env.NEXT_PUBLIC_API_URL}/api/alladmin`, { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to fetch admins");
         const data = await res.json();
         setAdmins(data);

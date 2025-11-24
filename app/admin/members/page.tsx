@@ -3,6 +3,11 @@ import React, { useEffect, useState } from "react";
 import { FaGithub, FaLinkedin, FaSearch, FaTimes } from "react-icons/fa";
 import toast, { Toaster } from "react-hot-toast";
 
+
+const fetchWithCred = (input: RequestInfo, init?: RequestInit) => {
+	return fetch(input, { credentials: 'include', ...(init || {}) });
+};
+
 function MemberCard({ member, onPromote, onDelete }: any) {
   return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
@@ -184,7 +189,7 @@ export default function AllMembers() {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/allmembers`, { cache: "no-store" });
+        const res = await fetchWithCred(`${process.env.NEXT_PUBLIC_API_URL}/api/allmembers`, { cache: "no-store" });
         const data = await res.json();
         setMembers(data);
       } catch {
@@ -199,7 +204,7 @@ export default function AllMembers() {
   const handlePromote = async (role: string) => {
     if (!promoteMember) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/allmembers/${promoteMember._id}`, {
+      const res = await fetchWithCred(`${process.env.NEXT_PUBLIC_API_URL}/api/allmembers/${promoteMember._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role }),
@@ -220,7 +225,7 @@ export default function AllMembers() {
   const handleDelete = async () => {
     if (!deleteMember) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/allmembers/${deleteMember._id}`, {
+      const res = await fetchWithCred(`${process.env.NEXT_PUBLIC_API_URL}/api/allmembers/${deleteMember._id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error();
