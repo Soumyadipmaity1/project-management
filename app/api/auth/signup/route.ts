@@ -285,15 +285,21 @@ export async function POST(req: Request) {
     });
 
     await newUser.save();
+    let emailError: string | null = null;
     try {
       await sendOtpEmail(email, otp);
     } catch (emailErr: any) {
       console.error('DEBUG signup: sendOtpEmail failed', emailErr);
-      // Return created status but include warning so frontend can inform user
-      return corsResponse({ message: 'User created but failed to send OTP email', error: String(emailErr) }, 500);
+      emailError = String(emailErr);
     }
 
-    return corsResponse({ message: "User created successfully" }, 201);
+    const responseBody: any = { message: "User created successfully" };
+    if (emailError) {
+      responseBody.warning = "Failed to send OTP email. Please use 'Resend OTP' option.";
+      responseBody.emailError = emailError;
+    }
+
+    return corsResponse(responseBody, 201);
   } catch (error: any) {
     console.error("Signup error:", error);
     return corsResponse({ message: "Internal Server Error" }, 500);
