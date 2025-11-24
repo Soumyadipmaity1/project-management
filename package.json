@@ -64,6 +64,7 @@
     "react-icons": "^5.5.0",
     "react-resizable-panels": "^2.1.9",
     "recharts": "^2.15.3",
+    "sib-api-v3-sdk": "^8.5.0",
     "sonner": "^2.0.3",
     "tailwind-merge": "^3.2.0",
     "vaul": "^1.1.2",
