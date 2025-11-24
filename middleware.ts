@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-const allowedOrigins = ["https://workpilot-f.onrender.com"];
+const allowedOrigins = [process.env.NEXT_PUBLIC_BASE_URL || "https://workpilot-f.onrender.com"];
 
 function buildCorsHeaders(request: NextRequest) {
   const origin = request.headers.get("origin") || allowedOrigins[0];
@@ -18,17 +18,19 @@ function buildCorsHeaders(request: NextRequest) {
 export async function middleware(request: NextRequest) {
   const url = request.nextUrl;
 
-  // Early handle API CORS so API routes (including next-auth) always get the proper headers
+  // Handle CORS for API routes: respond to OPTIONS and attach CORS headers
+  // to all API responses so browsers receive Access-Control-Allow-* headers.
   if (url.pathname.startsWith("/api")) {
     const method = request.method || "GET";
     const corsHeaders = buildCorsHeaders(request);
 
-    // Preflight
     if (method === "OPTIONS") {
       return new NextResponse(null, { status: 204, headers: corsHeaders });
     }
 
-    // For actual API requests, continue but attach the CORS headers in the response
+    // For non-OPTIONS API requests, let the route handler run but ensure
+    // the middleware's response includes CORS headers (these are merged
+    // with the route response headers by Next.js).
     const res = NextResponse.next();
     for (const [k, v] of Object.entries(corsHeaders)) {
       res.headers.set(k, v);

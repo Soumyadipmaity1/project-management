@@ -2,11 +2,11 @@ import { corsResponse, handleOptions } from "@/lib/cors";
 import dbConnect from "@/lib/db";
 import UserModel from "@/model/User";
 // import SibApiV3Sdk from "sib-api-v3-sdk";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 const SibApiV3Sdk = require("sib-api-v3-sdk");
 
-export async function OPTIONS() {
-  return handleOptions();
+export async function OPTIONS(req: NextRequest) {
+  return handleOptions(req);
 }
 
 function getBrevoClient() {

@@ -102,5 +102,41 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 };
 
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+const handler = NextAuth(authOptions) as any;
+
+// CORS helper — mirrors middleware origin handling but usable here
+function buildCorsHeadersFromRequest(req: Request) {
+  const allowedOrigins = [process.env.NEXT_PUBLIC_BASE_URL || 'https://workpilot-f.onrender.com'];
+  const origin = req.headers.get('origin') || allowedOrigins[0];
+  const allowedOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Credentials': 'true',
+  } as Record<string, string>;
+}
+
+export async function OPTIONS(req: Request) {
+  const headers = buildCorsHeadersFromRequest(req);
+  return new Response(null, { status: 204, headers });
+}
+
+export async function GET(req: Request) {
+  // call NextAuth handler and attach CORS headers
+  const resp: Response = await handler(req);
+  const headers = buildCorsHeadersFromRequest(req);
+  for (const [k, v] of Object.entries(headers)) {
+    resp.headers.set(k, v);
+  }
+  return resp;
+}
+
+export async function POST(req: Request) {
+  const resp: Response = await handler(req);
+  const headers = buildCorsHeadersFromRequest(req);
+  for (const [k, v] of Object.entries(headers)) {
+    resp.headers.set(k, v);
+  }
+  return resp;
+}
