@@ -92,3 +92,18 @@ export function handleOptions(req: NextRequest) {
 
   return res;
 }
+
+// export function handleOptions() {
+//   const res = new NextResponse(null, { status: 204 });
+//   // remove any previously set CORS headers to avoid duplicate values
+//   res.headers.delete("Access-Control-Allow-Origin");
+//   res.headers.delete("Access-Control-Allow-Methods");
+//   res.headers.delete("Access-Control-Allow-Headers");
+//   res.headers.delete("Access-Control-Allow-Credentials");
+
+//   res.headers.set("Access-Control-Allow-Origin", allowedOrigins[0]);
+//   res.headers.set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+//   res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+//   res.headers.set("Access-Control-Allow-Credentials", "true");
+//   return res;
+// }

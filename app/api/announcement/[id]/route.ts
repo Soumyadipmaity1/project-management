@@ -100,9 +100,9 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/option";
 import AnnouncementModel, { Announcement } from "@/model/Announcement";
 import { can } from "@/lib/permissions";
 import dbConnect from "@/lib/db";
-
-export async function OPTIONS() {
-  return handleOptions();
+import { NextRequest } from "next/server";
+export async function OPTIONS(req: NextRequest) {
+  return handleOptions(req);
 }
 
 export async function PUT(

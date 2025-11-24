@@ -132,9 +132,9 @@ import RequestModel from "@/model/ProjectRequest";
 import { canRequest } from "@/lib/permissions";
 import ProjectModel from "@/model/Projects";
 import { corsResponse, handleOptions } from "@/lib/cors";
-
-export async function OPTIONS() {
-  return handleOptions();
+import { NextRequest } from "next/server";
+export async function OPTIONS(req: NextRequest) {
+  return handleOptions(req);
 }
 
 export async function GET(req: Request) {

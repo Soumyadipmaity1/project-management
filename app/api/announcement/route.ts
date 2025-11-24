@@ -96,7 +96,7 @@
 
 
 export const dynamic = "force-dynamic";
-
+import { NextRequest } from "next/server";
 import { corsResponse, handleOptions } from "@/lib/cors";
 import dbConnect from "@/lib/db";
 import { getServerSession } from "next-auth";
@@ -104,8 +104,8 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/option";
 import AnnouncementModel from "@/model/Announcement";
 import { can } from "@/lib/permissions";
 
-export async function OPTIONS() {
-  return handleOptions();
+export async function OPTIONS(req: NextRequest) {
+  return handleOptions(req);
 }
 
 export async function GET() {

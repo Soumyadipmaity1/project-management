@@ -14,9 +14,9 @@ import NextAuth from "next-auth/next";
 import { authOptions } from "./option";
 import { handleOptions } from "@/lib/cors";
 
-export async function OPTIONS() {
-  return handleOptions();
+import { NextRequest } from "next/server";
+export async function OPTIONS(req: NextRequest) {
+  return handleOptions(req);
 }
-
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

@@ -7,7 +7,7 @@ import UserModel from "@/model/User";
 import cloudinary from "@/lib/cloudinary";
 // import SibApiV3Sdk from "sib-api-v3-sdk";
 const SibApiV3Sdk = require("sib-api-v3-sdk");
-
+import { NextRequest } from "next/server";
 
 // Initialize Brevo client helper
 function getBrevoClient() {
@@ -17,9 +17,8 @@ function getBrevoClient() {
   }
   return new SibApiV3Sdk.TransactionalEmailsApi();
 }
-
-export async function OPTIONS() {
-  return handleOptions();
+export async function OPTIONS(req: NextRequest) {
+  return handleOptions(req);
 }
 
 // Send OTP via Brevo REST API using fetch

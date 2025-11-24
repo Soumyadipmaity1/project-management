@@ -56,9 +56,9 @@ export const dynamic = "force-dynamic";
 import { corsResponse, handleOptions } from "@/lib/cors";
 import UserModel from "@/model/User";
 import dbConnect from "@/lib/db";
-
-export async function OPTIONS() {
-  return handleOptions();
+import { NextRequest } from "next/server";
+export async function OPTIONS(req: NextRequest) {
+  return handleOptions(req);
 }
 
 export async function POST(req: Request) {
