@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 const allowedOrigins = [
-  "https://workpilot-f.onrender.com", 
+  // "https://workpilot-f.onrender.com", 
   "",
 ];
 
