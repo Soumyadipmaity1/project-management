@@ -462,6 +462,7 @@ async function sendOtpEmail(email: string, otp: string) {
 
     if (!res.ok) {
       const errorData = await res.json();
+        console.log("DEBUG Brevo response error:", errorData);
       throw new Error(JSON.stringify(errorData));
     }
 
