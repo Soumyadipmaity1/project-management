@@ -1,6 +1,9 @@
 import { DefaultSession } from "next-auth";
 import { IUser } from "../../models/User";
 
+declare module "sib-api-v3-sdk";
+
+
 declare module "next-auth" {
   interface User {
     _id?: string;
@@ -56,3 +59,5 @@ declare global {
     }
   }
 }
+
+
