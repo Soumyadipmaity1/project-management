@@ -315,7 +315,8 @@ import dbConnect from "@/lib/db";
 import UserModel from "@/model/User";
 import cloudinary from "@/lib/cloudinary";
 // @ts-ignore: sib-api-v3-sdk has no type declarations
-import SibApiV3Sdk from "sib-api-v3-sdk";
+// import SibApiV3Sdk from "sib-api-v3-sdk";
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 
 export async function OPTIONS() {
   return handleOptions();
