@@ -1,32 +1,40 @@
 import { corsResponse, handleOptions } from "@/lib/cors";
 import dbConnect from "@/lib/db";
 import UserModel from "@/model/User";
-// import SibApiV3Sdk from "sib-api-v3-sdk";
 import { NextResponse, NextRequest } from "next/server";
-const SibApiV3Sdk = require("sib-api-v3-sdk");
 
 export async function OPTIONS(req: NextRequest) {
   return handleOptions(req);
 }
 
-function getBrevoClient() {
-  const client = SibApiV3Sdk.ApiClient.instance;
-  if (process.env.BREVO_API_KEY) {
-    client.authentications["api-key"].apiKey = process.env.BREVO_API_KEY as string;
-  }
-  return new SibApiV3Sdk.TransactionalEmailsApi();
-}
-
+// Send OTP via Brevo REST API using fetch (runtime-only)
 async function sendOtpEmail(email: string, otp: string) {
-  const tranEmailApi = getBrevoClient();
-  const sendSmtpEmail: any = {
-    sender: { name: "WorkPilot", email: process.env.FROM_EMAIL || process.env.SMTP_USER },
+  const apiKey = process.env.BREVO_API_KEY;
+  const senderEmail = process.env.FROM_EMAIL || process.env.SMTP_USER || `no-reply@workpilot.com`;
+  if (!apiKey) throw new Error("Brevo API key missing");
+
+  const payload = {
+    sender: { name: "WorkPilot", email: senderEmail },
     to: [{ email }],
     subject: "Your WorkPilot OTP",
     htmlContent: `<p>Your OTP is <b>${otp}</b>. It expires in 2 minutes.</p>`,
   };
 
-  await tranEmailApi.sendTransacEmail(sendSmtpEmail);
+  const resp = await fetch("https://api.brevo.com/v3/smtp/email", ({
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": apiKey,
+    },
+    body: JSON.stringify(payload),
+  } as any));
+
+  if (!resp.ok) {
+    const text = await resp.text();
+    throw new Error(`Brevo send failed: ${resp.status} ${text}`);
+  }
+
+  return resp.json();
 }
 
 function withCorsJson(body: any, status = 200) {

@@ -5,39 +5,43 @@ import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/db";
 import UserModel from "@/model/User";
 import cloudinary from "@/lib/cloudinary";
-// import SibApiV3Sdk from "sib-api-v3-sdk";
-const SibApiV3Sdk = require("sib-api-v3-sdk");
+
+// Remove SDK import — use fetch to call Brevo REST API at runtime to avoid bundler issues
+
 import { NextRequest } from "next/server";
 
-// Initialize Brevo client helper
-function getBrevoClient() {
-  const client = SibApiV3Sdk.ApiClient.instance;
-  if (process.env.BREVO_API_KEY) {
-    client.authentications["api-key"].apiKey = process.env.BREVO_API_KEY as string;
-  }
-  return new SibApiV3Sdk.TransactionalEmailsApi();
-}
 export async function OPTIONS(req: NextRequest) {
   return handleOptions(req);
 }
 
-// Send OTP via Brevo REST API using fetch
+// Send OTP via Brevo REST API using fetch (runtime-only, avoids bundler issues)
 async function sendOtpEmail(email: string, otp: string) {
-  try {
-    const tranEmailApi = getBrevoClient();
-    const sendSmtpEmail: any = {
-      sender: { name: "WorkPilot", email: process.env.FROM_EMAIL || process.env.SMTP_USER },
-      to: [{ email }],
-      subject: "Your WorkPilot OTP",
-      htmlContent: `<p>Your OTP is <b>${otp}</b>. It expires in 2 minutes.</p>`,
-    };
+  const apiKey = process.env.BREVO_API_KEY;
+  const senderEmail = process.env.FROM_EMAIL || process.env.SMTP_USER || `no-reply@workpilot.com`;
+  if (!apiKey) throw new Error("Brevo API key missing");
 
-    await tranEmailApi.sendTransacEmail(sendSmtpEmail);
-    console.log("DEBUG signup: OTP email sent successfully to", email);
-  } catch (err: any) {
-    console.error("DEBUG signup: Failed to send OTP email:", err);
-    throw err;
+  const payload = {
+    sender: { name: "WorkPilot", email: senderEmail },
+    to: [{ email }],
+    subject: "Your WorkPilot OTP",
+    htmlContent: `<p>Your OTP is <b>${otp}</b>. It expires in 2 minutes.</p>`,
+  };
+
+  const resp = await fetch("https://api.brevo.com/v3/smtp/email", ({
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": apiKey,
+    },
+    body: JSON.stringify(payload),
+  } as any));
+
+  if (!resp.ok) {
+    const text = await resp.text();
+    throw new Error(`Brevo send failed: ${resp.status} ${text}`);
   }
+
+  return resp.json();
 }
 
 export async function POST(req: Request) {

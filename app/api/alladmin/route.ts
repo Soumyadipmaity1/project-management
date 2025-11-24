@@ -2,9 +2,10 @@ import dbConnect from "@/lib/db";
 import UserModel from "@/model/User";
 import { corsResponse, handleOptions } from "@/lib/cors";
 export const dynamic = "force-dynamic";
+import { NextRequest } from "next/server";
 
-export async function OPTIONS() {
-  return handleOptions();
+export async function OPTIONS(req: NextRequest) {
+  return handleOptions(req);
 }
 
 export async function GET() {
