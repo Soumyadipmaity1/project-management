@@ -212,6 +212,7 @@ export async function POST(req: Request) {
     await dbConnect();
 
     const form = await req.formData();
+    console.log('DEBUG signup: received form keys ->', Array.from(form.keys()));
     const name = form.get("name")?.toString();
     const email = form.get("email")?.toString();
     const password = form.get("password")?.toString();
@@ -254,10 +255,16 @@ export async function POST(req: Request) {
     }
 
     const dataurl = `data:${file.type};base64,${buffer.toString("base64")}`;
-    const uploadResult = await cloudinary.uploader.upload(dataurl, {
-      folder: "workpilot/profile_pics",
-      transformation: [{ width: 500, height: 500, crop: "thumb", gravity: "face" }],
-    });
+    let uploadResult: any = null;
+    try {
+      uploadResult = await cloudinary.uploader.upload(dataurl, {
+        folder: "workpilot/profile_pics",
+        transformation: [{ width: 500, height: 500, crop: "thumb", gravity: "face" }],
+      });
+    } catch (uploadErr: any) {
+      console.error('DEBUG signup: cloudinary upload failed', uploadErr);
+      return corsResponse({ message: 'Cloudinary upload failed', error: String(uploadErr) }, 500);
+    }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiry = new Date(Date.now() + 2 * 60 * 1000);
@@ -278,7 +285,13 @@ export async function POST(req: Request) {
     });
 
     await newUser.save();
-    await sendOtpEmail(email, otp);
+    try {
+      await sendOtpEmail(email, otp);
+    } catch (emailErr: any) {
+      console.error('DEBUG signup: sendOtpEmail failed', emailErr);
+      // Return created status but include warning so frontend can inform user
+      return corsResponse({ message: 'User created but failed to send OTP email', error: String(emailErr) }, 500);
+    }
 
     return corsResponse({ message: "User created successfully" }, 201);
   } catch (error: any) {

@@ -93,6 +93,9 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
 
     setLoading(true);
 
+    // Debug: log form state before sending
+    console.log('DEBUG signup: form before submit', { ...form, profilePic: form.profilePic ? form.profilePic.name : null });
+
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) => {
       if (value && key !== "profilePic") formData.append(key, value as string);
@@ -101,8 +104,17 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`, { method: "POST",  body: formData,});
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch (parseErr) {
+        console.error('DEBUG signup: failed to parse JSON response', parseErr);
+      }
+
+      // Debug: log response status and body
+      console.log('DEBUG signup: response status', res.status, 'body', data);
+
+      if (!res.ok) throw new Error(data?.message || `Signup failed with status ${res.status}`);
       toast.success("Account created! Check your email for OTP.");
       setVerified(true);
 
@@ -110,6 +122,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
       setTimeout(() => setResendAvailable(true), 120000);
     } catch (err: any) {
       toast.error(err.message || "Signup failed");
+      console.error('DEBUG signup: request error', err);
     } finally {
       setLoading(false);
     }
@@ -119,21 +132,25 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
     if (!otpInput.trim()) return toast.error("Enter OTP");
     setLoading(true);
     try {
-     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify-otp`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ email: form.email, otp: otpInput }),
-});
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email, otp: otpInput }),
+      });
+
+      const data = await res.json().catch(() => null);
+      console.log("DEBUG verifyOtp: status", res.status, "body", data);
+
+      if (!res.ok) throw new Error(data?.message || `OTP verification failed (${res.status})`);
 
       toast.success("Email verified! Please sign in to continue.");
-      
+
       resetForm();
-      onClose();            
-      setIsSignInOpen(true); 
+      onClose();
+      setIsSignInOpen(true);
     } catch (err: any) {
-      toast.error(err.message || "OTP verification failed");
+      console.error("DEBUG verifyOtp error", err);
+      toast.error(err?.message || "OTP verification failed");
     } finally {
       setLoading(false);
     }
