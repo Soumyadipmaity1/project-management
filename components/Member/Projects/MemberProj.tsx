@@ -30,12 +30,12 @@ export default function ProjectGrid() {
 
         if (activeTab === "enrolled") {
           // Fetch only enrolled projects
-          const res = await fetch(`/api/projects/enrolled`);
+          const res = await fetch(`/api/projects/enrolled`, { credentials: "include" });
           if (!res.ok) throw new Error("Failed to fetch enrolled projects");
           data = await res.json();
         } else {
           // Fetch all other projects
-          const res = await fetch(`/api/projects`);
+          const res = await fetch(`/api/projects`, { credentials: "include" });
           if (!res.ok) throw new Error("Failed to fetch projects");
           data = await res.json();
         }
@@ -46,14 +46,16 @@ export default function ProjectGrid() {
           domain: proj.domain || "Unknown",
           description: proj.description || "No description provided.",
           projectlead:
-            typeof proj.projectlead === "object"
+            proj.projectlead && typeof proj.projectlead === "object"
               ? proj.projectlead.name
               : proj.projectlead || "Not assigned",
           colead:
-            typeof proj.colead === "object"
+            proj.colead && typeof proj.colead === "object"
               ? proj.colead.name
               : proj.colead || "Not assigned",
-          members: proj.members?.length || proj.memberCount || 0,
+          members: Array.isArray(proj.members)
+            ? proj.members.length
+            : proj.memberCount || 0,
           status:
             proj.status ||
             (proj.badge === "completed"
@@ -219,13 +221,17 @@ function ProjectCard({ project }: { project: Project }) {
 
   const handleSendRequest = async () => {
     try {
-      const res = await fetch(`/api/project-requests`, {
+      const res = await fetch(`/api/projects/${project._id}/apply`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ projectId: project._id }),
       });
 
-      if (!res.ok) throw new Error("Request failed");
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || "Request failed");
+      }
 
       toast.success(`Request sent for "${project.title}"`, {
         style: {
@@ -242,7 +248,7 @@ function ProjectCard({ project }: { project: Project }) {
   };
 
   return (
-    <article className="group relative bg-gradient-to-br from-gray-800 via-gray-800 to-gray-900 rounded-2xl shadow-2xl overflow-hidden w-full ring-1 ring-gray-700/50 hover:ring-indigo-500/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1">
+    <article className="group relative bg-linear-to-br from-gray-800 via-gray-800 to-gray-900 rounded-2xl shadow-2xl overflow-hidden w-full ring-1 ring-gray-700/50 hover:ring-indigo-500/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1">
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
       <div className="relative p-6 flex flex-col gap-4">
@@ -260,11 +266,11 @@ function ProjectCard({ project }: { project: Project }) {
           <StatusBadge status={project.status} />
         </div>
 
-        <p className="text-sm text-gray-300/90 leading-relaxed line-clamp-3 min-h-[3.75rem]">
+        <p className="text-sm text-gray-300/90 leading-relaxed line-clamp-3 min-h-15">
           {project.description}
         </p>
 
-        <div className="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
+        <div className="h-px bg-linear-to-r from-transparent via-gray-700 to-transparent" />
 
         <div className="space-y-2.5">
           <TeamInfo label="Project Lead" name={project.projectlead} color="indigo" />
@@ -295,7 +301,7 @@ function ProjectCard({ project }: { project: Project }) {
             className={`group/btn relative flex-1 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-800 overflow-hidden ${
               disabled
                 ? "bg-gray-700/50 text-gray-500 cursor-not-allowed"
-                : "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white hover:from-indigo-500 hover:to-indigo-400 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40"
+                : "bg-linear-to-r from-indigo-600 to-indigo-500 text-white hover:from-indigo-500 hover:to-indigo-400 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40"
             }`}
           >
             <span className="relative flex items-center justify-center gap-2">
@@ -341,7 +347,7 @@ function TeamInfo({
   return (
     <div className="flex items-center gap-2">
       <div
-        className={`w-8 h-8 rounded-full bg-gradient-to-br ${colorClass} flex items-center justify-center text-white text-xs font-bold`}
+        className={`w-8 h-8 rounded-full bg-linear-to-br ${colorClass} flex items-center justify-center text-white text-xs font-bold`}
       >
         {getInitial(name)}
       </div>

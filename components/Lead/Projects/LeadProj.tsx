@@ -54,13 +54,13 @@ function ProjectCard({ project, onView, onDelete, isOwner }: ProjectCardProps) {
       : "bg-gradient-to-r from-slate-500 to-slate-600 text-white shadow-lg shadow-slate-500/30";
 
   const projectLeadName =
-    typeof project.projectlead === "object"
-      ? project.projectlead.name
+    project.projectlead && typeof project.projectlead === "object"
+      ? project.projectlead.name ?? "Unknown"
       : project.projectlead || "Unknown";
 
   const assistantLeadName =
-    typeof project.assistantlead === "object"
-      ? project.assistantlead.name
+    project.assistantlead && typeof project.assistantlead === "object"
+      ? project.assistantlead.name ?? "-"
       : project.assistantlead || "-";
 
   const formattedStart = project.startDate

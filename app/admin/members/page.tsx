@@ -190,10 +190,25 @@ export default function AllMembers() {
     const fetchMembers = async () => {
       try {
         const res = await fetchWithCred(`/api/allmembers`, { cache: "no-store" });
+        if (!res.ok) {
+          const text = await res.text();
+          console.error("Failed to fetch members, status:", res.status, text);
+          toast.error("Failed to fetch members");
+          setMembers([]);
+          return;
+        }
         const data = await res.json();
-        setMembers(data);
-      } catch {
+        if (!Array.isArray(data)) {
+          console.error("Unexpected members response:", data);
+          toast.error("Failed to fetch members");
+          setMembers([]);
+        } else {
+          setMembers(data);
+        }
+      } catch (err) {
+        console.error("Fetch members error:", err);
         toast.error("Failed to fetch members");
+        setMembers([]);
       } finally {
         setLoading(false);
       }
@@ -237,9 +252,11 @@ export default function AllMembers() {
     }
   };
 
-  const filteredMembers = members.filter((m) =>
-    m.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredMembers = Array.isArray(members)
+    ? members.filter((m) =>
+        (m.name || "").toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
 
   if (loading)
     return (

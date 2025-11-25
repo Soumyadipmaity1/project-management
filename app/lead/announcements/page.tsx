@@ -52,7 +52,7 @@ export default function AnnouncementsPage() {
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center text-slate-300">
-        <div className="w-16 h-16 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
+        {/* <div className="w-16 h-16 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div> */}
         <p className="ml-4">Loading announcements...</p>
       </div>
     );
@@ -315,17 +315,11 @@ const AnnouncementCard = ({
   <div className="p-5 bg-slate-800/70 rounded-xl border border-slate-700/40">
     <div className="flex justify-between items-start">
       <div className="flex items-center gap-3">
-        {ann.senderProfilePic ? (
           <img
             src={ann.senderProfilePic}
             alt="Profile"
             className="w-10 h-10 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold">
-            {ann.senderName ? ann.senderName.charAt(0).toUpperCase() : "U"}
-          </div>
-        )}
+        ></img>
         <div>
           <h3 className="text-lg font-semibold">{ann.senderName || "Unknown"}</h3>
           <p className="text-xs text-gray-400">

@@ -217,9 +217,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
   try {
     const project = await ProjectModel.findById(id)
-      .populate("projectlead", "name email role image")
-      .populate("colead", "name email role image")
-      .populate("members", "name email role image")
+      .populate("projectlead", "name email role profilePic")
+      .populate("colead", "name email role profilePic")
+      .populate("members", "name email role profilePic")
       .lean();
 
     if (!project) return errorResponse("Project not found", 404);
