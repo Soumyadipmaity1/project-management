@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 
 interface Announcement {
-  _id: string;
+  _id: string; 
   senderName: string;
   senderProfilePic?: string;
   content: string;

@@ -30,9 +30,9 @@ export default function AnnouncementsPage() {
     const fetchData = async () => {
       try {
         const [announcementsRes, projectsRes, userRes] = await Promise.all([
-          fetchWithCred(`${process.env.NEXT_PUBLIC_API_URL}/api/announcement`, { cache: "no-store" }),
-          fetchWithCred(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`, { cache: "no-store" }),
-          fetchWithCred(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/session`, { cache: "no-store" }),
+          fetchWithCred(`/api/announcement`, { cache: "no-store" }),
+          fetchWithCred(`/api/projects`, { cache: "no-store" }),
+          fetchWithCred(`/api/auth/session`, { cache: "no-store" }),
         ]);
 
         const announcementsData = await announcementsRes.json();
@@ -93,8 +93,8 @@ export default function AnnouncementsPage() {
       };
 
       const url = editingId
-        ? `${process.env.NEXT_PUBLIC_API_URL}/api/announcement/${editingId}`
-        : `${process.env.NEXT_PUBLIC_API_URL}/api/announcement`;
+        ? `/api/announcement/${editingId}`
+        : `/api/announcement`;
       const method = editingId ? "PUT" : "POST";
 
       const res = await fetchWithCred(url, {
@@ -125,7 +125,7 @@ export default function AnnouncementsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this announcement?")) return;
     try {
-      const res = await fetchWithCred(`${process.env.NEXT_PUBLIC_API_URL}/api/announcement/${id}`, { method: "DELETE" });
+      const res = await fetchWithCred(`/api/announcement/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error(await res.text());
       setGroups((prev) => prev.filter((a) => a._id !== id));
     } catch (err) {
@@ -136,7 +136,7 @@ export default function AnnouncementsPage() {
 
   const handlePin = async (id: string) => {
     try {
-      const res = await fetchWithCred(`${process.env.NEXT_PUBLIC_API_URL}/api/announcement/pin`, {
+      const res = await fetchWithCred(`/api/announcement/pin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
@@ -154,7 +154,7 @@ export default function AnnouncementsPage() {
 
   const handleUnpin = async (id: string) => {
     try {
-      const res = await fetchWithCred(`${process.env.NEXT_PUBLIC_API_URL}/api/announcement/unpin`, {
+      const res = await fetchWithCred(`/api/announcement/unpin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
