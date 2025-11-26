@@ -189,11 +189,26 @@ export default function AllMembers() {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const res = await fetchWithCred(`${process.env.NEXT_PUBLIC_API_URL}/api/allmembers`, { cache: "no-store" });
+        const res = await fetchWithCred(`/api/allmembers`, { cache: "no-store" });
+        if (!res.ok) {
+          const text = await res.text();
+          console.error("Failed to fetch members, status:", res.status, text);
+          toast.error("Failed to fetch members");
+          setMembers([]);
+          return;
+        }
         const data = await res.json();
-        setMembers(data);
-      } catch {
+        if (!Array.isArray(data)) {
+          console.error("Unexpected members response:", data);
+          toast.error("Failed to fetch members");
+          setMembers([]);
+        } else {
+          setMembers(data);
+        }
+      } catch (err) {
+        console.error("Fetch members error:", err);
         toast.error("Failed to fetch members");
+        setMembers([]);
       } finally {
         setLoading(false);
       }
@@ -204,7 +219,7 @@ export default function AllMembers() {
   const handlePromote = async (role: string) => {
     if (!promoteMember) return;
     try {
-      const res = await fetchWithCred(`${process.env.NEXT_PUBLIC_API_URL}/api/allmembers/${promoteMember._id}`, {
+      const res = await fetchWithCred(`/api/allmembers/${promoteMember._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role }),
@@ -225,7 +240,7 @@ export default function AllMembers() {
   const handleDelete = async () => {
     if (!deleteMember) return;
     try {
-      const res = await fetchWithCred(`${process.env.NEXT_PUBLIC_API_URL}/api/allmembers/${deleteMember._id}`, {
+      const res = await fetchWithCred(`/api/allmembers/${deleteMember._id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error();
@@ -237,9 +252,11 @@ export default function AllMembers() {
     }
   };
 
-  const filteredMembers = members.filter((m) =>
-    m.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredMembers = Array.isArray(members)
+    ? members.filter((m) =>
+        (m.name || "").toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
 
   if (loading)
     return (

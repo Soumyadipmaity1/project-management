@@ -103,7 +103,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
     if (form.profilePic) formData.append("file", form.profilePic);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`, { method: "POST",  body: formData,});
+      const res = await fetch(`/api/auth/signup`, { method: "POST",  body: formData,});
       let data: any = null;
       try {
         data = await res.json();
@@ -132,7 +132,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
     if (!otpInput.trim()) return toast.error("Enter OTP");
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify-otp`, {
+      const res = await fetch(`/api/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email, otp: otpInput }),
@@ -159,7 +159,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
   const handleResendOtp = async () => {
     setLoading(true);
     try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/resend-otp`, {
+    const res = await fetch(`/api/auth/resend-otp`, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ email: form.email }),

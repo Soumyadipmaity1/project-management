@@ -82,9 +82,9 @@ export async function GET() {
     const myProjects = await ProjectModel.find({
       $or: [{ projectlead: user._id }, { colead: user._id }],
     })
-      .populate("projectlead", "name email")
-      .populate("colead", "name email")
-      .populate("members", "name email")
+      .populate("projectlead", "name email profilePic")
+      .populate("colead", "name email profilePic")
+      .populate("members", "name email profilePic")
       .lean();
 
     const formatted = myProjects.map((p: any) => ({

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 
 interface Announcement {
-  _id: string;
+  _id: string; 
   senderName: string;
   senderProfilePic?: string;
   content: string;
@@ -38,7 +38,7 @@ export default function AnnouncementsPage() {
     return (
       <div className="min-h-screen p-6 flex items-center justify-center">
         <div className="flex items-center space-x-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          {/* <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div> */}
           <p className="text-lg text-gray-300">Loading announcements...</p>
         </div>
       </div>

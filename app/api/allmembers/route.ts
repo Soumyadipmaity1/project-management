@@ -13,7 +13,7 @@ export async function GET() {
     await dbConnect();
 
     const users = await UserModel.find({
-         role: { $ne: ["Admin", "admin"]},
+         role: { $nin: ["Admin", "admin"] },
     })
       .select("name email rollNo role domain profilePic githubId linkedinId projects")
       .populate("projects.projectId", "title") 

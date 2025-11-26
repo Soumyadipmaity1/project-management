@@ -14,7 +14,7 @@ export default function TeamMembers() {
   useEffect(() => {
     const fetchAdmins = async () => {
       try {
-        const res = await fetchWithCred(`${process.env.NEXT_PUBLIC_API_URL}/api/alladmin`, { cache: "no-store" });
+        const res = await fetchWithCred(`/api/alladmin`, { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to fetch admins");
         const data = await res.json();
         setAdmins(data);

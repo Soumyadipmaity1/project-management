@@ -217,6 +217,7 @@ import { authOptions } from "../auth/[...nextauth]/option";
 import { canProject } from "@/lib/permissions";
 import fs from "fs";
 import path from "path";
+import cloudinary from "@/lib/cloudinary";
 import { corsResponse, handleOptions } from "@/lib/cors";
 
 export async function OPTIONS() {
@@ -253,9 +254,9 @@ export async function GET() {
 
     const projects = await ProjectModel.find()
       .sort({ createdAt: -1 })
-      .populate("projectlead", "name email role")
-      .populate("colead", "name email role")
-      .populate("members", "name email role")
+      .populate("projectlead", "name email role profilePic")
+      .populate("colead", "name email role profilePic")
+      .populate("members", "name email role profilePic")
       .lean();
 
     const formatted = projects.map((p: any) => ({
@@ -331,18 +332,37 @@ export async function POST(req: Request) {
       if (!coleadId)
         return corsResponse({ error: "Assistant lead not found" }, 400);
     }
+let imageUrl: string | undefined = undefined;
 
-    let imageUrl: string | undefined = undefined;
-    if (imageFile) {
-      const bytes = await imageFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const fileName = `${Date.now()}-${imageFile.name}`;
-      const uploadDir = path.join(process.cwd(), "public", "uploads");
-      if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-      const filePath = path.join(uploadDir, fileName);
-      await fs.promises.writeFile(filePath, buffer);
-      imageUrl = `/uploads/${fileName}`;
-    }
+if (imageFile) {
+  const buffer = Buffer.from(await imageFile.arrayBuffer());
+
+  if (buffer.length > 5 * 1024 * 1024) {
+    return corsResponse(
+      { error: "Image size exceeds 5MB" }, 
+      400
+    );
+  }
+
+  const dataUrl = `data:${imageFile.type};base64,${buffer.toString("base64")}`;
+
+  try {
+    const uploadResult = await cloudinary.uploader.upload(dataUrl, {
+      folder: "workpilot/project_images",
+      transformation: [
+        { width: 800, height: 600, crop: "fill" }
+      ]
+    });
+
+    imageUrl = uploadResult.secure_url;
+  } catch (err: any) {
+    console.error("Cloudinary upload failed:", err);
+    return corsResponse(
+      { error: "Cloudinary upload failed", details: String(err) },
+      500
+    );
+  }
+}
 
     const startDate = startDateRaw ? new Date(startDateRaw) : new Date();
     const completionDate = completionDateRaw
